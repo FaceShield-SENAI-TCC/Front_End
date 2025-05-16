@@ -2,7 +2,7 @@
     --primary-color: #00E0FF;
     --secondary-color: #1A2634;
     --accent-color: #FF4D7D;
-    --background-gradient: linear-gradient(10deg, #00B4D8 1%, #2D3748 50%);
+    --background-gradient: linear-gradient(45deg, #00B4D8 1%, #2D3748 50%);
   }
 
   .auth-container {

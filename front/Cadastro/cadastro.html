@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FaceShield - Cadastro</title>
+    <link rel="stylesheet" href="../Cadastro/CSS/CssCadastro.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="auth-container">
+    
+    
+    <div class="page-header">
+        <img class="header-image" src="../Recursos/LogoFaceShield.png" alt="Logo FaceShield">
+        <h1 class="main-title">Cadastro do Aluno</h1>
+    </div>
+
+    <div class="registration-wrapper">
+        <form class="registration-form">
+            <div class="form-grid">
+                <div class="input-group floating-label">
+                    <input type="text" id="nome" required>
+                    <label for="nome">Nome</label>
+                    <div class="input-border"></div>
+                    <span class="validation-icon"></span>
+                </div>
+
+                <div class="input-group floating-label">
+                    <input type="text" id="sobrenome" required>
+                    <label for="sobrenome">Sobrenome</label>
+                    <div class="input-border"></div>
+                    <span class="validation-icon"></span>
+                </div>
+
+                <div class="input-group floating-label">
+                    <input type="text" id="turma" required>
+                    <label for="turma">Turma</label>
+                    <div class="input-border"></div>
+                    <span class="validation-icon"></span>
+                </div>
+            </div>
+
+            <div class="biometric-section">
+                <div class="face-scan-widget">
+                    <div class="scan-animation-overlay"></div>
+                    <div class="scanning-line-effect"></div>
+                    <div class="upload-instruction">Clique para captura biométrica</div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="glowing-button pulse">
+                    <span class="button-text">Cadastrar</span>
+                    <div class="button-loader"></div>
+                </button>
+                <a href="../index.html" class="glowing-button secondary-button">
+                    Voltar
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
