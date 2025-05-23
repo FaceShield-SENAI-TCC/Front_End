@@ -1,14 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="CSS/Logincss.css">
-    <script src="JS/Loginjs.js" defer></script>
-    <title>Entrar</title>
-    
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Entrar</title>
+  <link rel="stylesheet" href="/front/Login/CSS/Logincss.css" />
 </head>
 <body>
     
+    <main class="main-content">
+     <h1>Login com Reconhecimento Facial</h1>
+    
+     <div class="face-scan-widget">
+      <video id="video" autoplay playsinline muted></video>
+      <div class="scan-animation-overlay"></div>
+    </div>
+    
+    <p id="mensagem">Aguardando reconhecimento...</p>
+  </main>
+
+  
+  <script src="JS/Loginjs.js" defer></script>
+
 </body>
 </html>

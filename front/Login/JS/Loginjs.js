@@ -1,13 +1,15 @@
-async function pedirPermissaoCamera() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      const video = document.getElementById('video');
-      video.srcObject = stream;
-      console.log('Permissão concedida. Câmera ativada.');
-    } catch (erro) {
-      console.error('Erro ao acessar a câmera:', erro);
-      alert('Você precisa permitir o uso da câmera para continuar.');
-    }
-  }
+const video = document.getElementById('video');
+const mensagem = document.getElementById('mensagem');
 
-  pedirPermissaoCamera();
+async function iniciarCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = stream;
+    mensagem.textContent = 'Câmera ativada, aguardando reconhecimento...';
+  } catch (error) {
+    mensagem.textContent = 'Não foi possível ativar a câmera.';
+    console.error('Erro ao acessar câmera:', error);
+  }
+}
+
+iniciarCamera();

@@ -1,0 +1,131 @@
+:root {
+    --primary-color: #00E0FF;        /* Neon azul claro */
+    --secondary-color: #0F172A;      /* Azul escuro */
+    --background-gradient: linear-gradient(135deg, #00141F 0%, #0F172A 40%, #1E293B 100%);
+    --neon-shadow: 0 0 15px var(--primary-color);
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--background-gradient);
+    color: white;
+    overflow-x: hidden;
+    position: relative;
+    padding: 2rem;
+  }
+  
+  .decorative-border {
+    position: fixed;
+    pointer-events: none;
+    border: 2px solid var(--primary-color);
+    box-shadow: var(--neon-shadow);
+    opacity: 0.3;
+    top: 20px;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    border-radius: 10px;
+    z-index: -1;
+  }
+  
+  .main-content {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .face-scan-widget {
+    width: 250%;
+    height: 250%;
+    object-fit: cover;
+    display: block;
+    transform: scaleX(-1);  /* ESPELHAR HORIZONTAL */
+    border-radius: 50%; /* círculo perfeito */
+    border: 3px solid var(--primary-color);
+    box-shadow: 0 0 20px var(--primary-color);
+    background: var(--secondary-color);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease;
+    margin-bottom: 1.5rem;
+  }
+  
+  
+  /* O vídeo da webcam preenchendo o container circular */
+  .face-scan-widget video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+  }
+  
+  .scanning-line-effect {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        var(--primary-color) 50%,
+        transparent 100%);
+    filter: drop-shadow(0 0 5px var(--primary-color));
+    animation: scan-line 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    pointer-events: none;
+  }
+  
+  .upload-instruction {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-align: center;
+    animation: pulse-text 2s infinite;
+    user-select: none;
+  }
+  
+  @keyframes scan-line {
+    0% { top: 0; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+  
+  @keyframes scan-grid {
+    0% { background-position: 0 0; }
+    100% { background-position: 100px 100px; }
+  }
+  
+  @keyframes pulse-text {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+  
+  @media (max-width: 480px) {
+    .face-scan-widget {
+      width: 220px;
+      height: 220px;
+    }
+  
+    .main-content {
+      max-width: 90%;
+      padding: 1rem;
+    }
+  }
+  
