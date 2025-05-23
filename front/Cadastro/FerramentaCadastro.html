@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scanner Full Screen</title>
+    <style>
+        :root {
+            --scanner-width: 80vw;
+            --scanner-height: 60vh;
+            --laser-color: #00ff00;
+        
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: black;
+        }
+
+        .scanner-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform: scalex(-1);
+        }
+
+        #cameraPreview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .scan-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--overlay-color);
+            clip-path: polygon(
+                0 0,
+                100% 0,
+                100% 100%,
+                0 100%,
+                0 0,
+                5% calc(50% - var(--scanner-height)/2),
+                calc(100% - 5%) calc(50% - var(--scanner-height)/2),
+                calc(100% - 5%) calc(50% + var(--scanner-height)/2),
+                5% calc(50% + var(--scanner-height)/2)
+            );
+        }
+
+        .laser {
+            position: fixed;
+            width: var(--scanner-width);
+            height: 2px;
+            background: var(--laser-color);
+            box-shadow: 0 0 15px var(--laser-color);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: scan 3s infinite;
+        }
+
+        @keyframes scan {
+            0%, 100% { top: 20%; }
+            50% { top: 80%; }
+        }
+
+        .scan-frame {
+            position: fixed;
+            width: var(--scanner-width);
+            height: var(--scanner-height);
+            border: 2px solid var(--laser-color);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="scanner-container">
+        <video id="cameraPreview"></video>
+        <div class="scan-overlay"></div>
+        <div class="laser"></div>
+        <div class="scan-frame"></div>
+    </div>
+
+    <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+    <script>
+        let scanner = new Instascan.Scanner({
+            video: document.getElementById('cameraPreview'),
+            mirror: false
+        });
+
+        scanner.addListener('scan', function(content) {
+            console.log('QR Code detectado:', content);
+            // Adicione aqui a lógica de tratamento do QR Code
+        });
+
+        // Iniciar a câmera traseira por padrão
+        Instascan.Camera.getCameras().then(function(cameras) {
+            if (cameras.length > 0) {
+                const backCamera = cameras.find(c => c.name.toLowerCase().includes('back')) || cameras[0];
+                scanner.start(backCamera);
+            } else {
+                console.error('Nenhuma câmera encontrada!');
+            }
+        });
+
+        // Ajustar dinamicamente o tamanho da área de escaneamento
+        function updateScannerSize() {
+            const aspectRatio = 16/9;
+            const width = window.innerWidth * 0.8;
+            const height = width / aspectRatio;
+            
+            document.documentElement.style.setProperty('--scanner-width', `${width}px`);
+            document.documentElement.style.setProperty('--scanner-height', `${height}px`);
+        }
+
+        window.addEventListener('resize', updateScannerSize);
+        updateScannerSize();
+    </script>
+</body>
+</html>
