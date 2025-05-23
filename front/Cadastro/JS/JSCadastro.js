@@ -96,3 +96,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2500);
     }
 });
+
+const form = document.getElementById('cadastroForm');
+const feedback = document.getElementById('feedback');
+
+form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    const campos = ['nome', 'sobrenome', 'turma', 'username', 'senha'];
+    const tipoUsuario = document.getElementById('tipoUsuario').value;
+    const invalidos = [];
+
+    campos.forEach(id => {
+        const campo = document.getElementById(id);
+        if (!campo.value.trim()) {
+            invalidos.push(id);
+            campo.classList.add('input-error');
+        } else {
+            campo.classList.remove('input-error');
+        }
+    });
+
+    if (!tipoUsuario) {
+        showFeedback('error', 'Selecione o tipo de usuário');
+        return;
+    }
+
+    if (invalidos.length > 0) {
+        showFeedback('error', 'Por favor, preencha todos os campos.');
+        return;
+    }
+
+    // Aqui você pode salvar os dados no banco de dados ou enviar para API
+
+    showFeedback('success', 'Cadastro realizado com sucesso!');
+
+    setTimeout(() => {
+        if (tipoUsuario === 'professor') {
+            window.location.href = 'historico.html';
+        } else {
+            window.location.href = '../index.html';
+        }
+    }, 1500);
+});
+
+function showFeedback(tipo, mensagem) {
+    feedback.textContent = mensagem;
+    feedback.className = 'feedback ' + tipo;
+    feedback.style.display = 'block';
+    setTimeout(() => {
+        feedback.style.display = 'none';
+    }, 3000);
+}

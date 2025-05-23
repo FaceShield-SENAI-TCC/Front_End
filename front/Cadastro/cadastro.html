@@ -1,23 +1,24 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FaceShield - Cadastro</title>
-    <link rel="stylesheet" href="../Cadastro/CSS/CssCadastro.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <title>Cadastro</title>
+    <link rel="stylesheet" href="CSS/CssCadastro.css">
 </head>
-<body class="auth-container">
-    
-    
-    <div class="page-header">
-        <img class="header-image" src="../Recursos/LogoFaceShield.png" alt="Logo FaceShield">
-        <h1 class="main-title">Cadastro do Aluno</h1>
+<body>
+    <div class="background">
+        <div class="background-image"></div>
+        <div class="background-overlay"></div>
     </div>
 
-    <div class="registration-wrapper">
-        <form class="registration-form">
-            <div class="form-grid">
+    <main class="main-content">
+        <div class="logo-container">
+            <img src="../Recursos/LogoFaceShield.png" alt="Logo da Empresa" class="logo">
+        </div>
+
+        <div class="form-container">
+            <form id="cadastroForm" class="form-grid">
                 <div class="input-group floating-label">
                     <input type="text" id="nome" required>
                     <label for="nome">Nome</label>
@@ -38,32 +39,34 @@
                     <div class="input-border"></div>
                     <span class="validation-icon"></span>
                 </div>
-            </div>
 
-            <div class="biometric-section">
-                <div class="face-scan-widget">
-                    <div class="scan-animation-overlay"></div>
-                    <div class="scanning-line-effect"></div>
-                    
+                <div class="input-group floating-label">
+                    <input type="text" id="username" required>
+                    <label for="username">Nome de Usuário</label>
+                    <div class="input-border"></div>
+                    <span class="validation-icon"></span>
                 </div>
-            </div>
 
-            <div class="form-actions">
-                <button type="submit" class="glowing-button pulse">
-                    <span class="button-text">Cadastrar</span>
-                    <div class="button-loader"></div>
-                </button>
-                <a href="../index.html" class="glowing-button secondary-button">
-                    Voltar
-                </a>
-            </div>
-        </form>
-    </div>
+                <div class="input-group floating-label">
+                    <input type="password" id="senha" required>
+                    <label for="senha">Senha</label>
+                    <div class="input-border"></div>
+                    <span class="validation-icon"></span>
+                </div>
 
-    <div class="loading-overlay">
-        <div class="loading-spinner"></div>
-    </div>
+                <div class="input-group floating-label">
+                    <select id="tipoUsuario" required style="background: rgba(30, 41, 59, 0.3); color: white; padding: 1.2rem; border-radius: 8px; border: 1px solid rgba(0, 224, 255, 0.3); font-size: 1.1rem;">
+                        <option value="" disabled selected>Selecione o tipo de usuário</option>
+                        <option value="aluno">Aluno</option>
+                        <option value="professor">Professor</option>
+                    </select>
+                </div>
 
-    <script src="script.js"></script>
+                <button type="submit" class="botao">Cadastrar</button>
+            </form>
+        </div>
+    </main>
+
+    <div id="feedback" class="feedback"></div>
 </body>
 </html>
