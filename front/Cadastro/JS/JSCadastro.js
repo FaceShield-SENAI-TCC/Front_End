@@ -10,17 +10,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const senhaInput = document.getElementById('senha');
         let isScanning = false;
 
-        // Mostrar ou esconder o campo de Nome de Usuário com base na seleção
+        // Mostrar ou esconder o campo de Nome de Usuário e Senha com base na seleção
         function toggleUsernameField() {
-            const isProfessor = tipoUsuarioSelect.value === 'professor';
-        
-            usernameGroup.style.display = isProfessor ? 'block' : 'none';
-            usernameInput.required = isProfessor;
-            if (!isProfessor) usernameInput.value = '';
-        
-            senhaGroup.style.display = isProfessor ? 'block' : 'none';
-            senhaInput.required = isProfessor;
-            if (!isProfessor) senhaInput.value = '';
+                const isProfessor = tipoUsuarioSelect.value === 'professor';
+
+                setTimeout(() => {
+            
+                usernameGroup.classList.toggle('hidden', !isProfessor);
+                senhaGroup.classList.toggle('hidden', !isProfessor);
+
+                senhaInput.required = isProfessor;
+                
+                if (!isProfessor) {
+                    usernameInput.value = '';
+                    senhaInput.value = '';
+                }
+            }, 300);
         }
         
         // Chamar quando o select mudar
@@ -32,17 +37,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Validação em Tempo Real
+        function validarCampo(input) {
+        const parent = input.parentElement;
+        if (input.checkValidity()) {
+            parent.classList.add('valid');
+            parent.classList.remove('invalid');
+        } else {
+            parent.classList.add('invalid');
+            parent.classList.remove('valid');
+        }
+        }
+
         document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', () => {
-                const parent = input.parentElement;
-                if (input.checkValidity()) {
-                    parent.classList.add('valid');
-                    parent.classList.remove('invalid');
-                } else {
-                    parent.classList.add('invalid');
-                    parent.classList.remove('valid');
-                }
-            });
+        input.addEventListener('input', () => validarCampo(input));
         });
 
         // Simulação da Captura Biométrica
@@ -77,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             feedback.textContent = mensagem;
             feedback.className = 'feedback ' + tipo;
             feedback.style.display = 'block';
+
             setTimeout(() => {
                 feedback.style.display = 'none';
             }, 3000);
@@ -96,11 +104,25 @@ document.addEventListener('DOMContentLoaded', () => {
             
             campos.forEach(id => {
                 const campo = document.getElementById(id);
+                const erroMensagem = campo.parentElement.querySelector('.error-message'); // Buscar mensagem de erro, se existir
+
                 if (!campo.value.trim()) {
                     invalidos.push(id);
                     campo.classList.add('input-error');
+
+                     // Se não tiver uma mensagem de erro, criar uma nova
+                    if (!erroMensagem) {
+                        const errorElement = document.createElement('div');
+                        errorElement.classList.add('error-message');
+                        errorElement.textContent = 'Este campo é obrigatório.'; // Mensagem genérica
+                        campo.parentElement.appendChild(errorElement);
+                    }
                 } else {
                     campo.classList.remove('input-error');
+                    // Remover a mensagem de erro se o campo for preenchido corretamente
+                    if (erroMensagem) {
+                        erroMensagem.remove();
+                    }
                 }
             });
 

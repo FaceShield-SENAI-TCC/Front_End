@@ -24,8 +24,6 @@ body {
     position: relative;
 }
 
-
-
 .decorative-border {
     position: fixed;
     pointer-events: none;
@@ -37,6 +35,14 @@ body {
     left: 20px;
     right: 20px;
     border-radius: 10px;
+}
+
+.hidden {
+    display: none;
+}
+
+#username-group {
+    display: none;
 }
 
 .page-header {
@@ -261,7 +267,7 @@ body {
     justify-content:right;
 
     margin-top: 20px;
-  }
+}
   
   .buttonVoltar {
     text-decoration: none;
@@ -270,7 +276,15 @@ body {
     padding: 10px 20px;
     border-radius: 5px;
     font-weight: bold;
-  }
+}
+
+  
+.error-message { /* Estilos para a mensagem de erro abaixo dos campos */
+    color: #FF4D7D;
+    font-size: 12px;
+    margin-top: 5px;
+    font-weight: bold;
+}
 
 @keyframes bg-movement {
     0% { transform: rotate(0deg); }
@@ -338,24 +352,6 @@ body {
 .input-group select option {
     background: #0F172A;
     color: white;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Poppins', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: var(--background-gradient);
-    color: white;
-    overflow-x: hidden;
-    position: relative;
 }
 
 .decorative-border {
