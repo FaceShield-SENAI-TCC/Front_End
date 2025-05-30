@@ -281,14 +281,14 @@ body {
     to { transform: rotate(360deg); }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 480px) {
     .main-title {
         font-size: 2rem;
     }
 
     .face-scan-widget {
-        width: 220px;
-        height: 220px;
+        width: 180px;
+        height: 180px;
     }
 
     
@@ -321,14 +321,6 @@ body {
 .input-group select option {
     background: #0F172A;
     color: white;
-}
-
-:root {
-    --primary-color: #00E0FF;
-    --secondary-color: #0F172A;
-    --accent-color: #FF4D7D;
-    --background-gradient: linear-gradient(135deg, #00141F 0%, #0F172A 40%, #1E293B 100%);
-    --neon-shadow: 0 0 15px var(--primary-color);
 }
 
 * {
@@ -534,4 +526,19 @@ body {
     .logo {
         width: 120px;
     }
+}
+
+.input-error {
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 8px var(--accent-color);
+}
+
+.input-group.valid input {
+    border-color: #00ffae;
+    box-shadow: 0 0 8px #00ffae;
+}
+
+.input-group.invalid input {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 8px var(--accent-color);
 }

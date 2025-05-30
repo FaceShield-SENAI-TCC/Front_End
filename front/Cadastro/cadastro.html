@@ -20,46 +20,51 @@
         <div class="form-container">
             <form id="cadastroForm" class="form-grid">
                 <div class="input-group floating-label">
-                    <input type="text" id="nome" required>
+                    <input type="text" id="nome" name="nome" required>
                     <label for="nome">Nome</label>
                     <div class="input-border"></div>
                     <span class="validation-icon"></span>
                 </div>
 
                 <div class="input-group floating-label">
-                    <input type="text" id="sobrenome" required>
+                    <input type="text" id="sobrenome" name="sobrenome" required>
                     <label for="sobrenome">Sobrenome</label>
                     <div class="input-border"></div>
                     <span class="validation-icon"></span>
                 </div>
 
                 <div class="input-group floating-label">
-                    <input type="text" id="turma" required>
+                    <input type="text" id="turma" name="turma" required>
                     <label for="turma">Turma</label>
                     <div class="input-border"></div>
                     <span class="validation-icon"></span>
                 </div>
 
-                <div class="input-group floating-label">
-                    <input type="text" id="username" required>
+                <div class="input-group floating-label" id="username-group" style="display: none;">
+                    <input type="text" id="username" name="username">
                     <label for="username">Nome de Usuário</label>
                     <div class="input-border"></div>
                     <span class="validation-icon"></span>
                 </div>
 
-                <div class="input-group floating-label">
-                    <input type="password" id="senha" required>
+                <div class="input-group floating-label" id="senha-group" style="display: none;">
+                    <input type="password" id="senha" name="senha">
                     <label for="senha">Senha</label>
                     <div class="input-border"></div>
                     <span class="validation-icon"></span>
                 </div>
 
                 <div class="input-group floating-label">
-                    <select id="tipoUsuario" required style="background: rgba(30, 41, 59, 0.3); color: white; padding: 1.2rem; border-radius: 8px; border: 1px solid rgba(0, 224, 255, 0.3); font-size: 1.1rem;">
+                    <select id="tipoUsuario" name="tipoUsuario" required style="background: rgba(30, 41, 59, 0.3); color: white; padding: 1.2rem; border-radius: 8px; border: 1px solid rgba(0, 224, 255, 0.3); font-size: 1.1rem;">
                         <option value="" disabled selected>Selecione o tipo de usuário</option>
                         <option value="aluno">Aluno</option>
                         <option value="professor">Professor</option>
                     </select>
+                </div>
+
+                 <!-- Widget de Captura Biométrica -->
+                 <div class="face-scan-widget" style="cursor: pointer; text-align: center; padding: 1rem; border: 2px dashed rgba(0, 224, 255, 0.4); border-radius: 8px; color: white;">
+                    <p class="upload-instruction">Clique para captura biométrica</p>
                 </div>
 
                 <button type="submit" class="botao">Cadastrar</button>
@@ -67,6 +72,7 @@
         </div>
     </main>
 
+    <!-- Feedback -->
     <div id="feedback" class="feedback"></div>
 </body>
 </html>
