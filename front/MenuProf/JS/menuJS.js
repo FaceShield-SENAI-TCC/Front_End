@@ -1,4 +1,4 @@
- document.addEventListener('DOMContentLoaded', () => {
+ /*document.addEventListener('DOMContentLoaded', () => {
             // Elementos do menu
             const alunosBtn = document.getElementById('alunos');
             const emprestimosBtn = document.getElementById('emprestimos');
@@ -21,7 +21,7 @@
             });
 
             locaisBtn.addEventListener('click', () => {
-                window.location.href = 'locais.html'; // Locais de empréstimo
+                window.location.href = 'C:\Users\Aluno\Desktop\Front_End\front\Locais\local.html'; // Locais de empréstimo
             });
 
             novoEmprestimoBtn.addEventListener('click', () => {
@@ -37,7 +37,11 @@
             });
 
             // Verifica se o usuário está autenticado
-            if(!localStorage.getItem('authToken')) {
+          if(!localStorage.getItem('authToken')) {
                 window.location.href = '../Login/LoginProfessor.html';
             }
         });
+
+        */
+
+

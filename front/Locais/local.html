@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Locais de Empréstimo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="js/LocalJS.JS" defer></script>
+  <link rel="stylesheet" href="CSS/Local.css">
+  
+</head>
+<body>
+  <div class="header">
+    <h1>Locais de Empréstimo</h1>
+  </div>
+
+  <div class="container">
+    <a href="../MenuProf/Menu.html" class="back-btn">Voltar ao Menu</a>
+    <button class="add-local-btn" id="add-local">Adicionar Local</button>
+    <input type="text" class="search-input" id="search" placeholder="Buscar local...">
+    <div class="locais-grid" id="locais-container"></div>
+  </div>
+
+  <button class="logout-btn" id="logout">Sair</button>
+
+</body>
+</html>
