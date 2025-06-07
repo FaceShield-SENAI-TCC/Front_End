@@ -86,12 +86,6 @@ body {
     box-shadow: 0 0 10px var(--primary-color);
 }
 
-.nome-filter {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 20px;
-}
-
 .nome-filter label {
     font-size: 1rem;
     color: var(--primary-color);
@@ -100,6 +94,7 @@ body {
 }
 
 .nome-filter input {
+    width: 83.8%;
     padding: 10px 15px;
     background: rgba(30, 41, 59, 0.3);
     border: 1px solid rgba(0, 224, 255, 0.3);
@@ -258,6 +253,7 @@ body {
     font-weight: 600;
     box-shadow: 0 0 15px rgba(255, 77, 125, 0.5);
     transition: all 0.3s;
+    text-decoration: none;
 }
 
 .logout-btn:hover {
