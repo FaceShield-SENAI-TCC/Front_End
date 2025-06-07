@@ -18,8 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
                 usernameGroup.classList.toggle('hidden', !isProfessor);
                 senhaGroup.classList.toggle('hidden', !isProfessor);
-
                 senhaInput.required = isProfessor;
+                usernameInput.required = isProfessor;
                 
                 if (!isProfessor) {
                     usernameInput.value = '';

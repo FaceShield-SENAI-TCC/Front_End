@@ -41,8 +41,9 @@ body {
     display: none;
 }
 
-#username-group {
-    display: none;
+#username-group, #senha-group {
+    transition: all 0.3s ease;
+    overflow: hidden;
 }
 
 .page-header {
