@@ -1,0 +1,317 @@
+:root {
+    --primary-color: #00E0FF;
+    --secondary-color: #0F172A;
+    --accent-color: #FF4D7D;
+    --background-gradient: linear-gradient(135deg, #00141F 0%, #0F172A 40%, #1E293B 100%);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    background: var(--background-gradient);
+    color: white;
+    overflow-x: hidden;
+    position: relative;
+}
+
+.decorative-border {
+    position: fixed;
+    pointer-events: none;
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 0 15px var(--primary-color);
+    opacity: 0.3;
+    top: 20px;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    border-radius: 10px;
+}
+
+.header {
+    text-align: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--primary-color);
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    margin: 1rem 0;
+    text-shadow: 0 0 10px rgba(0, 224, 255, 0.5);
+}
+
+.container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 10px;
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 0 15px rgba(0, 224, 255, 0.3);
+}
+
+.turma-selector {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    align-items: center;
+}
+
+.turma-selector label {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.turma-selector select {
+    flex-grow: 1;
+    padding: 12px 15px;
+    background: rgba(30, 41, 59, 0.3);
+    border: 1px solid rgba(0, 224, 255, 0.3);
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.turma-selector select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px var(--primary-color);
+}
+
+.nome-filter {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.nome-filter label {
+    font-size: 1rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.nome-filter input {
+    padding: 10px 15px;
+    background: rgba(30, 41, 59, 0.3);
+    border: 1px solid rgba(0, 224, 255, 0.3);
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.nome-filter input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px var(--primary-color);
+}
+
+
+.alunos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.aluno-card {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(0, 224, 255, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.aluno-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 15px rgba(0, 224, 255, 0.3);
+    transform: translateY(-5px);
+}
+
+.aluno-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--primary-color);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+}
+
+.aluno-card:hover::before {
+    transform: scaleX(1);
+}
+
+.aluno-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.aluno-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, var(--primary-color), #0077b6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+.aluno-info h3 {
+    font-size: 1.3rem;
+    margin-bottom: 5px;
+    color: var(--primary-color);
+}
+
+.aluno-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 3px;
+}
+
+.detail-value {
+    font-size: 1.05rem;
+    font-weight: 500;
+}
+
+.biometria-status {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 5px 10px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+}
+
+.biometria-ativa {
+    background: rgba(46, 204, 113, 0.2);
+    border: 1px solid #2ecc71;
+    color: #2ecc71;
+}
+
+.biometria-inativa {
+    background: rgba(231, 76, 60, 0.2);
+    border: 1px solid #e74c3c;
+    color: #e74c3c;
+}
+
+.back-btn {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 10px 25px;
+    background: rgba(0, 224, 255, 0.15);
+    border: 1px solid var(--primary-color);
+    border-radius: 50px;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.back-btn:hover {
+    background: rgba(0, 224, 255, 0.3);
+    box-shadow: 0 0 15px var(--primary-color);
+    transform: translateY(-3px);
+}
+
+.logout-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 0 15px rgba(255, 77, 125, 0.5);
+    transition: all 0.3s;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 77, 125, 0.8);
+    box-shadow: 0 0 25px var(--accent-color);
+    transform: translateY(-3px);
+}
+
+.no-results {
+    text-align: center;
+    padding: 40px 20px;
+    grid-column: 1 / -1;
+}
+
+.no-results i {
+    font-size: 3rem;
+    color: rgba(255, 255, 255, 0.2);
+    margin-bottom: 15px;
+    display: block;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px 20px;
+    grid-column: 1 / -1;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0, 224, 255, 0.3);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 768px) {
+    .alunos-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .turma-selector {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .turma-selector select {
+        width: 100%;
+    }
+}
