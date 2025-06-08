@@ -1,142 +1,103 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const turmaSelect = document.getElementById('turma-select');
-    const alunosContainer = document.getElementById('alunos-container');
-    const logoutBtn = document.getElementById('logout');
-    const nomeInput = document.getElementById('nome-input');
+let students = [
+            { 
+                id: 1, 
+                firstName: "Carlos", 
+                lastName: "Silva", 
+                class: "1º Oficina Industrial"
+            },
+            { 
+                id: 2, 
+                firstName: "Ana", 
+                lastName: "Souza", 
+                class: "2º Oficina"
+            },
+            { 
+                id: 3, 
+                firstName: "Mariana", 
+                lastName: "Costa", 
+                class: "1º Oficina Industrial"
+            },
+            { 
+                id: 4, 
+                firstName: "Pedro", 
+                lastName: "Santos", 
+                class: "2º Oficina"
+            }
+        ];
 
-    let alunosDaTurma = [];
+        // Função para carregar alunos na tabela
+        function loadStudentsTable(studentsArray = students) {
+            const tableBody = document.getElementById('students-table-body');
+            tableBody.innerHTML = '';
 
-    async function carregarTurmas() {
-        try {
-            const response = await axios.get('https://sua-api.com/turmas', {
-                headers: {
-                    'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+            studentsArray.forEach(student => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.id}</td>
+                    <td>${student.firstName}</td>
+                    <td>${student.lastName}</td>
+                    <td>${student.class}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Função de pesquisa
+        function searchStudents() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const filteredStudents = students.filter(student => 
+                student.firstName.toLowerCase().includes(searchTerm) ||
+                student.lastName.toLowerCase().includes(searchTerm) ||
+                student.class.toLowerCase().includes(searchTerm)
+            );
+            loadStudentsTable(filteredStudents);
+        }
+
+        // Funções do modal
+        function openAddStudentModal() {
+            document.getElementById('student-form').reset();
+            document.getElementById('student-id').value = '';
+            document.getElementById('modal-title').textContent = 'Adicionar Novo Aluno';
+            document.getElementById('student-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('student-modal').style.display = 'none';
+        }
+
+        function saveStudent() {
+            const studentId = document.getElementById('student-id').value;
+            const firstName = document.getElementById('first-name').value;
+            const lastName = document.getElementById('last-name').value;
+            const studentClass = document.getElementById('class').value;
+
+            if (studentId) {
+                // Atualizar aluno existente
+                const index = students.findIndex(s => s.id == studentId);
+                if (index !== -1) {
+                    students[index] = {
+                        ...students[index],
+                        firstName,
+                        lastName,
+                        class: studentClass
+                    };
                 }
-            });
-            turmaSelect.innerHTML = '<option value="">Selecione uma turma</option>';
-            response.data.forEach(turma => {
-                const option = document.createElement('option');
-                option.value = turma.id;
-                option.textContent = turma.nome;
-                turmaSelect.appendChild(option);
-            });
-        } catch (error) {
-            console.error('Erro ao carregar turmas:', error);
-            turmaSelect.innerHTML = '<option value="">Erro ao carregar turmas</option>';
-        }
-    }
+            } else {
+                // Adicionar novo aluno
+                const newId = students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1;
+                students.push({
+                    id: newId,
+                    firstName,
+                    lastName,
+                    class: studentClass
+                });
+            }
 
-    async function carregarAlunos(turmaId) {
-        alunosContainer.innerHTML = `
-            <div class="loading">
-                <div class="loading-spinner"></div>
-                <p>Carregando alunos...</p>
-            </div>
-        `;
-        try {
-            const response = await axios.get(`https://sua-api.com/alunos?turma=${turmaId}`, {
-                headers: {
-                    'Authorization': 'Bearer ' + localStorage.getItem('authToken')
-                }
-            });
-
-            alunosDaTurma = response.data;
-            filtrarEExibirAlunos();
-
-        } catch (error) {
-            console.error('Erro ao carregar alunos:', error);
-            alunosContainer.innerHTML = `
-                <div class="no-results">
-                    <i>⚠️</i>
-                    <h3>Erro ao carregar alunos</h3>
-                    <p>Tente novamente mais tarde</p>
-                </div>
-            `;
-        }
-    }
-
-    function filtrarEExibirAlunos() {
-        const termo = nomeInput.value.trim().toLowerCase();
-        const alunosFiltrados = alunosDaTurma.filter(aluno =>
-            aluno.nome.toLowerCase().includes(termo) ||
-            aluno.sobrenome?.toLowerCase().includes(termo)
-        );
-
-        if (alunosFiltrados.length === 0) {
-            alunosContainer.innerHTML = `
-                <div class="no-results">
-                    <i>📭</i>
-                    <h3>Nenhum aluno encontrado</h3>
-                    <p>Verifique o nome ou selecione outra turma</p>
-                </div>
-            `;
-            return;
+            loadStudentsTable();
+            closeModal();
         }
 
-        alunosContainer.innerHTML = '';
-        alunosFiltrados.forEach(aluno => {
-            const primeiraLetra = aluno.nome.charAt(0).toUpperCase();
-            const alunoCard = document.createElement('div');
-            alunoCard.className = 'aluno-card';
-            alunoCard.innerHTML = `
-                <span class="biometria-status ${aluno.biometria ? 'biometria-ativa' : 'biometria-inativa'}">
-                    ${aluno.biometria ? 'Biometria ativa' : 'Sem biometria'}
-                </span>
-                <div class="aluno-header">
-                    <div class="aluno-avatar">${primeiraLetra}</div>
-                    <div class="aluno-info">
-                        <h3>${aluno.nome} ${aluno.sobrenome}</h3>
-                        <p>ID: ${aluno.id}</p>
-                    </div>
-                </div>
-                <div class="aluno-details">
-                    <div class="detail-item">
-                        <span class="detail-label">Turma</span>
-                        <span class="detail-value">${aluno.turma}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Cadastrado em</span>
-                        <span class="detail-value">${new Date(aluno.data_cadastro).toLocaleDateString()}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Último acesso</span>
-                        <span class="detail-value">${aluno.ultimo_acesso ? new Date(aluno.ultimo_acesso).toLocaleString() : 'Nunca'}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Empréstimos</span>
-                        <span class="detail-value">${aluno.emprestimos || 0}</span>
-                    </div>
-                </div>
-            `;
-            alunosContainer.appendChild(alunoCard);
+        // Inicializa a tabela quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStudentsTable();
         });
-    }
-
-    turmaSelect.addEventListener('change', () => {
-        const turmaId = turmaSelect.value;
-        if (turmaId) {
-            carregarAlunos(turmaId);
-        } else {
-            alunosContainer.innerHTML = `
-                <div class="loading">
-                    <div class="loading-spinner"></div>
-                    <p>Selecione uma turma para ver os alunos</p>
-                </div>
-            `;
-        }
-    });
-
-    nomeInput.addEventListener('input', filtrarEExibirAlunos);
-/*
-    logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('authToken');
-        window.location.href = '../index.html';
-    });
-
-    if (!localStorage.getItem('authToken')) {
-        window.location.href = '../Login/LoginProfessor.html';
-    }
-*/
-    carregarTurmas();
-});
-

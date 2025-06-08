@@ -1,4 +1,4 @@
-  * {
+* {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -128,8 +128,8 @@
             background-color: #27ae60;
         }
 
-        /* Tabela de Alunos */
-        .students-table {
+        /* Tabela de Ferramentas */
+        .tools-table {
             width: 100%;
             border-collapse: collapse;
             background-color: white;
@@ -138,7 +138,7 @@
             overflow: hidden;
         }
 
-        .students-table th {
+        .tools-table th {
             background-color: #3498db;
             color: white;
             text-align: left;
@@ -147,17 +147,40 @@
             top: 0;
         }
 
-        .students-table td {
+        .tools-table td {
             padding: 12px 15px;
             border-bottom: 1px solid #eee;
         }
 
-        .students-table tr:last-child td {
+        .tools-table tr:last-child td {
             border-bottom: none;
         }
 
-        .students-table tr:hover {
+        .tools-table tr:hover {
             background-color: #f8f9fa;
+        }
+
+        .status-available {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            display: inline-block;
+        }
+
+        .status-unavailable {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            background-color: #ffebee;
+            color: #c62828;
+            display: inline-block;
+        }
+
+        .quantity-low {
+            color: #e74c3c;
+            font-weight: bold;
         }
 
         /* Formulário de Cadastro */
@@ -292,5 +315,8 @@
             .form-row {
                 flex-direction: column;
                 gap: 20px;
+            }
+            .action-buttons {
+                flex-direction: column;
             }
         }
