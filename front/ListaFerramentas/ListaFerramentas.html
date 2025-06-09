@@ -15,18 +15,18 @@
                 <h2><i class="fas fa-tools"></i> Controle de Empréstimos</h2>
             </div>
             <div class="menu-item" onclick="window.location.href='../ListaAluno/ListAluno.html'">
-                <i class="fas fa-user-graduate"></i> Alunos
+                <i class="fas fa-user-graduate" ></i> Alunos
             </div>
             <div class="menu-item" onclick="window.location.href='../VerEmprestimo/Emprestimos.html'">
                 <i class="fas fa-clipboard-list"></i> Empréstimos
             </div>
-            <div class="menu-item active" onclick="navigate('ferramentas')">
+            <div class="menu-item active">
                 <i class="fas fa-toolbox"></i> Ferramentas
             </div>
-            <div class="menu-item" onclick="navigate('locais')">
+            <div class="menu-item" onclick="window.location.href='../Locais/local.html'">
                 <i class="fas fa-map-marker-alt"></i> Locais
             </div>
-            <div class="menu-item" onclick="navigate('novo-emprestimo')">
+            <div class="menu-item">
                 <i class="fas fa-plus-circle"></i> Novo Empréstimo
             </div>
             <div class="menu-item" onclick="window.location.href='../index.html'">
@@ -36,16 +36,16 @@
 
         <!-- Conteúdo Principal - Página de Ferramentas -->
         <div class="main-content">
-            <div class="header">
+            <div class="header" onclick="window.location.href='../index.html'">
                 <h1 class="page-title"><i class="fas fa-toolbox"></i> Ferramentas Cadastradas</h1>
-                <button class="logout-btn" onclick="window.location.href='../index.html'">
+                <button class="logout-btn">
                     <i class="fas fa-sign-out-alt"></i> Sair do Sistema
                 </button>
             </div>
 
             <!-- Botões de Ação -->
             <div class="action-buttons">
-                <button class="btn btn-primary" onclick="openAddToolModal()">
+                <button class="btn btn-primary" id="add-tool-btn">
                     <i class="fas fa-plus"></i> Adicionar Ferramenta
                 </button>
             </div>
@@ -54,7 +54,7 @@
             <div class="search-section">
                 <div class="search-group">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="search-input" placeholder="Pesquisar ferramenta..." oninput="searchTools()">
+                    <input type="text" id="search-input" placeholder="Pesquisar ferramenta...">
                 </div>
             </div>
 
@@ -67,8 +67,12 @@
                             <th>Nome</th>
                             <th>Marca</th>
                             <th>Modelo</th>
-                            <th>Quantidade</th>
-                            <th>Disponibilidade</th>
+                            <th>Estoque</th>
+                            <th>Espaço</th>
+                            <th>Armário</th>
+                            <th>Prateleira</th>
+                            <th>Estojo</th>
+                            <th>Ações</th> <!-- Coluna para botões de ação -->
                         </tr>
                     </thead>
                     <tbody id="tools-table-body">
@@ -82,7 +86,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2 id="modal-title">Adicionar Nova Ferramenta</h2>
-                        <button class="close-btn" onclick="closeModal()">&times;</button>
+                        <button class="close-btn">&times;</button>
                     </div>
                     <div class="modal-body">
                         <form id="tool-form">
@@ -104,24 +108,37 @@
                                 </div>
                             </div>
                             
+                            <div class="form-group">
+                                <label for="tool-stock">Estoque</label>
+                                <input type="number" id="tool-stock" class="form-control" min="0" required>
+                            </div>
+                            
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="tool-quantity">Quantidade</label>
-                                    <input type="number" id="tool-quantity" class="form-control" min="1" required>
+                                    <label for="tool-nome_espaco">Nome do Espaço</label>
+                                    <input type="text" id="tool-nome_espaco" class="form-control" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="tool-available">Disponível</label>
-                                    <select id="tool-available" class="form-control" required>
-                                        <option value="true">Sim</option>
-                                        <option value="false">Não</option>
-                                    </select>
+                                    <label for="tool-armario">Armário</label>
+                                    <input type="text" id="tool-armario" class="form-control" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="tool-prateleira">Prateleira</label>
+                                    <input type="text" id="tool-prateleira" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tool-estojo">Estojo</label>
+                                    <input type="text" id="tool-estojo" class="form-control">
                                 </div>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn" onclick="closeModal()">Cancelar</button>
-                        <button class="btn btn-primary" onclick="saveTool()">Salvar Ferramenta</button>
+                        <button class="btn" id="cancel-btn">Cancelar</button>
+                        <button class="btn btn-primary" id="save-btn">Salvar Ferramenta</button>
                     </div>
                 </div>
             </div>

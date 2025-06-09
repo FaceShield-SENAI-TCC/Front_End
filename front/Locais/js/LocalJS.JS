@@ -1,176 +1,316 @@
- document.addEventListener('DOMContentLoaded', () => {
-    const container = document.getElementById('locais-container');
-    const searchInput = document.getElementById('search');
-    let todosLocais = [];
+let locations = [
+            { 
+                id: 1, 
+                space: "Oficina Mecânica", 
+                cabinet: "Armário 1", 
+                shelf: "Prateleira A", 
+                case: "Estojo 3" 
+            },
+            { 
+                id: 2, 
+                space: "Laboratório de Elétrica", 
+                cabinet: "Armário 3", 
+                shelf: "Prateleira B", 
+                case: "" 
+            },
+            { 
+                id: 3, 
+                space: "Laboratório de Elétrica", 
+                cabinet: "Armário 2", 
+                shelf: "Prateleira C", 
+                case: "Estojo 1" 
+            },
+            { 
+                id: 4, 
+                space: "Oficina Mecânica", 
+                cabinet: "Armário 1", 
+                shelf: "Prateleira D", 
+                case: "" 
+            },
+            { 
+                id: 5, 
+                space: "Oficina de Marcenaria", 
+                cabinet: "Armário 5", 
+                shelf: "Prateleira A", 
+                case: "Estojo 2" 
+            }
+        ];
 
-    async function carregarLocais() {
-      try {
-        const response = await axios.get('https://sua-api.com/locais', {
-          headers: {
-            'Authorization': 'Bearer ' + localStorage.getItem('authToken')
-          }
+        // Elementos DOM
+        const locationsTableBody = document.getElementById('locations-table-body');
+        const locationGrid = document.getElementById('location-grid');
+        const searchInput = document.getElementById('search-input');
+        const locationModal = document.getElementById('location-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const locationForm = document.getElementById('location-form');
+        const locationId = document.getElementById('location-id');
+        const locationSpace = document.getElementById('location-space');
+        const locationCabinet = document.getElementById('location-cabinet');
+        const locationShelf = document.getElementById('location-shelf');
+        const locationCase = document.getElementById('location-case');
+        const addLocationBtn = document.getElementById('add-location-btn');
+        const addFirstLocationBtn = document.getElementById('add-first-location');
+        const saveBtn = document.getElementById('save-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const closeBtn = document.querySelector('.close-btn');
+        const viewToggleBtn = document.getElementById('view-toggle-btn');
+        const tableView = document.getElementById('table-view');
+        const cardView = document.getElementById('card-view');
+        const emptyState = document.getElementById('empty-state');
+
+        // Função para carregar locais na tabela
+        function loadLocationsTable(locationsArray = locations) {
+            locationsTableBody.innerHTML = '';
+
+            if (locationsArray.length === 0) {
+                tableView.style.display = 'none';
+                cardView.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            tableView.style.display = 'block';
+            emptyState.style.display = 'none';
+
+            locationsArray.forEach(location => {
+                const row = document.createElement('tr');
+                
+                // Formatar campos de localização
+                const caseDisplay = location.case ? 
+                    `<span class="location-badge"><i class="fas fa-box"></i> ${location.case}</span>` : 
+                    '<span class="location-badge"><i class="fas fa-box"></i> N/A</span>';
+                
+                row.innerHTML = `
+                    <td>${location.id}</td>
+                    <td><span class="location-badge"><i class="fas fa-building"></i> ${location.space}</span></td>
+                    <td><span class="location-badge"><i class="fas fa-archive"></i> ${location.cabinet}</span></td>
+                    <td><span class="location-badge"><i class="fas fa-layer-group"></i> ${location.shelf}</span></td>
+                    <td>${caseDisplay}</td>
+                    <td class="actions-cell">
+                        <button class="action-btn edit-btn" data-id="${location.id}">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="action-btn delete-btn" data-id="${location.id}">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    </td>
+                `;
+                locationsTableBody.appendChild(row);
+            });
+            
+            // Adicionar event listeners para os botões de ação
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    openEditLocationModal(id);
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    deleteLocation(id);
+                });
+            });
+        }
+
+        // Função para carregar locais em cards
+        function loadLocationsCards(locationsArray = locations) {
+            locationGrid.innerHTML = '';
+
+            if (locationsArray.length === 0) {
+                cardView.style.display = 'none';
+                tableView.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            cardView.style.display = 'block';
+            emptyState.style.display = 'none';
+
+            locationsArray.forEach(location => {
+                const card = document.createElement('div');
+                card.className = 'location-card';
+                
+                const caseDisplay = location.case ? location.case : 'N/A';
+                
+                card.innerHTML = `
+                    <div class="card-header">
+                        <h3><i class="fas fa-map-marker-alt"></i> Local #${location.id}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="location-info">
+                            <i class="fas fa-building"></i>
+                            <span><strong>Espaço:</strong> ${location.space}</span>
+                        </div>
+                        <div class="location-info">
+                            <i class="fas fa-archive"></i>
+                            <span><strong>Armário:</strong> ${location.cabinet}</span>
+                        </div>
+                        <div class="location-info">
+                            <i class="fas fa-layer-group"></i>
+                            <span><strong>Prateleira:</strong> ${location.shelf}</span>
+                        </div>
+                        <div class="location-info">
+                            <i class="fas fa-box"></i>
+                            <span><strong>Estojo:</strong> ${caseDisplay}</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="action-btn edit-btn" data-id="${location.id}">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="action-btn delete-btn" data-id="${location.id}">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    </div>
+                `;
+                locationGrid.appendChild(card);
+            });
+            
+            // Adicionar event listeners para os botões de ação nos cards
+            document.querySelectorAll('.card-footer .edit-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    openEditLocationModal(id);
+                });
+            });
+            
+            document.querySelectorAll('.card-footer .delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    deleteLocation(id);
+                });
+            });
+        }
+
+        // Função de pesquisa
+        function searchLocations() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredLocations = locations.filter(location => 
+                location.space.toLowerCase().includes(searchTerm) ||
+                location.cabinet.toLowerCase().includes(searchTerm) ||
+                location.shelf.toLowerCase().includes(searchTerm) ||
+                (location.case && location.case.toLowerCase().includes(searchTerm))
+            );
+            
+            if (cardView.style.display !== 'none') {
+                loadLocationsCards(filteredLocations);
+            } else {
+                loadLocationsTable(filteredLocations);
+            }
+        }
+
+        // Funções do modal
+        function openAddLocationModal() {
+            locationForm.reset();
+            locationId.value = '';
+            modalTitle.textContent = 'Adicionar Novo Local';
+            locationModal.style.display = 'flex';
+        }
+
+        function openEditLocationModal(id) {
+            const location = locations.find(l => l.id == id);
+            if (location) {
+                locationId.value = location.id;
+                locationSpace.value = location.space;
+                locationCabinet.value = location.cabinet;
+                locationShelf.value = location.shelf;
+                locationCase.value = location.case || '';
+                
+                modalTitle.textContent = 'Editar Local';
+                locationModal.style.display = 'flex';
+            }
+        }
+
+        function closeModal() {
+            locationModal.style.display = 'none';
+        }
+
+        function saveLocation() {
+            const id = locationId.value;
+            const space = locationSpace.value;
+            const cabinet = locationCabinet.value;
+            const shelf = locationShelf.value;
+            const caseValue = locationCase.value;
+
+            if (id) {
+                // Atualizar local existente
+                const index = locations.findIndex(l => l.id == id);
+                if (index !== -1) {
+                    locations[index] = {
+                        ...locations[index],
+                        space,
+                        cabinet,
+                        shelf,
+                        case: caseValue
+                    };
+                }
+            } else {
+                // Adicionar novo local
+                const newId = locations.length > 0 ? Math.max(...locations.map(l => l.id)) + 1 : 1;
+                locations.push({
+                    id: newId,
+                    space,
+                    cabinet,
+                    shelf,
+                    case: caseValue
+                });
+            }
+
+            if (cardView.style.display !== 'none') {
+                loadLocationsCards();
+            } else {
+                loadLocationsTable();
+            }
+            
+            closeModal();
+        }
+
+        function deleteLocation(id) {
+            if (confirm('Tem certeza que deseja excluir este local?')) {
+                locations = locations.filter(location => location.id != id);
+                
+                if (cardView.style.display !== 'none') {
+                    loadLocationsCards();
+                } else {
+                    loadLocationsTable();
+                }
+            }
+        }
+
+        // Alternar entre visualizações
+        function toggleView() {
+            if (tableView.style.display !== 'none') {
+                tableView.style.display = 'none';
+                cardView.style.display = 'block';
+                viewToggleBtn.innerHTML = '<i class="fas fa-list"></i> Visualização em Tabela';
+                loadLocationsCards();
+            } else {
+                tableView.style.display = 'block';
+                cardView.style.display = 'none';
+                viewToggleBtn.innerHTML = '<i class="fas fa-th"></i> Visualização em Cards';
+                loadLocationsTable();
+            }
+        }
+
+        // Event Listeners
+        addLocationBtn.addEventListener('click', openAddLocationModal);
+        addFirstLocationBtn.addEventListener('click', openAddLocationModal);
+        saveBtn.addEventListener('click', saveLocation);
+        cancelBtn.addEventListener('click', closeModal);
+        closeBtn.addEventListener('click', closeModal);
+        searchInput.addEventListener('input', searchLocations);
+        viewToggleBtn.addEventListener('click', toggleView);
+
+        // Fechar modal ao clicar fora do conteúdo
+        window.addEventListener('click', (e) => {
+            if (e.target === locationModal) {
+                closeModal();
+            }
         });
 
-        todosLocais = response.data;
-        exibirLocais(todosLocais);
-      } catch (error) {
-        console.error('Erro ao carregar locais:', error);
-        Swal.fire('Erro', 'Erro ao carregar locais', 'error');
-      }
-    }
-
-    function exibirLocais(locais) {
-      container.innerHTML = '';
-      locais.forEach(local => {
-        const card = document.createElement('div');
-        card.className = 'local-card';
-        card.innerHTML = `
-          <h3>${local.nome_espaco}</h3>
-          <p>Armário: ${local.armario}<br>
-             Prateleira: ${local.prateleira}<br>
-             Estojo: ${local.estojo || 'Nenhum'}</p>
-          <button class="editar-btn" data-id="${local.id}">Editar</button>
-          <button class="excluir-btn" data-id="${local.id}">Excluir</button>
-        `;
-        container.appendChild(card);
-      });
-
-      document.querySelectorAll('.editar-btn').forEach(btn => {
-        btn.addEventListener('click', () => editarLocal(btn.dataset.id));
-      });
-
-      document.querySelectorAll('.excluir-btn').forEach(btn => {
-        btn.addEventListener('click', () => excluirLocal(btn.dataset.id));
-      });
-    }
-
-    searchInput.addEventListener('input', () => {
-      const termo = searchInput.value.toLowerCase();
-      const filtrados = todosLocais.filter(local =>
-        local.nome_espaco.toLowerCase().includes(termo)
-      );
-      exibirLocais(filtrados);
-    });
-
-    document.getElementById('add-local').addEventListener('click', async () => {
-      const { value: formValues } = await Swal.fire({
-        title: 'Cadastrar Local',
-        html:
-          '<input id="nome_espaco" class="swal2-input" placeholder="Nome do Espaço">' +
-          '<input id="armario" class="swal2-input" placeholder="Armário">' +
-          '<input id="prateleira" class="swal2-input" placeholder="Prateleira">' +
-          '<input id="estojo" class="swal2-input" placeholder="Estojo (opcional)">',
-        focusConfirm: false,
-        showCancelButton: true,
-        preConfirm: () => {
-          const nome_espaco = document.getElementById('nome_espaco').value.trim();
-          const armario = document.getElementById('armario').value.trim();
-          const prateleira = document.getElementById('prateleira').value.trim();
-          const estojo = document.getElementById('estojo').value.trim();
-
-          if (!nome_espaco || !armario || !prateleira) {
-            Swal.showValidationMessage('Preencha todos os campos obrigatórios.');
-            return false;
-          }
-
-          return { nome_espaco, armario, prateleira, estojo };
-        }
-      });
-
-      if (formValues) {
-        adicionarLocal(formValues);
-      }
-    });
-
-    async function adicionarLocal(dados) {
-      try {
-        await axios.post('https://sua-api.com/locais', dados, {
-          headers: {
-            'Authorization': 'Bearer ' + localStorage.getItem('authToken')
-          }
+        // Inicializa a tabela quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLocationsTable();
         });
-        await carregarLocais();
-        Swal.fire('Sucesso', 'Local adicionado com sucesso!', 'success');
-      } catch (error) {
-        console.error('Erro ao adicionar local:', error);
-        Swal.fire('Erro', 'Erro ao adicionar local', 'error');
-      }
-    }
-
-    async function editarLocal(id) {
-      const local = todosLocais.find(l => l.id == id);
-      if (!local) return;
-
-      const { value: formValues } = await Swal.fire({
-        title: 'Editar Local',
-        html:
-          `<input id="nome_espaco" class="swal2-input" value="${local.nome_espaco}" placeholder="Nome do Espaço">` +
-          `<input id="armario" class="swal2-input" value="${local.armario}" placeholder="Armário">` +
-          `<input id="prateleira" class="swal2-input" value="${local.prateleira}" placeholder="Prateleira">` +
-          `<input id="estojo" class="swal2-input" value="${local.estojo || ''}" placeholder="Estojo (opcional)">`,
-        focusConfirm: false,
-        showCancelButton: true,
-        preConfirm: () => {
-          const nome_espaco = document.getElementById('nome_espaco').value.trim();
-          const armario = document.getElementById('armario').value.trim();
-          const prateleira = document.getElementById('prateleira').value.trim();
-          const estojo = document.getElementById('estojo').value.trim();
-
-          if (!nome_espaco || !armario || !prateleira) {
-            Swal.showValidationMessage('Preencha todos os campos obrigatórios.');
-            return false;
-          }
-
-          return { nome_espaco, armario, prateleira, estojo };
-        }
-      });
-
-      if (formValues) {
-        try {
-          await axios.put(`https://sua-api.com/locais/${id}`, formValues, {
-            headers: {
-              'Authorization': 'Bearer ' + localStorage.getItem('authToken')
-            }
-          });
-          await carregarLocais();
-          Swal.fire('Sucesso', 'Local atualizado com sucesso!', 'success');
-        } catch (error) {
-          console.error('Erro ao editar local:', error);
-          Swal.fire('Erro', 'Erro ao editar local', 'error');
-        }
-      }
-    }
-
-    async function excluirLocal(id) {
-      const confirm = await Swal.fire({
-        title: 'Tem certeza?',
-        text: 'Esta ação não poderá ser desfeita.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sim, excluir!',
-        cancelButtonText: 'Cancelar'
-      });
-
-      if (confirm.isConfirmed) {
-        try {
-          await axios.delete(`https://sua-api.com/locais/${id}`, {
-            headers: {
-              'Authorization': 'Bearer ' + localStorage.getItem('authToken')
-            }
-          });
-          await carregarLocais();
-          Swal.fire('Excluído!', 'Local excluído com sucesso.', 'success');
-        } catch (error) {
-          console.error('Erro ao excluir local:', error);
-          Swal.fire('Erro', 'Erro ao excluir local', 'error');
-        }
-      }
-    }
-
-    carregarLocais();
-
-    document.getElementById('logout').addEventListener('click', () => {
-      localStorage.removeItem('authToken');
-      window.location.href = '../index.html';
-    });
-  });
