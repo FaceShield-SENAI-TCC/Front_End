@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-
   const form = document.getElementById("cadastroForm");
   const feedback = document.getElementById("feedback");
   const tipoUsuarioSelect = document.getElementById("tipoUsuario");
@@ -10,10 +9,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const senhaInput = document.getElementById("senha");
   let isScanning = false;
 
-  const API_URL = "http://localhost/seu_projeto/api/cadastro.php";
+  const API_URL = "http://localhost:8080/usuarios/novoUsuario";
 
   function toggleUsernameField() {
-    const isProfessor = tipoUsuarioSelect.value === "professor";
+    const isProfessor = tipoUsuarioSelect.value === "2"; // Changed to check for "2" instead of "professor"
 
     setTimeout(() => {
       usernameGroup.classList.toggle("hidden", !isProfessor);
@@ -28,15 +27,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 300);
   }
 
-  
-
   tipoUsuarioSelect.addEventListener("change", toggleUsernameField);
 
- 
   if (tipoUsuarioSelect.value !== "") {
     toggleUsernameField();
   }
-
 
   function validarCampo(input) {
     const parent = input.parentElement;
@@ -53,7 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
     input.addEventListener("input", () => validarCampo(input));
   });
 
- 
   if (scanWidget) {
     scanWidget.addEventListener("click", async () => {
       if (isScanning) return;
@@ -97,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const tipoUsuario = tipoUsuarioSelect.value;
     const campos = ["nome", "sobrenome", "turma"];
-    if (tipoUsuario === "professor") {
+    if (tipoUsuario === "2") { // Changed to check for "2" instead of "professor"
       campos.push("username", "senha");
     }
 
@@ -145,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // Adicionar campos específicos de professor
-    if (tipoUsuario === "professor") {
+    if (tipoUsuario === "2") { // Changed to check for "2" instead of "professor"
       formData.username = document.getElementById("username").value;
       formData.senha = document.getElementById("senha").value;
     }

@@ -105,9 +105,9 @@ async function loadStudentsTable(studentsArray = null) {
       const row = document.createElement("tr");
       row.innerHTML = `
                 <td>${student.id}</td>
-                <td>${student.firstName}</td>
-                <td>${student.lastName}</td>
-                <td>${student.class}</td>
+                <td>${student.nome}</td>
+                <td>${student.sobrenome}</td>
+                <td>${student.turma}</td>
                 <td class="actions">
                     <button class="btn-icon" onclick="editStudent(${student.id})">
                         <i class="fas fa-edit"></i>
@@ -144,9 +144,9 @@ async function openEditStudentModal(id) {
     const student = await alunoService.getById(id);
     if (student) {
       document.getElementById("student-id").value = student.id;
-      document.getElementById("first-name").value = student.firstName;
-      document.getElementById("last-name").value = student.lastName;
-      document.getElementById("class").value = student.class;
+      document.getElementById("first-name").value = student.nome;
+      document.getElementById("last-name").value = student.sobrenome;
+      document.getElementById("class").value = student.turma;
       document.getElementById("modal-title").textContent = "Editar Aluno";
       document.getElementById("student-modal").style.display = "flex";
     }
@@ -172,9 +172,9 @@ async function saveStudent() {
 
   const aluno = {
     id: studentId ? parseInt(studentId) : null,
-    firstName,
-    lastName,
-    class: studentClass,
+    nome,
+    sobrenome,
+    turma: studentClass,
   };
 
   try {
