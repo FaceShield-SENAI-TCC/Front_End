@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const scanWidget = document.querySelector(".face-scan-widget");
   const senhaGroup = document.getElementById("senha-group");
   const senhaInput = document.getElementById("senha");
+  const turmaInput = document.getElementById("turma");
   let isScanning = false;
 
   const API_URL = "http://localhost:8080/usuarios/novoUsuario";
@@ -23,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!isProfessor) {
         usernameInput.value = "";
         senhaInput.value = "";
+        turmaInput.value = "";
       }
     }, 300);
   }
@@ -90,8 +92,9 @@ document.addEventListener("DOMContentLoaded", () => {
     event.preventDefault();
 
     const tipoUsuario = tipoUsuarioSelect.value;
-    const campos = ["nome", "sobrenome", "turma"];
-    if (tipoUsuario === "2") { // Changed to check for "2" instead of "professor"
+    const campos = ["nome", "sobrenome"];
+    if (tipoUsuario === "2") {
+      // Changed to check for "2" instead of "professor"
       campos.push("username", "senha");
     }
 
@@ -139,9 +142,11 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // Adicionar campos específicos de professor
-    if (tipoUsuario === "2") { // Changed to check for "2" instead of "professor"
+    if (tipoUsuario === "2") {
+      // Changed to check for "2" instead of "professor"
       formData.username = document.getElementById("username").value;
       formData.senha = document.getElementById("senha").value;
+      formData.turma = document.getElementById("turma").value;
     }
 
     try {
