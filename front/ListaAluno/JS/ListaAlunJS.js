@@ -1,12 +1,13 @@
 // URL base da sua API (ajuste conforme sua configuração)
-const API_URL = "http://localhost/seu_projeto/api/alunos.php";
+const API_URL = "http://localhost:8080/usuarios/buscar";
 
 // Objeto para manipular os alunos via API
 const alunoService = {
   // Buscar todos os alunos
   getAll: async function () {
     try {
-      const response = await fetch(API_URL);
+      console.log("dwiaowdoia");
+      const response = await fetch("http://localhost:8080/usuarios/buscar");
       if (!response.ok) {
         throw new Error("Erro ao buscar todos alunos");
       }
