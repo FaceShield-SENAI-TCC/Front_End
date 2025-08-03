@@ -153,10 +153,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const formData = {
       nome: document.getElementById("nome").value,
       sobrenome: document.getElementById("sobrenome").value,
-      turma: document.getElementById("turma").value,
       tipoUsuario: tipoUsuario === "1" ? "ALUNO" : "PROFESSOR", // String direta
-      username: tipoUsuario === "2" ? document.getElementById("username").value : null,
-      senha: tipoUsuario === "2" ? document.getElementById("senha").value : null
+      turma: tipoUsuario === "1" ? document.getElementById("turma").value : "==",
+      username: tipoUsuario === "2" ? document.getElementById("username").value : "==",
+      senha: tipoUsuario === "2" ? document.getElementById("senha").value : "=="
     };
 
     try {
