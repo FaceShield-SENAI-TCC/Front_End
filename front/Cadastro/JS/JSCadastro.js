@@ -1,5 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("cadastroForm");
+  if (!form) {
+    console.error("Elemento #cadastroForm não encontrado!");
+    return;
+  }
+
   const feedback = document.getElementById("feedback");
   const tipoUsuarioSelect = document.getElementById("tipoUsuario");
   const usernameGroup = document.getElementById("username-group");
@@ -13,30 +18,33 @@ document.addEventListener("DOMContentLoaded", () => {
   const API_URL = "http://localhost:8080/usuarios/novoUsuario";
 
   function toggleUsernameField() {
-    const isProfessor = tipoUsuarioSelect.value === "2"; // Changed to check for "2" instead of "professor"
+    if (!tipoUsuarioSelect) return;
+
+    const isProfessor = tipoUsuarioSelect.value === "2";
 
     setTimeout(() => {
-      usernameGroup.classList.toggle("hidden", !isProfessor);
-      senhaGroup.classList.toggle("hidden", !isProfessor);
-      senhaInput.required = isProfessor;
-      usernameInput.required = isProfessor;
+      if (usernameGroup) usernameGroup.style.display = isProfessor ? "block" : "none";
+      if (senhaGroup) senhaGroup.style.display = isProfessor ? "block" : "none";
+      
+      if (senhaInput) senhaInput.required = isProfessor;
+      if (usernameInput) usernameInput.required = isProfessor;
 
       if (!isProfessor) {
-        usernameInput.value = "";
-        senhaInput.value = "";
-        turmaInput.value = "";
+        if (usernameInput) usernameInput.value = "";
+        if (senhaInput) senhaInput.value = "";
       }
     }, 300);
   }
 
-  tipoUsuarioSelect.addEventListener("change", toggleUsernameField);
-
-  if (tipoUsuarioSelect.value !== "") {
+  if (tipoUsuarioSelect) {
+    tipoUsuarioSelect.addEventListener("change", toggleUsernameField);
     toggleUsernameField();
   }
 
   function validarCampo(input) {
     const parent = input.parentElement;
+    if (!parent) return;
+    
     if (input.checkValidity()) {
       parent.classList.add("valid");
       parent.classList.remove("invalid");
@@ -56,8 +64,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       isScanning = true;
       scanWidget.style.pointerEvents = "none";
-      document.querySelector(".upload-instruction").textContent =
-        "Capturando...";
+      const uploadInstruction = document.querySelector(".upload-instruction");
+      if (uploadInstruction) {
+        uploadInstruction.textContent = "Capturando...";
+      }
 
       try {
         await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -71,30 +81,33 @@ document.addEventListener("DOMContentLoaded", () => {
         scanWidget.style.pointerEvents = "auto";
         setTimeout(() => {
           scanWidget.classList.remove("scan-success", "scan-error");
-          document.querySelector(".upload-instruction").textContent =
-            "Clique para captura biométrica";
+          if (uploadInstruction) {
+            uploadInstruction.textContent = "Clique para captura biométrica";
+          }
         }, 2000);
       }
     });
   }
 
   function showFeedback(tipo, mensagem) {
+    if (!feedback) return;
+    
     feedback.textContent = mensagem;
     feedback.className = "feedback " + tipo;
     feedback.style.display = "block";
 
     setTimeout(() => {
       feedback.style.display = "none";
-    }, 3000);
+    }, 5000);
   }
 
   form.addEventListener("submit", async function (event) {
     event.preventDefault();
 
-    const tipoUsuario = tipoUsuarioSelect.value;
-    const campos = ["nome", "sobrenome"];
+    const tipoUsuario = tipoUsuarioSelect ? tipoUsuarioSelect.value : "";
+    const campos = ["nome", "sobrenome", "turma"];
+    
     if (tipoUsuario === "2") {
-      // Changed to check for "2" instead of "professor"
       campos.push("username", "senha");
     }
 
@@ -102,6 +115,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     campos.forEach((id) => {
       const campo = document.getElementById(id);
+      if (!campo) return;
+      
       const erroMensagem = campo.parentElement.querySelector(".error-message");
 
       if (!campo.value.trim()) {
@@ -128,29 +143,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (invalidos.length > 0) {
-      document.getElementById(invalidos[0]).focus();
+      const firstInvalid = document.getElementById(invalidos[0]);
+      if (firstInvalid) firstInvalid.focus();
       showFeedback("error", "Por favor, preencha todos os campos.");
       return;
     }
 
-    // Preparar os dados para envio
+    // ESTRUTURA SIMPLIFICADA - compatível com o novo backend
     const formData = {
-      tipoUsuario: tipoUsuario,
       nome: document.getElementById("nome").value,
       sobrenome: document.getElementById("sobrenome").value,
       turma: document.getElementById("turma").value,
+      tipoUsuario: tipoUsuario === "1" ? "ALUNO" : "PROFESSOR", // String direta
+      username: tipoUsuario === "2" ? document.getElementById("username").value : null,
+      senha: tipoUsuario === "2" ? document.getElementById("senha").value : null
     };
 
-    // Adicionar campos específicos de professor
-    if (tipoUsuario === "2") {
-      // Changed to check for "2" instead of "professor"
-      formData.username = document.getElementById("username").value;
-      formData.senha = document.getElementById("senha").value;
-      formData.turma = document.getElementById("turma").value;
-    }
-
     try {
-      // Enviar dados para a API usando fetch
       const response = await fetch(API_URL, {
         method: "POST",
         headers: {
@@ -158,23 +167,55 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         body: JSON.stringify(formData),
       });
+      
+      console.log("Dados enviados:", formData);
 
+      // Obter resposta como texto para melhor tratamento
+      const responseText = await response.text();
+      
       if (!response.ok) {
-        throw new Error("Erro ao cadastrar usuário");
+        let errorMessage = `Erro ${response.status}: ${response.statusText}`;
+        try {
+          // Tentar parsear como JSON para obter mensagem de erro
+          const errorData = JSON.parse(responseText);
+          errorMessage += ` - ${errorData.message || errorData.error || responseText}`;
+        } catch (e) {
+          // Se não for JSON, usar texto completo
+          errorMessage += ` - ${responseText}`;
+        }
+        throw new Error(errorMessage);
       }
 
-      const data = await response.json();
-
-      if (data.success) {
+      // Parsear resposta como JSON
+      const responseData = JSON.parse(responseText);
+      
+      if (responseData.success) {
         showFeedback("success", "Cadastro realizado com sucesso!");
         form.reset();
         toggleUsernameField();
       } else {
-        showFeedback("error", data.message || "Erro no cadastro");
+        showFeedback("error", responseData.message || "Erro no cadastro");
       }
     } catch (error) {
-      console.error("Erro:", error);
-      showFeedback("error", "Erro ao conectar com o servidor");
+      console.error("Erro completo na requisição:", error);
+      
+      // Mensagem mais detalhada para o usuário
+      let userMessage = "Erro ao processar o cadastro: " + error.message;
+      
+      // Tentar extrair a mensagem de erro do backend
+      try {
+        const errorParts = error.message.split(" - ");
+        if (errorParts.length > 1) {
+          const serverError = JSON.parse(errorParts[1]);
+          if (serverError.message) {
+            userMessage = serverError.message;
+          }
+        }
+      } catch (parseError) {
+        console.warn("Não foi possível parsear mensagem de erro:", parseError);
+      }
+      
+      showFeedback("error", userMessage);
     }
   });
 });
