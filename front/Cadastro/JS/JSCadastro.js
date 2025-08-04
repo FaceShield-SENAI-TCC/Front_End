@@ -17,15 +17,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const API_URL = "http://localhost:8080/usuarios/novoUsuario";
 
+  // Função para mostrar/ocultar campos de professor
   function toggleUsernameField() {
     if (!tipoUsuarioSelect) return;
 
     const isProfessor = tipoUsuarioSelect.value === "2";
 
     setTimeout(() => {
-      if (usernameGroup) usernameGroup.style.display = isProfessor ? "block" : "none";
+      if (usernameGroup)
+        usernameGroup.style.display = isProfessor ? "block" : "none";
       if (senhaGroup) senhaGroup.style.display = isProfessor ? "block" : "none";
-      
+
       if (senhaInput) senhaInput.required = isProfessor;
       if (usernameInput) usernameInput.required = isProfessor;
 
@@ -36,15 +38,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 300);
   }
 
+  // Event listeners
   if (tipoUsuarioSelect) {
     tipoUsuarioSelect.addEventListener("change", toggleUsernameField);
-    toggleUsernameField();
+    toggleUsernameField(); // Chamada inicial para configurar campos
   }
 
+  // Validação em tempo real
   function validarCampo(input) {
     const parent = input.parentElement;
     if (!parent) return;
-    
+
     if (input.checkValidity()) {
       parent.classList.add("valid");
       parent.classList.remove("invalid");
@@ -58,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     input.addEventListener("input", () => validarCampo(input));
   });
 
+  // Simulação de captura biométrica
   if (scanWidget) {
     scanWidget.addEventListener("click", async () => {
       if (isScanning) return;
@@ -72,10 +77,10 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         await new Promise((resolve) => setTimeout(resolve, 2000));
         scanWidget.classList.add("scan-success");
-        showFeedback("success", "Biometria capturada!");
+        showFeedback("success", "Biometria capturada com sucesso!");
       } catch (error) {
         scanWidget.classList.add("scan-error");
-        showFeedback("error", "Falha na captura");
+        showFeedback("error", "Falha na captura biométrica");
       } finally {
         isScanning = false;
         scanWidget.style.pointerEvents = "auto";
@@ -89,9 +94,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Exibir mensagens de feedback
   function showFeedback(tipo, mensagem) {
     if (!feedback) return;
-    
+
     feedback.textContent = mensagem;
     feedback.className = "feedback " + tipo;
     feedback.style.display = "block";
@@ -101,27 +107,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 5000);
   }
 
+  // Submit do formulário
   form.addEventListener("submit", async function (event) {
     event.preventDefault();
 
+    // Validação dos campos
     const tipoUsuario = tipoUsuarioSelect ? tipoUsuarioSelect.value : "";
     const campos = ["nome", "sobrenome", "turma"];
-    
+
     if (tipoUsuario === "2") {
       campos.push("username", "senha");
     }
 
     const invalidos = [];
+    let isValid = true;
 
     campos.forEach((id) => {
       const campo = document.getElementById(id);
       if (!campo) return;
-      
+
       const erroMensagem = campo.parentElement.querySelector(".error-message");
 
       if (!campo.value.trim()) {
         invalidos.push(id);
         campo.classList.add("input-error");
+        isValid = false;
 
         if (!erroMensagem) {
           const errorElement = document.createElement("div");
@@ -142,24 +152,36 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (invalidos.length > 0) {
+    if (!isValid) {
       const firstInvalid = document.getElementById(invalidos[0]);
       if (firstInvalid) firstInvalid.focus();
-      showFeedback("error", "Por favor, preencha todos os campos.");
+      showFeedback(
+        "error",
+        "Por favor, preencha todos os campos obrigatórios."
+      );
       return;
     }
 
-    // ESTRUTURA SIMPLIFICADA - compatível com o novo backend
+    // Preparar dados para envio - CORREÇÃO FINAL
     const formData = {
-      nome: document.getElementById("nome").value,
-      sobrenome: document.getElementById("sobrenome").value,
-      tipoUsuario: tipoUsuario === "1" ? "ALUNO" : "PROFESSOR", // String direta
-      turma: tipoUsuario === "1" ? document.getElementById("turma").value : "==",
-      username: tipoUsuario === "2" ? document.getElementById("username").value : "==",
-      senha: tipoUsuario === "2" ? document.getElementById("senha").value : "=="
+      nome: document.getElementById("nome").value.trim(),
+      sobrenome: document.getElementById("sobrenome").value.trim(),
+      // Turma é sempre enviada (obrigatória para ambos)
+      turma: document.getElementById("turma").value.trim(),
+      tipoUsuario: tipoUsuario === "1" ? "ALUNO" : "PROFESSOR",
+      // Para aluno: username e senha como null
+      // Para professor: username e senha como valores
+      username:
+        tipoUsuario === "2"
+          ? document.getElementById("username").value.trim()
+          : null,
+      senha:
+        tipoUsuario === "2" ? document.getElementById("senha").value : null,
     };
 
     try {
+      console.log("Enviando dados para o backend:", formData);
+
       const response = await fetch(API_URL, {
         method: "POST",
         headers: {
@@ -167,55 +189,72 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         body: JSON.stringify(formData),
       });
-      
-      console.log("Dados enviados:", formData);
 
-      // Obter resposta como texto para melhor tratamento
-      const responseText = await response.text();
-      
+      // Verificação inicial da resposta
       if (!response.ok) {
-        let errorMessage = `Erro ${response.status}: ${response.statusText}`;
+        // Tentar obter a mensagem de erro do servidor
+        let errorMessage = `Erro HTTP! Status: ${response.status}`;
         try {
-          // Tentar parsear como JSON para obter mensagem de erro
-          const errorData = JSON.parse(responseText);
-          errorMessage += ` - ${errorData.message || errorData.error || responseText}`;
-        } catch (e) {
-          // Se não for JSON, usar texto completo
-          errorMessage += ` - ${responseText}`;
-        }
+          const errorData = await response.json();
+          if (errorData.message) {
+            errorMessage += ` - ${errorData.message}`;
+          }
+        } catch (e) {}
         throw new Error(errorMessage);
       }
 
-      // Parsear resposta como JSON
-      const responseData = JSON.parse(responseText);
-      
-      if (responseData.success) {
+      // Tentar parsear a resposta como JSON
+      const responseData = await response.json();
+      console.log("Resposta completa:", {
+        status: response.status,
+        data: responseData,
+      });
+
+      // Verificação robusta de sucesso
+      if (response.status === 201 && responseData.id) {
         showFeedback("success", "Cadastro realizado com sucesso!");
         form.reset();
         toggleUsernameField();
+
+        // Foco no primeiro campo após sucesso
+        setTimeout(() => {
+          const firstInput = form.querySelector("input");
+          if (firstInput) firstInput.focus();
+        }, 100);
       } else {
-        showFeedback("error", responseData.message || "Erro no cadastro");
+        // Tratar casos onde o status é 201 mas sem confirmação real
+        const errorMsg =
+          responseData.message ||
+          "Cadastro aparentemente realizado, mas sem confirmação do servidor";
+        showFeedback("warning", errorMsg);
       }
     } catch (error) {
       console.error("Erro completo na requisição:", error);
-      
-      // Mensagem mais detalhada para o usuário
-      let userMessage = "Erro ao processar o cadastro: " + error.message;
-      
-      // Tentar extrair a mensagem de erro do backend
-      try {
-        const errorParts = error.message.split(" - ");
-        if (errorParts.length > 1) {
-          const serverError = JSON.parse(errorParts[1]);
-          if (serverError.message) {
-            userMessage = serverError.message;
-          }
-        }
-      } catch (parseError) {
-        console.warn("Não foi possível parsear mensagem de erro:", parseError);
+
+      let errorMessage;
+      if (
+        error.message.includes("Failed to fetch") ||
+        error.message.includes("ERR_CONNECTION_REFUSED")
+      ) {
+        errorMessage =
+          "Servidor offline! Verifique se o backend está rodando na porta 8080.";
+      } else if (error.message.includes("PropertyValueException")) {
+        errorMessage =
+          "Erro de validação: Campo obrigatório não preenchido no servidor";
+      } else if (error.message.includes("Erro HTTP")) {
+        errorMessage = `Erro no servidor: ${error.message}`;
+      } else {
+        errorMessage = error.message || "Erro ao processar o cadastro";
       }
-      
-      showFeedback("error", userMessage);
+
+      showFeedback("error", errorMessage);
+
+      // Log detalhado para debug
+      console.error("Detalhes do erro:", {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      });
     }
   });
 });
