@@ -1,150 +1,227 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistema de Empréstimos - Ferramentas</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="CSS/ListaFerramentasCSS.css">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Seu arquivo CSS existente -->
+    <link rel="stylesheet" href="CSS/ListaFerramentasCSS.css" />
+  </head>
+  <body>
     <div class="container">
-        <!-- Menu Lateral -->
-        <div class="sidebar">
-            <div class="logo">
-                <h2><i class="fas fa-tools"></i> Controle de Empréstimos</h2>
-            </div>
-            <div class="menu-item" onclick="window.location.href='../ListaAluno/ListAluno.html'">
-                <i class="fas fa-user-graduate" ></i> Alunos
-            </div>
-            <div class="menu-item" onclick="window.location.href='../VerEmprestimo/Emprestimos.html'">
-                <i class="fas fa-clipboard-list"></i> Empréstimos
-            </div>
-            <div class="menu-item active">
-                <i class="fas fa-toolbox"></i> Ferramentas
-            </div>
-            <div class="menu-item" onclick="window.location.href='../Locais/local.html'">
-                <i class="fas fa-map-marker-alt"></i> Locais
-            </div>
-            <div class="menu-item">
-                <i class="fas fa-plus-circle"></i> Novo Empréstimo
-            </div>
-            <div class="menu-item" onclick="window.location.href='../index.html'">
-                <i class="fas fa-sign-out-alt"></i> Sair
-            </div>
+      <!-- Menu Lateral -->
+      <div class="sidebar">
+        <div class="logo">
+          <h2><i class="fas fa-tools"></i> Controle de Empréstimos</h2>
+        </div>
+        <div
+          class="menu-item"
+          onclick="window.location.href='../ListaAluno/ListAluno.html'"
+        >
+          <i class="fas fa-user-graduate"></i> Alunos
+        </div>
+        <div
+          class="menu-item"
+          onclick="window.location.href='../VerEmprestimo/Emprestimos.html'"
+        >
+          <i class="fas fa-clipboard-list"></i> Empréstimos
+        </div>
+        <div class="menu-item active">
+          <i class="fas fa-toolbox"></i> Ferramentas
+        </div>
+        <div
+          class="menu-item"
+          onclick="window.location.href='../Locais/local.html'"
+        >
+          <i class="fas fa-map-marker-alt"></i> Locais
+        </div>
+        <div class="menu-item">
+          <i class="fas fa-plus-circle"></i> Novo Empréstimo
+        </div>
+        <div class="menu-item" onclick="window.location.href='../index.html'">
+          <i class="fas fa-sign-out-alt"></i> Sair
+        </div>
+      </div>
+
+      <!-- Conteúdo Principal - Página de Ferramentas -->
+      <div class="main-content">
+        <div class="header">
+          <h1 class="page-title">
+            <i class="fas fa-toolbox"></i> Ferramentas Cadastradas
+          </h1>
+          <button
+            class="logout-btn"
+            onclick="window.location.href='../index.html'"
+          >
+            <i class="fas fa-sign-out-alt"></i> Sair do Sistema
+          </button>
         </div>
 
-        <!-- Conteúdo Principal - Página de Ferramentas -->
-        <div class="main-content">
-            <div class="header" onclick="window.location.href='../index.html'">
-                <h1 class="page-title"><i class="fas fa-toolbox"></i> Ferramentas Cadastradas</h1>
-                <button class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Sair do Sistema
-                </button>
-            </div>
-
-            <!-- Botões de Ação -->
-            <div class="action-buttons">
-                <button class="btn btn-primary" id="add-tool-btn">
-                    <i class="fas fa-plus"></i> Adicionar Ferramenta
-                </button>
-            </div>
-
-            <!-- Filtros e Pesquisa -->
-            <div class="search-section">
-                <div class="search-group">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="search-input" placeholder="Pesquisar ferramenta...">
-                </div>
-            </div>
-
-            <!-- Tabela de Ferramentas -->
-            <div style="overflow-x: auto;">
-                <table class="tools-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>Marca</th>
-                            <th>Modelo</th>
-                            <th>Estoque</th>
-                            <th>Espaço</th>
-                            <th>Armário</th>
-                            <th>Prateleira</th>
-                            <th>Estojo</th>
-                            <th>Ações</th> <!-- Coluna para botões de ação -->
-                        </tr>
-                    </thead>
-                    <tbody id="tools-table-body">
-                        <!-- Dados serão carregados via JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Modal para Adicionar/Editar Ferramenta -->
-            <div id="tool-modal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2 id="modal-title">Adicionar Nova Ferramenta</h2>
-                        <button class="close-btn">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="tool-form">
-                            <input type="hidden" id="tool-id">
-                            
-                            <div class="form-group">
-                                <label for="tool-name">Nome da Ferramenta</label>
-                                <input type="text" id="tool-name" class="form-control" required>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="tool-brand">Marca</label>
-                                    <input type="text" id="tool-brand" class="form-control" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="tool-model">Modelo</label>
-                                    <input type="text" id="tool-model" class="form-control" required>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="tool-stock">Estoque</label>
-                                <input type="number" id="tool-stock" class="form-control" min="0" required>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="tool-nome_espaco">Nome do Espaço</label>
-                                    <input type="text" id="tool-nome_espaco" class="form-control" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="tool-armario">Armário</label>
-                                    <input type="text" id="tool-armario" class="form-control" required>
-                                </div>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="tool-prateleira">Prateleira</label>
-                                    <input type="text" id="tool-prateleira" class="form-control" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="tool-estojo">Estojo</label>
-                                    <input type="text" id="tool-estojo" class="form-control">
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn" id="cancel-btn">Cancelar</button>
-                        <button class="btn btn-primary" id="save-btn">Salvar Ferramenta</button>
-                    </div>
-                </div>
-            </div>
+        <!-- Botões de Ação -->
+        <div class="action-buttons">
+          <button class="btn btn-primary" id="add-tool-btn">
+            <i class="fas fa-plus"></i> Adicionar Ferramenta
+          </button>
         </div>
+
+        <!-- Filtros e Pesquisa -->
+        <div class="search-section">
+          <div class="search-group">
+            <i class="fas fa-search"></i>
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Pesquisar ferramenta..."
+            />
+          </div>
+        </div>
+
+        <!-- Tabela de Ferramentas -->
+        <div style="overflow-x: auto">
+          <table class="tools-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Estoque</th>
+                <th>Espaço</th>
+                <th>Armário</th>
+                <th>Prateleira</th>
+                <th>Estojo</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tools-table-body">
+              <!-- Dados serão carregados via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Modal para Adicionar/Editar Ferramenta -->
+        <div id="tool-modal" class="modal">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h2 id="modal-title">Adicionar Nova Ferramenta</h2>
+              <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+              <form id="tool-form">
+                <input type="hidden" id="tool-id" />
+
+                <div class="form-group">
+                  <label for="tool-name">Nome da Ferramenta *</label>
+                  <input
+                    type="text"
+                    id="tool-name"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="tool-brand">Marca *</label>
+                    <input
+                      type="text"
+                      id="tool-brand"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="tool-model">Modelo *</label>
+                    <input
+                      type="text"
+                      id="tool-model"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="tool-stock">Estoque *</label>
+                  <input
+                    type="number"
+                    id="tool-stock"
+                    class="form-control"
+                    min="0"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="tool-location">Localização *</label>
+                  <select id="tool-location" class="form-control" required>
+                    <option value="">Selecione um local</option>
+                    <!-- Opções serão preenchidas via JavaScript -->
+                  </select>
+                </div>
+
+                <div
+                  id="location-details"
+                  style="
+                    display: none;
+                    margin-top: 20px;
+                    padding: 15px;
+                    background: #f8f9fa;
+                    border-radius: 5px;
+                  "
+                >
+                  <h3>Detalhes do Local</h3>
+                  <div class="location-info">
+                    <i class="fas fa-building"></i>
+                    <span
+                      ><strong>Espaço:</strong>
+                      <span id="location-space-detail"></span
+                    ></span>
+                  </div>
+                  <div class="location-info">
+                    <i class="fas fa-archive"></i>
+                    <span
+                      ><strong>Armário:</strong>
+                      <span id="location-cabinet-detail"></span
+                    ></span>
+                  </div>
+                  <div class="location-info">
+                    <i class="fas fa-layer-group"></i>
+                    <span
+                      ><strong>Prateleira:</strong>
+                      <span id="location-shelf-detail"></span
+                    ></span>
+                  </div>
+                  <div class="location-info">
+                    <i class="fas fa-box"></i>
+                    <span
+                      ><strong>Estojo:</strong>
+                      <span id="location-case-detail"></span
+                    ></span>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button class="btn" id="cancel-btn">Cancelar</button>
+              <button class="btn btn-primary" id="save-btn">
+                Salvar Ferramenta
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <script src="JS/ListaFerramentasJS.js" defer></script>
-</body>
+    <!-- Elementos para notificações e loading -->
+    <div id="notification" class="notification" style="display: none"></div>
+    <div id="loading-overlay" class="loading-overlay" style="display: none">
+      <div class="loading-spinner"></div>
+    </div>
+    <script src="./JS/ListaFerramentasJS.js"></script>
+  </body>
 </html>

@@ -1,4 +1,4 @@
- /*document.addEventListener('DOMContentLoaded', () => {
+/*document.addEventListener('DOMContentLoaded', () => {
             // Elementos do menu
             const alunosBtn = document.getElementById('alunos');
             const emprestimosBtn = document.getElementById('emprestimos');
@@ -43,5 +43,3 @@
         });
 
         */
-
-
