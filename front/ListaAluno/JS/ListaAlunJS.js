@@ -1,5 +1,5 @@
 // URL base da sua API (ajuste conforme sua configuração)
-const API_URL = "http://localhost:8080/usuarios/buscar";
+const API_URL = "http://localhost:8080/novoUsuario";
 
 // Objeto para manipular os alunos via API
 const alunoService = {
@@ -7,14 +7,14 @@ const alunoService = {
   getAll: async function () {
     try {
       console.log("dwiaowdoia");
-      const response = await fetch("http://localhost:8080/usuarios/buscar");
+      const response = await fetch("http://localhost:8080/novoUsuario/buscar");
       if (!response.ok) {
-        throw new Error("Erro ao buscar todos alunos");
+        throw new Error("Erro ao buscar todos os alunos");
       }
       return await response.json();
     } catch (error) {
       console.error("Erro:", error);
-      alert("Erro ao carregar todos alunos");
+      alert("Erro ao carregar todos os alunos");
       return [];
     }
   },
@@ -47,10 +47,14 @@ const alunoService = {
       });
 
       if (!response.ok) {
+        console.error("Erro ao salvar aluno:", await response.text());
         throw new Error("Erro ao salvar aluno");
       }
 
-      return await response.json();
+      // Se a resposta for ok, logue o resultado
+      const result = await response.json();
+      console.log("Aluno salvo com sucesso:", result); // Verifique o resultado retornado pela API
+      return result;
     } catch (error) {
       console.error("Erro:", error);
       alert("Erro ao salvar aluno");
@@ -156,6 +160,7 @@ async function openEditStudentModal(id) {
 }
 
 function closeModal() {
+  document.getElementById("student-form").reset(); // Limpa o formulário
   document.getElementById("student-modal").style.display = "none";
 }
 
@@ -172,8 +177,8 @@ async function saveStudent() {
 
   const aluno = {
     id: studentId ? parseInt(studentId) : null,
-    nome,
-    sobrenome,
+    nome: firstName,
+    sobrenome: lastName,
     turma: studentClass,
   };
 
