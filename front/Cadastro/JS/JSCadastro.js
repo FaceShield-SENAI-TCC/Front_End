@@ -169,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Turma é sempre enviada (obrigatória para ambos)
       turma: document.getElementById("turma").value.trim(),
       tipoUsuario: tipoUsuario === "1" ? "ALUNO" : "PROFESSOR",
-      // Para aluno: username e senha como null
+      // Para usuárioo: username e senha como null
       // Para professor: username e senha como valores
       username:
         tipoUsuario === "2"

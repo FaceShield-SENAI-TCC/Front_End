@@ -1,64 +1,64 @@
 // URL base da sua API (ajuste conforme sua configuração)
 const API_URL = "http://localhost:8080/usuarios/buscar";
 
-// Objeto para manipular os alunos via API
-const alunoService = {
-  // Buscar todos os alunos
+// Objeto para manipular os usuarios via API
+const usuarioService = {
+  // Buscar todos os usuarios
   getAll: async function () {
     try {
       console.log("dwiaowdoia");
       const response = await fetch("http://localhost:8080/usuarios/buscar");
       if (!response.ok) {
-        throw new Error("Erro ao buscar todos alunos");
+        throw new Error("Erro ao buscar todos os usuarios");
       }
       return await response.json();
     } catch (error) {
       console.error("Erro:", error);
-      alert("Erro ao carregar todos alunos");
+      alert("Erro ao carregar todos usuarios");
       return [];
     }
   },
 
-  // Buscar aluno por ID
+  // Buscar usuario por ID
   getById: async function (id) {
     try {
       const response = await fetch(`${API_URL}?id=${id}`);
       if (!response.ok) {
-        throw new Error("Erro ao buscar aluno por id");
+        throw new Error("Erro ao buscar usuario por id");
       }
       return await response.json();
     } catch (error) {
       console.error("Erro:", error);
-      alert("Erro ao buscar aluno por id");
+      alert("Erro ao buscar usuario por id");
       return null;
     }
   },
 
-  // Salvar aluno (criar ou atualizar)
-  save: async function (aluno) {
+  // Salvar usuario (criar ou atualizar)
+  save: async function (usuario) {
     try {
-      const method = aluno.id ? "PUT" : "POST";
+      const method = usuario.id ? "PUT" : "POST";
       const response = await fetch(API_URL, {
         method: method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(aluno),
+        body: JSON.stringify(usuario),
       });
 
       if (!response.ok) {
-        throw new Error("Erro ao salvar aluno");
+        throw new Error("Erro ao salvar usuario");
       }
 
       return await response.json();
     } catch (error) {
       console.error("Erro:", error);
-      alert("Erro ao salvar aluno");
+      alert("Erro ao salvar usuario");
       return null;
     }
   },
 
-  // Deletar aluno
+  // Deletar usuario
   delete: async function (id) {
     try {
       const response = await fetch(`${API_URL}?id=${id}`, {
@@ -66,40 +66,40 @@ const alunoService = {
       });
 
       if (!response.ok) {
-        throw new Error("Erro ao deletar aluno");
+        throw new Error("Erro ao deletar usuario");
       }
 
       return true;
     } catch (error) {
       console.error("Erro:", error);
-      alert("Erro ao deletar aluno");
+      alert("Erro ao deletar usuario");
       return false;
     }
   },
 
-  // Pesquisar alunos
+  // Pesquisar usuarios
   search: async function (term) {
     try {
       const response = await fetch(`${API_URL}?search=${term}`);
       if (!response.ok) {
-        throw new Error("Erro ao pesquisar alunos");
+        throw new Error("Erro ao pesquisar usuarios");
       }
       return await response.json();
     } catch (error) {
       console.error("Erro:", error);
-      alert("Erro ao pesquisar alunos");
+      alert("Erro ao pesquisar usuarios");
       return [];
     }
   },
 };
 
-// Função para carregar alunos na tabela
+// Função para carregar usuarios na tabela
 async function loadStudentsTable(studentsArray = null) {
   const tableBody = document.getElementById("students-table-body");
   tableBody.innerHTML = "";
 
   try {
-    const students = studentsArray || (await alunoService.getAll());
+    const students = studentsArray || (await usuarioService.getAll());
 
     students.forEach((student) => {
       const row = document.createElement("tr");
@@ -120,14 +120,14 @@ async function loadStudentsTable(studentsArray = null) {
       tableBody.appendChild(row);
     });
   } catch (error) {
-    console.error("Erro ao carregar alunos:", error);
+    console.error("Erro ao carregar usuarios:", error);
   }
 }
 
 // Função de pesquisa
 async function searchStudents() {
   const searchTerm = document.getElementById("search-input").value;
-  const filteredStudents = await alunoService.search(searchTerm);
+  const filteredStudents = await usuarioService.search(searchTerm);
   loadStudentsTable(filteredStudents);
 }
 
@@ -135,19 +135,19 @@ async function searchStudents() {
 function openAddStudentModal() {
   document.getElementById("student-form").reset();
   document.getElementById("student-id").value = "";
-  document.getElementById("modal-title").textContent = "Adicionar Novo Aluno";
+  document.getElementById("modal-title").textContent = "Adicionar Novo Usuario";
   document.getElementById("student-modal").style.display = "flex";
 }
 
 async function openEditStudentModal(id) {
   try {
-    const student = await alunoService.getById(id);
+    const student = await usuarioService.getById(id);
     if (student) {
       document.getElementById("student-id").value = student.id;
       document.getElementById("first-name").value = student.nome;
       document.getElementById("last-name").value = student.sobrenome;
       document.getElementById("class").value = student.turma;
-      document.getElementById("modal-title").textContent = "Editar Aluno";
+      document.getElementById("modal-title").textContent = "Editar Usuario";
       document.getElementById("student-modal").style.display = "flex";
     }
   } catch (error) {
@@ -170,7 +170,7 @@ async function saveStudent() {
     return;
   }
 
-  const aluno = {
+  const usuario = {
     id: studentId ? parseInt(studentId) : null,
     nome,
     sobrenome,
@@ -178,23 +178,23 @@ async function saveStudent() {
   };
 
   try {
-    await alunoService.save(aluno);
+    await usuarioService.save(usuario);
     loadStudentsTable();
     closeModal();
   } catch (error) {
-    console.error("Erro ao salvar aluno:", error);
+    console.error("Erro ao salvar usuario:", error);
   }
 }
 
-// Função para editar aluno
+// Função para editar usuario
 function editStudent(id) {
   openEditStudentModal(id);
 }
 
-// Função para deletar aluno
+// Função para deletar usuario
 async function deleteStudent(id) {
-  if (confirm("Tem certeza que deseja excluir este aluno?")) {
-    const success = await alunoService.delete(id);
+  if (confirm("Tem certeza que deseja excluir este usuario?")) {
+    const success = await usuarioService.delete(id);
     if (success) {
       loadStudentsTable();
     }
