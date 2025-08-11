@@ -1,12 +1,6 @@
-// URLs da API
-const API_TOOLS_GET_URL = "http://localhost:8080/ferramentas/buscar";
-const API_TOOLS_POST_URL = "http://localhost:8080/ferramentas/novaFerramenta";
-const API_TOOLS_PUT_URL = "http://localhost:8080/ferramentas/editar";
-const API_TOOLS_DELETE_URL = "http://localhost:8080/ferramentas/deletar";
-const API_LOCATIONS_URL = "http://localhost:8080/locais/buscar";
-
 // Elementos DOM
 const toolsTableBody = document.getElementById("tools-table-body");
+const toolsCards = document.getElementById("tools-cards");
 const searchInput = document.getElementById("search-input");
 const toolModal = document.getElementById("tool-modal");
 const modalTitle = document.getElementById("modal-title");
@@ -15,15 +9,11 @@ const toolId = document.getElementById("tool-id");
 const toolName = document.getElementById("tool-name");
 const toolBrand = document.getElementById("tool-brand");
 const toolModel = document.getElementById("tool-model");
-const toolStock = document.getElementById("tool-stock");
-const toolLocation = document.getElementById("tool-location");
-const locationDetails = document.getElementById("location-details");
-const locationSpaceDetail = document.getElementById("location-space-detail");
-const locationCabinetDetail = document.getElementById(
-  "location-cabinet-detail"
-);
-const locationShelfDetail = document.getElementById("location-shelf-detail");
-const locationCaseDetail = document.getElementById("location-case-detail");
+const toolQrcode = document.getElementById("tool-qrcode");
+const toolEstado = document.getElementById("tool-estado");
+const toolDisponibilidade = document.getElementById("tool-disponibilidade");
+const toolDescricao = document.getElementById("tool-descricao");
+const toolIdLocal = document.getElementById("tool-id_local");
 const addToolBtn = document.getElementById("add-tool-btn");
 const saveBtn = document.getElementById("save-btn");
 const cancelBtn = document.getElementById("cancel-btn");
@@ -31,209 +21,324 @@ const closeBtn = document.querySelector(".close-btn");
 const notification = document.getElementById("notification");
 const loadingOverlay = document.getElementById("loading-overlay");
 
-// Variáveis para armazenar dados
-let tools = [];
-let locations = [];
+const Ferramenta_GET = "http://localhost:8080/ferramentas/buscar";
+const Ferramenta_POST = "http://localhost:8080/ferramentas/novaFerramenta";
+const Ferramenta_PUT = "http://localhost:8080/ferramentas/editar";
+const Ferramenta_DELETE = "http://localhost:8080/ferramentas/deletar";
+
+const locais_get = "http://localhost:8080/locais/buscar";
+
+// Cache de locais
+let locaisCache = [];
 
 // Função para mostrar notificação
-function showNotification(type, message) {
+function showNotification(message, isSuccess = true) {
   notification.textContent = message;
-  notification.className = `notification ${type}`;
-  notification.style.display = "block";
+  notification.className = `notification ${isSuccess ? "success" : "error"}`;
+  notification.classList.add("show");
 
   setTimeout(() => {
-    notification.style.display = "none";
+    notification.classList.remove("show");
   }, 3000);
 }
 
-// Função para mostrar/ocultar loading
+// Mostrar/ocultar overlay de carregamento
 function showLoading(show) {
   loadingOverlay.style.display = show ? "flex" : "none";
 }
 
-// Função para buscar ferramentas da API
-async function fetchTools() {
-  showLoading(true);
+// Função para carregar locais
+async function loadLocais() {
   try {
-    const response = await fetch(API_TOOLS_GET_URL);
+    // Mostrar estado de carregamento
+    toolIdLocal.innerHTML =
+      '<option value="">Carregando locais... <span class="loading"></span></option>';
 
-    if (!response.ok) {
-      throw new Error(`Erro na requisição: ${response.status}`);
+    const response = await fetch(locais_get);
+    if (!response.ok) throw new Error("Erro ao carregar locais");
+
+    const locais = await response.json();
+    locaisCache = locais; // Armazenar em cache
+
+    return locais;
+  } catch (error) {
+    console.error("Erro ao carregar locais:", error);
+    toolIdLocal.innerHTML = '<option value="">Erro ao carregar locais</option>';
+    showNotification("Erro ao carregar locais", false);
+    return [];
+  }
+}
+
+// Função para preencher o select de locais com o cache
+function fillLocaisSelect() {
+  toolIdLocal.innerHTML = '<option value="">Selecione um local...</option>';
+  locaisCache.forEach((local) => {
+    const option = document.createElement("option");
+    option.value = local.id;
+    // CORREÇÃO: Usar nomeEspaco em vez de nome
+    option.textContent = local.nomeEspaco;
+    toolIdLocal.appendChild(option);
+  });
+}
+
+// Função para carregar ferramentas
+async function loadFerramentas() {
+  try {
+    const response = await fetch(Ferramenta_GET);
+    if (!response.ok) throw new Error("Erro ao carregar ferramentas");
+    return await response.json();
+  } catch (error) {
+    console.error("Erro ao carregar ferramentas:", error);
+    showNotification("Erro ao carregar ferramentas", false);
+    return [];
+  }
+}
+
+// Função para criar card de ferramenta (mobile)
+function createToolCard(ferramenta, nomeLocal) {
+  const card = document.createElement("div");
+  card.className = "tool-card";
+
+  card.innerHTML = `
+        <div class="card-header">
+          <div class="card-title">${ferramenta.nome}</div>
+          <div class="card-badge">ID: ${ferramenta.id}</div>
+        </div>
+        
+        <div class="card-details">
+          <div class="card-detail">
+            <span class="detail-label">Marca:</span>
+            <span class="detail-value">${ferramenta.marca}</span>
+          </div>
+          
+          <div class="card-detail">
+            <span class="detail-label">Modelo:</span>
+            <span class="detail-value">${ferramenta.modelo}</span>
+          </div>
+          
+          <div class="card-detail">
+            <span class="detail-label">QR Code:</span>
+            <span class="detail-value">${ferramenta.qrcode || "N/A"}</span>
+          </div>
+          
+          <div class="card-detail">
+            <span class="detail-label">Estado:</span>
+            <span class="detail-value">${ferramenta.estado}</span>
+          </div>
+          
+          <div class="card-detail">
+            <span class="detail-label">Disponível:</span>
+            <span class="detail-value ${
+              ferramenta.disponibilidade
+                ? "status-available"
+                : "status-unavailable"
+            }">
+              ${ferramenta.disponibilidade ? "Sim" : "Não"}
+            </span>
+          </div>
+          
+          <div class="card-detail">
+            <span class="detail-label">Local:</span>
+            <span class="detail-value">${nomeLocal}</span>
+          </div>
+          
+          <div class="card-detail" style="grid-column: span 2;">
+            <span class="detail-label">Descrição:</span>
+            <span class="detail-value">
+              ${
+                ferramenta.descricao
+                  ? ferramenta.descricao.substring(0, 50) +
+                    (ferramenta.descricao.length > 50 ? "..." : "")
+                  : "N/A"
+              }
+            </span>
+          </div>
+        </div>
+        
+        <div class="card-actions">
+          <button class="card-action card-edit" data-id="${ferramenta.id}">
+            <i class="fas fa-edit"></i> Editar
+          </button>
+          <button class="card-action card-delete" data-id="${ferramenta.id}">
+            <i class="fas fa-trash-alt"></i> Excluir
+          </button>
+        </div>
+      `;
+
+  return card;
+}
+
+// Função para carregar ferramentas na tabela e cards
+async function loadToolsTable() {
+  showLoading(true);
+
+  try {
+    const ferramentas = await loadFerramentas();
+    toolsTableBody.innerHTML = "";
+    toolsCards.innerHTML = "";
+
+    if (ferramentas.length === 0) {
+      toolsTableBody.innerHTML = `
+            <tr>
+              <td colspan="10" style="text-align: center; padding: 30px;">
+                <i class="fas fa-info-circle" style="font-size: 3rem; color: #6c757d; margin-bottom: 15px;"></i>
+                <p>Nenhuma ferramenta cadastrada</p>
+              </td>
+            </tr>
+          `;
+
+      toolsCards.innerHTML = `
+            <div class="tool-card" style="text-align: center; padding: 30px;">
+              <i class="fas fa-info-circle" style="font-size: 3rem; color: #6c757d; margin-bottom: 15px;"></i>
+              <p>Nenhuma ferramenta cadastrada</p>
+            </div>
+          `;
+
+      return;
     }
 
-    const data = await response.json();
-    return data;
+    ferramentas.forEach((ferramenta) => {
+      const local = locaisCache.find((l) => l.id === ferramenta.id_local);
+      const nomeLocal = local ? local.nomeEspaco : "Local não encontrado";
+
+      // Criar linha da tabela (desktop)
+      const row = document.createElement("tr");
+      row.innerHTML = `
+            <td>${ferramenta.id}</td>
+            <td>${ferramenta.nome}</td>
+            <td>${ferramenta.marca}</td>
+            <td>${ferramenta.modelo}</td>
+            <td>${ferramenta.qrcode || "N/A"}</td>
+            <td>${ferramenta.estado}</td>
+            <td class="${
+              ferramenta.disponibilidade
+                ? "status-available"
+                : "status-unavailable"
+            }">
+              ${ferramenta.disponibilidade ? "Sim" : "Não"}
+            </td>
+            <td>${
+              ferramenta.descricao
+                ? ferramenta.descricao.substring(0, 20) +
+                  (ferramenta.descricao.length > 20 ? "..." : "")
+                : "N/A"
+            }</td>
+            <td>${nomeLocal}</td>
+            <td class="action-buttons-cell">
+              <button class="btn-action btn-edit" data-id="${ferramenta.id}">
+                <i class="fas fa-edit"></i> Editar
+              </button>
+              <button class="btn-action btn-delete" data-id="${ferramenta.id}">
+                <i class="fas fa-trash-alt"></i> Excluir
+              </button>
+            </td>
+          `;
+      toolsTableBody.appendChild(row);
+
+      // Criar card (mobile)
+      const card = createToolCard(ferramenta, nomeLocal);
+      toolsCards.appendChild(card);
+    });
+
+    // Adicionar event listeners para os botões (tabela)
+    document.querySelectorAll(".btn-edit").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const id = this.getAttribute("data-id");
+        openEditToolModal(id);
+      });
+    });
+
+    document.querySelectorAll(".btn-delete").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const id = this.getAttribute("data-id");
+        deleteTool(id);
+      });
+    });
+
+    // Adicionar event listeners para os botões (cards)
+    document.querySelectorAll(".card-edit").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const id = this.getAttribute("data-id");
+        openEditToolModal(id);
+      });
+    });
+
+    document.querySelectorAll(".card-delete").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const id = this.getAttribute("data-id");
+        deleteTool(id);
+      });
+    });
   } catch (error) {
-    console.error("Erro ao buscar ferramentas:", error);
-    showNotification("error", "Falha ao carregar ferramentas do servidor");
-    return [];
+    console.error("Erro ao carregar ferramentas:", error);
+    showNotification("Erro ao carregar ferramentas", false);
   } finally {
     showLoading(false);
   }
 }
 
-// Função para buscar locais da API
-async function fetchLocations() {
-  try {
-    const response = await fetch(API_LOCATIONS_URL);
-
-    if (!response.ok) {
-      throw new Error(`Erro na requisição: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Erro ao buscar locais:", error);
-    showNotification("error", "Falha ao carregar locais do servidor");
-    return [];
-  }
-}
-
-// Função para carregar locais no dropdown
-function loadLocationsDropdown() {
-  toolLocation.innerHTML = '<option value="">Selecione um local</option>';
-
-  locations.forEach((location) => {
-    const option = document.createElement("option");
-    option.value = location.id;
-    option.textContent = `${location.nome_espaco} (Armário: ${location.armario}, Prateleira: ${location.prateleira})`;
-    toolLocation.appendChild(option);
-  });
-}
-
-// Função para mostrar detalhes do local selecionado
-function showLocationDetails(locationId) {
-  const location = locations.find((l) => l.id == locationId);
-
-  if (location) {
-    locationSpaceDetail.textContent = location.nome_espaco;
-    locationCabinetDetail.textContent = location.armario;
-    locationShelfDetail.textContent = location.prateleira;
-    locationCaseDetail.textContent = location.estojo || "N/A";
-    locationDetails.style.display = "block";
-  } else {
-    locationDetails.style.display = "none";
-  }
-}
-
-// Função para carregar ferramentas na tabela
-function loadToolsTable(toolsArray = tools) {
-  toolsTableBody.innerHTML = "";
-
-  if (toolsArray.length === 0) {
-    // Mostrar estado vazio se necessário
-    return;
-  }
-
-  toolsArray.forEach((tool) => {
-    const row = document.createElement("tr");
-
-    // Encontrar o local correspondente
-    const location = locations.find((l) => l.id == tool.localId);
-
-    const estojoDisplay = tool.estojo
-      ? `<span class="location-badge"><i class="fas fa-box"></i> ${tool.estojo}</span>`
-      : '<span class="location-badge"><i class="fas fa-box"></i> N/A</span>';
-
-    row.innerHTML = `
-                    <td>${tool.id}</td>
-                    <td>${tool.name}</td>
-                    <td>${tool.brand}</td>
-                    <td>${tool.model}</td>
-                    <td class="${tool.stock < 5 ? "quantity-low" : ""}">${
-      tool.stock
-    }</td>
-                    <td><span class="location-badge"><i class="fas fa-building"></i> ${
-                      location ? location.nome_espaco : "N/A"
-                    }</span></td>
-                    <td><span class="location-badge"><i class="fas fa-archive"></i> ${
-                      location ? location.armario : "N/A"
-                    }</span></td>
-                    <td><span class="location-badge"><i class="fas fa-layer-group"></i> ${
-                      location ? location.prateleira : "N/A"
-                    }</span></td>
-                    <td>${estojoDisplay}</td>
-                    <td class="action-buttons-cell">
-                        <button class="btn-action btn-edit" data-id="${
-                          tool.id
-                        }">
-                            <i class="fas fa-edit"></i> Editar
-                        </button>
-                        <button class="btn-action btn-delete" data-id="${
-                          tool.id
-                        }">
-                            <i class="fas fa-trash-alt"></i> Excluir
-                        </button>
-                    </td>
-                `;
-    toolsTableBody.appendChild(row);
-  });
-
-  // Adicionar event listeners para os novos botões
-  document.querySelectorAll(".btn-edit").forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const id = this.getAttribute("data-id");
-      openEditToolModal(id);
-    });
-  });
-
-  document.querySelectorAll(".btn-delete").forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const id = this.getAttribute("data-id");
-      deleteTool(id);
-    });
-  });
-}
-
 // Função de pesquisa
 function searchTools() {
   const searchTerm = searchInput.value.toLowerCase();
-  const filteredTools = tools.filter(
-    (tool) =>
-      tool.name.toLowerCase().includes(searchTerm) ||
-      tool.brand.toLowerCase().includes(searchTerm) ||
-      tool.model.toLowerCase().includes(searchTerm) ||
-      (tool.localId &&
-        locations.some(
-          (l) =>
-            l.id == tool.localId &&
-            l.nome_espaco.toLowerCase().includes(searchTerm)
-        ))
-  );
-  loadToolsTable(filteredTools);
+
+  // Filtrar tabela
+  const rows = toolsTableBody.querySelectorAll("tr");
+  rows.forEach((row) => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(searchTerm) ? "" : "none";
+  });
+
+  // Filtrar cards
+  const cards = toolsCards.querySelectorAll(".tool-card");
+  cards.forEach((card) => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = text.includes(searchTerm) ? "" : "none";
+  });
 }
 
 // Funções do modal
-function openAddToolModal() {
+async function openAddToolModal() {
   toolForm.reset();
   toolId.value = "";
+  toolDisponibilidade.checked = true;
   modalTitle.textContent = "Adicionar Nova Ferramenta";
-  toolLocation.value = "";
-  locationDetails.style.display = "none";
   toolModal.style.display = "flex";
+
+  // Preencher o select de locais com o cache
+  fillLocaisSelect();
 }
 
-function openEditToolModal(id) {
-  const tool = tools.find((t) => t.id == id);
-  if (tool) {
-    toolId.value = tool.id;
-    toolName.value = tool.name;
-    toolBrand.value = tool.brand;
-    toolModel.value = tool.model;
-    toolStock.value = tool.stock;
+async function openEditToolModal(id) {
+  try {
+    showLoading(true);
+    const response = await fetch(`${Ferramenta_GET}/${id}`);
+    if (!response.ok) throw new Error("Erro ao carregar ferramenta");
 
-    // Selecionar o local correspondente
-    if (tool.localId) {
-      toolLocation.value = tool.localId;
-      showLocationDetails(tool.localId);
-    } else {
-      toolLocation.value = "";
-      locationDetails.style.display = "none";
-    }
+    const ferramenta = await response.json();
+
+    // Preencher o select de locais com o cache
+    fillLocaisSelect();
+
+    // Preencher formulário
+    toolId.value = ferramenta.id;
+    toolName.value = ferramenta.nome;
+    toolBrand.value = ferramenta.marca;
+    toolModel.value = ferramenta.modelo;
+    toolQrcode.value = ferramenta.qrcode || "";
+    toolEstado.value = ferramenta.estado;
+    toolDisponibilidade.checked = ferramenta.disponibilidade;
+    toolDescricao.value = ferramenta.descricao || "";
+
+    // Selecionar o local correto
+    toolIdLocal.value = ferramenta.id_local;
 
     modalTitle.textContent = "Editar Ferramenta";
     toolModal.style.display = "flex";
+  } catch (error) {
+    console.error("Erro ao carregar ferramenta:", error);
+    showNotification("Não foi possível carregar os dados da ferramenta", false);
+  } finally {
+    showLoading(false);
   }
 }
 
@@ -242,82 +347,67 @@ function closeModal() {
 }
 
 async function saveTool() {
-  const id = toolId.value;
-  const name = toolName.value;
-  const brand = toolBrand.value;
-  const model = toolModel.value;
-  const stock = parseInt(toolStock.value);
-  const localId = toolLocation.value;
-
   // Validar campos obrigatórios
-  if (!name || !brand || !model || isNaN(stock) || !localId) {
-    showNotification("error", "Preencha todos os campos obrigatórios");
+  if (
+    !toolName.value ||
+    !toolBrand.value ||
+    !toolModel.value ||
+    !toolEstado.value ||
+    !toolIdLocal.value
+  ) {
+    showNotification("Preencha todos os campos obrigatórios!", false);
     return;
   }
 
-  // Construir objeto no formato esperado pelo servidor (CORREÇÃO)
   const toolData = {
-    nome_espaco: name, // Campo alterado para 'nome'
-    marca: brand, // Campo alterado para 'marca'
-    modelo: model, // Campo alterado para 'modelo'
-    estoque: stock, // Campo alterado para 'estoque'
-    local: {
-      // Estrutura aninhada
-      id: parseInt(localId),
-    },
+    nome: toolName.value,
+    marca: toolBrand.value,
+    modelo: toolModel.value,
+    qrcode: toolQrcode.value || null,
+    estado: toolEstado.value,
+    disponibilidade: toolDisponibilidade.checked,
+    descricao: toolDescricao.value || null,
+    id_local: parseInt(toolIdLocal.value),
   };
 
-  showLoading(true);
   try {
+    showLoading(true);
     let response;
-    let url;
+    const method = toolId.value ? "PUT" : "POST";
+    const url = toolId.value
+      ? `${Ferramenta_PUT}/${toolId.value}`
+      : Ferramenta_POST;
 
-    if (id) {
-      // Atualização (PUT)
-      url = API_TOOLS_PUT_URL;
-      response = await fetch(url, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(toolData),
-      });
-    } else {
-      // Criação (POST)
-      url = API_TOOLS_POST_URL;
-      response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(toolData),
-      });
-    }
+    response = await fetch(url, {
+      method: method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(toolData),
+    });
 
     if (!response.ok) {
-      throw new Error(`Erro ${response.status}: ${errorText}`);
+      const errorText = await response.text();
+      throw new Error(`Erro HTTP ${response.status}: ${errorText}`);
     }
 
-    // Recarregar ferramentas
-    tools = await fetchTools();
-    loadToolsTable(tools);
-    closeModal();
-    showNotification(
-      "success",
-      id
-        ? "Ferramenta atualizada com sucesso!"
-        : "Ferramenta criada com sucesso!"
-    );
-  } catch (error) {
-    console.error("Erro completo ao salvar ferramenta:", error);
-    showNotification("error", error.message || "Erro ao salvar ferramenta");
+    // Verificar se a resposta é JSON válido
+    const contentType = response.headers.get("content-type");
+    const result = contentType?.includes("application/json")
+      ? await response.json()
+      : await response.text();
 
-    // Log detalhado para diagnóstico
-    console.error("Detalhes do erro:", {
-      name: error.name,
-      message: error.message,
-      stack: error.stack,
-    });
+    showNotification(
+      toolId.value
+        ? "Ferramenta atualizada com sucesso!"
+        : "Ferramenta cadastrada com sucesso!",
+      true
+    );
+    await loadToolsTable();
+    closeModal();
+  } catch (error) {
+    console.error("Erro ao salvar ferramenta:", error);
+    showNotification(`Erro ao salvar ferramenta: ${error.message}`, false);
   } finally {
     showLoading(false);
   }
@@ -325,46 +415,29 @@ async function saveTool() {
 
 // Função para excluir ferramenta
 async function deleteTool(id) {
-  if (!confirm("Tem certeza que deseja excluir esta ferramenta?")) return;
+  if (confirm("Tem certeza que deseja excluir esta ferramenta?")) {
+    try {
+      showLoading(true);
+      const response = await fetch(`${Ferramenta_DELETE}/${id}`, {
+        method: "DELETE",
+      });
 
-  showLoading(true);
-  try {
-    const response = await fetch(`${API_TOOLS_DELETE_URL}/${id}`, {
-      method: "DELETE",
-    });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Erro HTTP ${response.status}: ${errorText}`);
+      }
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `Erro ${response.status}: ${errorText || response.statusText}`
+      showNotification("Ferramenta excluída com sucesso!", true);
+      await loadToolsTable();
+    } catch (error) {
+      console.error("Erro ao excluir ferramenta:", error);
+      showNotification(
+        `Não foi possível excluir a ferramenta: ${error.message}`,
+        false
       );
+    } finally {
+      showLoading(false);
     }
-
-    // Recarregar ferramentas
-    tools = await fetchTools();
-    loadToolsTable(tools);
-    showNotification("success", "Ferramenta excluída com sucesso!");
-  } catch (error) {
-    console.error("Erro ao excluir ferramenta:", error);
-    showNotification("error", error.message || "Erro ao excluir ferramenta");
-  } finally {
-    showLoading(false);
-  }
-}
-
-// Inicializar aplicação
-async function init() {
-  try {
-    // Carregar locais primeiro
-    locations = await fetchLocations();
-    loadLocationsDropdown();
-
-    // Carregar ferramentas
-    tools = await fetchTools();
-    loadToolsTable(tools);
-  } catch (error) {
-    console.error("Erro na inicialização:", error);
-    showNotification("error", "Falha ao iniciar a aplicação");
   }
 }
 
@@ -375,15 +448,6 @@ cancelBtn.addEventListener("click", closeModal);
 closeBtn.addEventListener("click", closeModal);
 searchInput.addEventListener("input", searchTools);
 
-// Mostrar detalhes do local quando selecionado
-toolLocation.addEventListener("change", function () {
-  if (this.value) {
-    showLocationDetails(this.value);
-  } else {
-    locationDetails.style.display = "none";
-  }
-});
-
 // Fechar modal ao clicar fora do conteúdo
 window.addEventListener("click", (e) => {
   if (e.target === toolModal) {
@@ -391,5 +455,32 @@ window.addEventListener("click", (e) => {
   }
 });
 
-// Inicializar quando o DOM estiver carregado
-document.addEventListener("DOMContentLoaded", init);
+// Inicializa a tabela e carrega locais quando a página carregar
+document.addEventListener("DOMContentLoaded", async function () {
+  showLoading(true);
+  try {
+    // Carregar locais primeiro
+    await loadLocais();
+    // Preencher o select de locais
+    fillLocaisSelect();
+    // Carregar ferramentas depois
+    await loadToolsTable();
+  } catch (error) {
+    console.error("Erro na inicialização:", error);
+    showNotification("Erro ao carregar dados iniciais", false);
+  } finally {
+    showLoading(false);
+  }
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && toolModal.style.display === "flex") {
+      closeModal();
+    }
+  });
+
+  // Fechar modal ao clicar fora do conteúdo
+  window.addEventListener("click", (e) => {
+    if (e.target === toolModal) {
+      closeModal();
+    }
+  });
+});
