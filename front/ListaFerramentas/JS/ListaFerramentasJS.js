@@ -198,7 +198,7 @@ async function loadToolsTable() {
     }
 
     ferramentas.forEach((ferramenta) => {
-      const local = locaisCache.find((l) => l.id === ferramenta.id_local);
+      const local = locaisCache.find((l) => l.id === ferramenta.nomeLocal);
       const nomeLocal = local ? local.nomeEspaco : "Local não encontrado";
 
       // Criar linha da tabela (desktop)
@@ -223,7 +223,7 @@ async function loadToolsTable() {
                   (ferramenta.descricao.length > 20 ? "..." : "")
                 : "N/A"
             }</td>
-            <td>${nomeLocal}</td>
+            <td>${ferramenta.nomeLocal}</td>
             <td class="action-buttons-cell">
               <button class="btn-action btn-edit" data-id="${ferramenta.id}">
                 <i class="fas fa-edit"></i> Editar
@@ -367,7 +367,7 @@ async function saveTool() {
     estado: toolEstado.value,
     disponibilidade: toolDisponibilidade.checked,
     descricao: toolDescricao.value || null,
-    id_local: parseInt(toolIdLocal.value),
+    id_local: toolIdLocal.value,
   };
 
   try {

@@ -4,11 +4,71 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistema de Empréstimos - Alunos</title>
+    <script src="./JS/ListaAlunJS.js" defer></script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <link rel="stylesheet" href="CSS/ListaAlunCss.css" />
+    <style>
+      /* Estilos básicos para garantir a funcionalidade */
+      .container {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        width: 250px;
+        background: #2c3e50;
+        color: white;
+        padding: 20px;
+      }
+
+      .main-content {
+        flex: 1;
+        padding: 20px;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+      }
+
+      .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        width: 500px;
+      }
+
+      .btn-icon {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+        margin: 0 3px;
+      }
+
+      .btn-danger {
+        color: #e74c3c;
+      }
+
+      .btn-primary {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+    </style>
   </head>
   <body>
     <div class="container">
@@ -17,36 +77,20 @@
         <div class="logo">
           <h2><i class="fas fa-tools"></i> Controle de Empréstimos</h2>
         </div>
-        <div
-          class="menu-item active"
-          onclick="window.location.href='../ListaAluno/ListAluno.html'"
-        >
+        <div class="menu-item active">
           <i class="fas fa-user-graduate"></i> Alunos
         </div>
-        <div
-          class="menu-item"
-          onclick="window.location.href='../VerEmprestimo/Emprestimos.html'"
-        >
+        <div class="menu-item">
           <i class="fas fa-clipboard-list"></i> Empréstimos
         </div>
-        <div
-          class="menu-item"
-          onclick="window.location.href='../ListaFerramentas/ListaFerramentas.html'"
-        >
-          <i class="fas fa-toolbox"></i> Ferramentas
-        </div>
-        <div
-          class="menu-item"
-          onclick="window.location.href='../Locais/local.html'"
-        >
+        <div class="menu-item"><i class="fas fa-toolbox"></i> Ferramentas</div>
+        <div class="menu-item">
           <i class="fas fa-map-marker-alt"></i> Locais
         </div>
-        <div class="menu-item" onclick="navigate('novo-emprestimo')">
+        <div class="menu-item">
           <i class="fas fa-plus-circle"></i> Novo Empréstimo
         </div>
-        <div class="menu-item" onclick="window.location.href='../index.html'">
-          <i class="fas fa-sign-out-alt"></i> Sair
-        </div>
+        <div class="menu-item"><i class="fas fa-sign-out-alt"></i> Sair</div>
       </div>
 
       <!-- Conteúdo Principal - Página de Alunos -->
@@ -55,10 +99,7 @@
           <h1 class="page-title">
             <i class="fas fa-user-graduate"></i> Alunos Matriculados
           </h1>
-          <button
-            class="logout-btn"
-            onclick="window.location.href='../index.html'"
-          >
+          <button class="logout-btn">
             <i class="fas fa-sign-out-alt"></i> Sair do Sistema
           </button>
         </div>
@@ -92,6 +133,7 @@
                 <th>Nome</th>
                 <th>Sobrenome</th>
                 <th>Turma</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody id="students-table-body">
@@ -153,6 +195,8 @@
       </div>
     </div>
 
-    <script src="JS/ListaAlunJS.js" defer></script>
+    <script>
+      // TODO: Coloque todo o código JavaScript fornecido acima aqui
+    </script>
   </body>
 </html>

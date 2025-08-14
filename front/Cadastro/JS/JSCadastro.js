@@ -62,38 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
     input.addEventListener("input", () => validarCampo(input));
   });
 
-  // Simulação de captura biométrica
-  if (scanWidget) {
-    scanWidget.addEventListener("click", async () => {
-      if (isScanning) return;
-
-      isScanning = true;
-      scanWidget.style.pointerEvents = "none";
-      const uploadInstruction = document.querySelector(".upload-instruction");
-      if (uploadInstruction) {
-        uploadInstruction.textContent = "Capturando...";
-      }
-
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        scanWidget.classList.add("scan-success");
-        showFeedback("success", "Biometria capturada com sucesso!");
-      } catch (error) {
-        scanWidget.classList.add("scan-error");
-        showFeedback("error", "Falha na captura biométrica");
-      } finally {
-        isScanning = false;
-        scanWidget.style.pointerEvents = "auto";
-        setTimeout(() => {
-          scanWidget.classList.remove("scan-success", "scan-error");
-          if (uploadInstruction) {
-            uploadInstruction.textContent = "Clique para captura biométrica";
-          }
-        }, 2000);
-      }
-    });
-  }
-
   // Exibir mensagens de feedback
   function showFeedback(tipo, mensagem) {
     if (!feedback) return;
@@ -162,15 +130,13 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Preparar dados para envio - CORREÇÃO FINAL
     const formData = {
       nome: document.getElementById("nome").value.trim(),
       sobrenome: document.getElementById("sobrenome").value.trim(),
-      // Turma é sempre enviada (obrigatória para ambos)
+
       turma: document.getElementById("turma").value.trim(),
       tipoUsuario: tipoUsuario === "1" ? "ALUNO" : "PROFESSOR",
-      // Para aluno: username e senha como null
-      // Para professor: username e senha como valores
+
       username:
         tipoUsuario === "2"
           ? document.getElementById("username").value.trim()
