@@ -130,19 +130,25 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // Obter valores dos campos
+    const nome = document.getElementById("nome").value.trim();
+    const sobrenome = document.getElementById("sobrenome").value.trim();
+    const isAluno = tipoUsuario === "1";
+    
+    // Montar objeto com os dados do formulário
     const formData = {
-      nome: document.getElementById("nome").value.trim(),
-      sobrenome: document.getElementById("sobrenome").value.trim(),
-
+      nome: nome,
+      sobrenome: sobrenome,
       turma: document.getElementById("turma").value.trim(),
-      tipoUsuario: tipoUsuario === "1" ? "ALUNO" : "PROFESSOR",
-
-      username:
-        tipoUsuario === "2"
-          ? document.getElementById("username").value.trim()
-          : null,
-      senha:
-        tipoUsuario === "2" ? document.getElementById("senha").value : null,
+      tipoUsuario: isAluno ? "ALUNO" : "PROFESSOR",
+      
+      // Gerar username automático para alunos
+      username: isAluno 
+        ? `${nome.toLowerCase()}.${sobrenome.toLowerCase()}`
+        : document.getElementById("username").value.trim(),
+      
+      // Alunos não usam senha
+      senha: isAluno ? null : document.getElementById("senha").value
     };
 
     try {

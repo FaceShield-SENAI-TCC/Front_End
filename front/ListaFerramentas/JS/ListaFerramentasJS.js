@@ -139,7 +139,7 @@ function createToolCard(ferramenta, nomeLocal) {
           
           <div class="card-detail">
             <span class="detail-label">Local:</span>
-            <span class="detail-value">${nomeLocal}</span>
+            <span class="detail-value">${ferramenta.nomeEspaco}</span>
           </div>
           
           <div class="card-detail" style="grid-column: span 2;">
