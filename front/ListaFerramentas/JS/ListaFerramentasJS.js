@@ -139,7 +139,7 @@ function createToolCard(ferramenta, nomeLocal) {
           
           <div class="card-detail">
             <span class="detail-label">Local:</span>
-            <span class="detail-value">${ferramenta.nomeEspaco}</span>
+            <span class="detail-value">${nomeLocal}</span>
           </div>
           
           <div class="card-detail" style="grid-column: span 2;">
@@ -198,8 +198,8 @@ async function loadToolsTable() {
     }
 
     ferramentas.forEach((ferramenta) => {
-      const local = locaisCache.find((l) => l.id === ferramenta.nomeLocal);
-      const nomeLocal = local ? local.nomeEspaco : "Local não encontrado";
+      const local = locaisCache.find((l) => l.id === ferramenta.nomelocal);
+      const nomeLocal = local ? local.nomeLocal : "Local não encontrado";
 
       // Criar linha da tabela (desktop)
       const row = document.createElement("tr");
@@ -223,6 +223,8 @@ async function loadToolsTable() {
                   (ferramenta.descricao.length > 20 ? "..." : "")
                 : "N/A"
             }</td>
+            
+            
             <td>${ferramenta.nomeLocal}</td>
             <td class="action-buttons-cell">
               <button class="btn-action btn-edit" data-id="${ferramenta.id}">
@@ -233,6 +235,7 @@ async function loadToolsTable() {
               </button>
             </td>
           `;
+
       toolsTableBody.appendChild(row);
 
       // Criar card (mobile)
