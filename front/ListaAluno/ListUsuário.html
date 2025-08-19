@@ -10,7 +10,6 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <link rel="stylesheet" href="CSS/ListaUser.css" />
-  
   </head>
   <body>
     <div class="container">
@@ -18,31 +17,40 @@
         <div class="logo">
           <h2><i class="fas fa-user"></i> Controle de Usuários</h2>
         </div>
-        <div class="menu-item active"
-        onclick="window.location.href='../ListaAluno/ListUsuário.html'">
+        <div
+          class="menu-item active"
+          onclick="window.location.href='../ListaAluno/ListUsuário.html'"
+        >
           <i class="fas fa-user"></i> Usuários
         </div>
 
-        <div class="menu-item"
-        onclick="window.location.href='../VerEmprestimo/Emprestimos.html'">
+        <div
+          class="menu-item"
+          onclick="window.location.href='../VerEmprestimo/Emprestimos.html'"
+        >
           <i class="fas fa-clipboard-list"></i> Empréstimos
         </div>
 
-        <div class="menu-item"
-        onclick="window.location.href='../ListaFerramentas/ListaFerramentas.html'">
-        <i class="fas fa-toolbox"></i> Ferramentas</div>
+        <div
+          class="menu-item"
+          onclick="window.location.href='../ListaFerramentas/ListaFerramentas.html'"
+        >
+          <i class="fas fa-toolbox"></i> Ferramentas
+        </div>
 
-
-        <div class="menu-item"
-        onclick="window.location.href='../Locais/local.html'">
+        <div
+          class="menu-item"
+          onclick="window.location.href='../Locais/local.html'"
+        >
           <i class="fas fa-map-marker-alt"></i> Locais
         </div>
 
-        <div class="menu-item"
-        onclick="window.location.href='#'">
-          <i class="fas fa-plus-circle"></i> Novo Empréstimo
-        </div
+        <div
+          class="menu-item"
+          onclick="window.location.href='../PostEmp/PostEmp.html'"
         >
+          <i class="fas fa-plus-circle"></i> Novo Empréstimo
+        </div>
         <div class="menu-item" onclick="window.location.href='../index.html'">
           <i class="fas fa-sign-out-alt"></i> Sair
         </div>
@@ -50,10 +58,11 @@
 
       <div class="main-content">
         <div class="header">
-          <h1 class="page-title">
-            <i class="fas fa-user"></i> Usuários
-          </h1>
-          <button class="logout-btn" onclick="window.location.href='../index.html'">
+          <h1 class="page-title"><i class="fas fa-user"></i> Usuários</h1>
+          <button
+            class="logout-btn"
+            onclick="window.location.href='../index.html'"
+          >
             <i class="fas fa-sign-out-alt"></i> Sair do Sistema
           </button>
         </div>
@@ -78,7 +87,6 @@
           </div>
         </div>
 
-       
         <div style="overflow-x: auto">
           <table class="students-table">
             <thead>
@@ -96,7 +104,6 @@
           </table>
         </div>
 
-        
         <div id="student-modal" class="modal">
           <div class="modal-content">
             <div class="modal-header">
