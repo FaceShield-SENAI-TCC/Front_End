@@ -198,13 +198,8 @@ async function loadToolsTable() {
     }
 
     ferramentas.forEach((ferramenta) => {
-<<<<<<< HEAD
       const local = locaisCache.find((l) => l.id === ferramenta.nomelocal);
       const nomeLocal = local ? local.nomeLocal : "Local não encontrado";
-=======
-      // CORREÇÃO 1: Obter o nome do local corretamente
-      const nomeLocal = ferramenta.local?.nomeEspaco || "Local não encontrado";
->>>>>>> 150750251ec026104f12a03d4689a5b5376ee116
 
       // Criar linha da tabela (desktop)
       const row = document.createElement("tr");
@@ -228,13 +223,9 @@ async function loadToolsTable() {
                   (ferramenta.descricao.length > 20 ? "..." : "")
                 : "N/A"
             }</td>
-<<<<<<< HEAD
             
             
             <td>${ferramenta.nomeLocal}</td>
-=======
-            <td>${nomeLocal}</td> <!-- CORREÇÃO 2: Usar a variável nomeLocal -->
->>>>>>> 150750251ec026104f12a03d4689a5b5376ee116
             <td class="action-buttons-cell">
               <button class="btn-action btn-edit" data-id="${ferramenta.id}">
                 <i class="fas fa-edit"></i> Editar
