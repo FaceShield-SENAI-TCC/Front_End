@@ -33,7 +33,12 @@ function showFeedback(type, message) {
   }
 }
 
-// Função para formatar data/hora (fuso de Brasília)
+// Função para obter data/hora atual no fuso de Brasília (São Carlos)
+function getDataHoraBrasilia() {
+  return new Date();
+}
+
+// Função para formatar data/hora (fuso de Brasília) para exibição
 function formatarDataBrasilia(date) {
   return date.toLocaleString("pt-BR", {
     timeZone: "America/Sao_Paulo",
@@ -41,17 +46,40 @@ function formatarDataBrasilia(date) {
     month: "2-digit",
     year: "numeric",
     hour: "2-digit",
-    minute: "2-digit",
+    minute: "2-digit"
   });
 }
 
-// Função para converter data para formato ISO (com fuso horário)
+// Função para converter data para formato ISO (YYYY-MM-DDTHH:MM) sem alterar o horário
 function toISOLocal(date) {
-  const offsetMs = date.getTimezoneOffset() * 60 * 1000;
-  const msLocal = date.getTime() - offsetMs;
-  const dateLocal = new Date(msLocal);
-  const iso = dateLocal.toISOString();
-  return iso.slice(0, 16); // Formato YYYY-MM-DDTHH:MM
+  if (!date) return null;
+  
+  const pad = (n) => n.toString().padStart(2, '0');
+  
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+// Função para converter data local para ISO string mantendo o horário local
+function toISOLocalString(date) {
+  if (!date) return null;
+  
+  const pad = (n) => n.toString().padStart(2, '0');
+  
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  const seconds = pad(date.getSeconds());
+  
+  // Retorna no formato: YYYY-MM-DDTHH:MM:SS (horário local)
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 }
 
 // Gerar iniciais a partir do nome
@@ -195,21 +223,20 @@ async function registrarEmprestimo() {
     return;
   }
 
-  // Obter data/hora atual em Brasília
-  const agora = new Date();
-  const dataRetirada = agora.toISOString();
+  // Obter data/hora atual em Brasília (São Carlos)
+  const dataRetirada = getDataHoraBrasilia();
 
   // Tratar data de devolução (pode ser null ou data válida)
-  let dataDevolucaoISO = null;
+  let dataDevolucao = null;
   if (dataDevolucaoInput) {
-    // Converter data de devolução para ISO se fornecida
-    dataDevolucaoISO = new Date(dataDevolucaoInput).toISOString();
+    // Converter data de devolução para objeto Date
+    dataDevolucao = new Date(dataDevolucaoInput);
   }
 
   // Montar objeto para envio conforme Swagger
   const emprestimoData = {
-    data_retirada: dataRetirada,
-    data_devolucao: dataDevolucaoISO, // Pode ser null ou string ISO
+    data_retirada: toISOLocalString(dataRetirada), // Usar horário local
+    data_devolucao: dataDevolucao ? toISOLocalString(dataDevolucao) : null, // Usar horário local
     observacoes: observacoes,
     usuario: {
       id: parseInt(alunoId),
@@ -232,6 +259,8 @@ async function registrarEmprestimo() {
       id_local: ferramenta.id_local,
     },
   };
+
+  console.log("Dados enviados:", emprestimoData);
 
   try {
     // Desativar botão durante a requisição
@@ -268,9 +297,9 @@ async function registrarEmprestimo() {
     document.getElementById("localizacao").value = "";
     document.getElementById("observacoes").value = "";
 
-    // Definir data de devolução padrão (7 dias no futuro) ou vazio
-    const devolucao = new Date();
-    devolucao.setDate(agora.getDate() + 7);
+    // Definir data de devolução padrão (7 dias no futuro)
+    const devolucao = getDataHoraBrasilia();
+    devolucao.setDate(devolucao.getDate() + 7);
     document.getElementById("data-devolucao").value = toISOLocal(devolucao);
     
   } catch (error) {
@@ -300,17 +329,17 @@ document.addEventListener("DOMContentLoaded", async function () {
   const iniciais = gerarIniciais(professorNome);
   userAvatar.textContent = iniciais;
 
-  // Definir data de retirada como agora
-  const agora = new Date();
-  document.getElementById("data-retirada").value = formatarDataBrasilia(agora);
+  // Definir data de retirada como agora (Brasília/São Carlos)
+  const agoraBrasilia = getDataHoraBrasilia();
+  document.getElementById("data-retirada").value = formatarDataBrasilia(agoraBrasilia);
 
   // Definir data de registro
   document.getElementById("data-registro").textContent =
-    formatarDataBrasilia(agora);
+    formatarDataBrasilia(agoraBrasilia);
 
   // Definir data de devolução padrão (7 dias no futuro)
-  const devolucao = new Date();
-  devolucao.setDate(agora.getDate() + 7);
+  const devolucao = getDataHoraBrasilia();
+  devolucao.setDate(devolucao.getDate() + 7);
   document.getElementById("data-devolucao").value = toISOLocal(devolucao);
 
   // Carregar dados iniciais
@@ -329,6 +358,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       window.location.href = "emprestimos.html";
     }
   });
+  
+  // DEBUG: Exibir informações de fuso horário
+  console.log("Hora local (São Carlos/Brasília):", formatarDataBrasilia(getDataHoraBrasilia()));
+  console.log("Hora atual (objeto Date):", getDataHoraBrasilia().toString());
 });
 
 // Função de navegação
