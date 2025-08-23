@@ -139,7 +139,7 @@ function createToolCard(ferramenta, nomeLocal) {
           
           <div class="card-detail">
             <span class="detail-label">Local:</span>
-            <span class="detail-value">${nomeLocal}</span>
+            <span class="detail-value">${ferramenta.nomeLocal}</span>
           </div>
           
           <div class="card-detail" style="grid-column: span 2;">
@@ -223,9 +223,7 @@ async function loadToolsTable() {
                   (ferramenta.descricao.length > 20 ? "..." : "")
                 : "N/A"
             }</td>
-            
-            
-            <td>${ferramenta.nomeLocal}</td>
+            <td>${ferramenta.nomeLocal}</td> <!-- CORREÇÃO 2: Usar a variável nomeLocal -->
             <td class="action-buttons-cell">
               <button class="btn-action btn-edit" data-id="${ferramenta.id}">
                 <i class="fas fa-edit"></i> Editar

@@ -174,11 +174,11 @@ async function registrarEmprestimo() {
   // Obter dados do formulário
   const alunoId = alunoSelect.value;
   const ferramentaId = ferramentaSelect.value;
-  const dataDevolucao = document.getElementById("data-devolucao").value;
+  const dataDevolucaoInput = document.getElementById("data-devolucao").value;
   const observacoes = document.getElementById("observacoes").value || "";
 
   // Validar campos
-  if (!alunoId || !ferramentaId || !dataDevolucao) {
+  if (!alunoId || !ferramentaId) {
     showFeedback("error", "Por favor, preencha todos os campos obrigatórios!");
     return;
   }
@@ -199,13 +199,17 @@ async function registrarEmprestimo() {
   const agora = new Date();
   const dataRetirada = agora.toISOString();
 
-  // Converter data de devolução para ISO
-  const dataDevolucaoISO = new Date(dataDevolucao).toISOString();
+  // Tratar data de devolução (pode ser null ou data válida)
+  let dataDevolucaoISO = null;
+  if (dataDevolucaoInput) {
+    // Converter data de devolução para ISO se fornecida
+    dataDevolucaoISO = new Date(dataDevolucaoInput).toISOString();
+  }
 
   // Montar objeto para envio conforme Swagger
   const emprestimoData = {
     data_retirada: dataRetirada,
-    data_devolucao: dataDevolucaoISO,
+    data_devolucao: dataDevolucaoISO, // Pode ser null ou string ISO
     observacoes: observacoes,
     usuario: {
       id: parseInt(alunoId),
@@ -264,10 +268,11 @@ async function registrarEmprestimo() {
     document.getElementById("localizacao").value = "";
     document.getElementById("observacoes").value = "";
 
-    // Definir data de devolução padrão (7 dias no futuro)
+    // Definir data de devolução padrão (7 dias no futuro) ou vazio
     const devolucao = new Date();
     devolucao.setDate(agora.getDate() + 7);
     document.getElementById("data-devolucao").value = toISOLocal(devolucao);
+    
   } catch (error) {
     console.error("Erro ao registrar empréstimo:", error);
     showFeedback(
