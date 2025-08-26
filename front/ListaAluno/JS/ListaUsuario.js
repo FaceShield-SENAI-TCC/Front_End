@@ -108,7 +108,8 @@ let allStudents = [];
 function openAddStudentModal() {
   document.getElementById("student-form").reset();
   document.getElementById("student-id").value = "";
-  document.getElementById("modal-title").textContent = "Adicionar Novo Aluno";
+  document.getElementById("user-type").value = "Aluno"; // Valor padrão para novos usuários
+  document.getElementById("modal-title").textContent = "Adicionar Novo Usuário";
   document.getElementById("student-modal").style.display = "flex";
 }
 
@@ -139,22 +140,22 @@ async function saveStudent() {
     turma: studentClass,
     // Campos obrigatórios do Swagger com valores padrão
     username: `${firstName.toLowerCase()}.${lastName.toLowerCase()}`,
-    tipoUsuario: "ALUNO",
+    tipoUsuario: "ALUNO", // Valor fixo, não editável
   };
 
   try {
     await alunoService.save(aluno);
     loadStudentsTable();
     closeModal();
-    alert("Aluno salvo com sucesso!");
+    alert("Usuário salvo com sucesso!");
   } catch (error) {
-    console.error("Erro ao salvar aluno:", error);
-    alert(`Erro ao salvar aluno: ${error.message}`);
+    console.error("Erro ao salvar usuário:", error);
+    alert(`Erro ao salvar usuário: ${error.message}`);
   }
 }
 
 async function deleteStudent(id) {
-  if (confirm("Tem certeza que deseja excluir este aluno?")) {
+  if (confirm("Tem certeza que deseja excluir este usuário?")) {
     const success = await alunoService.delete(id);
     if (success) {
       loadStudentsTable();
@@ -180,6 +181,8 @@ function searchStudents() {
       (student.sobrenome &&
         student.sobrenome.toLowerCase().includes(searchTerm)) ||
       (student.turma && student.turma.toLowerCase().includes(searchTerm)) ||
+      (student.tipoUsuario &&
+        student.tipoUsuario.toLowerCase().includes(searchTerm)) ||
       (student.id && student.id.toString().includes(searchTerm))
   );
 
@@ -205,23 +208,28 @@ async function loadStudentsTable(studentsArray = null) {
     students.forEach((student) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${student.id}</td>
-        <td>${student.nome}</td>
-        <td>${student.sobrenome}</td>
-        <td>${student.turma}</td>
-        <td class="actions">
-          <button class="btn-icon" onclick="editStudent(${student.id})">
-            <i class="fas fa-edit"></i>
-          </button>
-          <button class="btn-icon btn-danger" onclick="deleteStudent(${student.id})">
-            <i class="fas fa-trash"></i>
-          </button>
-        </td>
-      `;
+              <td>${student.id}</td>
+              <td>${student.nome}</td>
+              <td>${student.sobrenome}</td>
+              <td>${student.turma}</td>
+              <td>${
+                student.tipoUsuario === "ALUNO" ? "Aluno" : "Professor"
+              }</td>
+              <td class="actions">
+                <button class="btn-icon" onclick="editStudent(${student.id})">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-icon btn-danger" onclick="deleteStudent(${
+                  student.id
+                })">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            `;
       tableBody.appendChild(row);
     });
   } catch (error) {
-    console.error("Erro ao carregar alunos:", error);
+    console.error("Erro ao carregar usuários:", error);
   }
 }
 
@@ -233,7 +241,12 @@ async function openEditStudentModal(id) {
       document.getElementById("first-name").value = student.nome;
       document.getElementById("last-name").value = student.sobrenome;
       document.getElementById("class").value = student.turma;
-      document.getElementById("modal-title").textContent = "Editar Aluno";
+
+      // Apenas exiba o tipo de usuário, não permita edição
+      document.getElementById("user-type").value =
+        student.tipoUsuario === "ALUNO" ? "Aluno" : "Professor";
+
+      document.getElementById("modal-title").textContent = "Editar Usuário";
       document.getElementById("student-modal").style.display = "flex";
     }
   } catch (error) {
