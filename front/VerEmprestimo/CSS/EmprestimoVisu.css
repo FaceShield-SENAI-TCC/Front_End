@@ -2,17 +2,25 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
   background-color: #f5f7fa;
   color: #333;
+  /* display: flex;
+  justify-content: flex-start; // Ajuste para iniciar o conteúdo na esquerda
+  align-items: stretch;
+  height: 100vh;
+  overflow: hidden; Remover a rolagem extra */
 }
 
 .container {
   display: flex;
   min-height: 100vh;
+  transition: all 0.3s ease;
+  /* width: 100%; // Certifique-se de que o container ocupa 100% da tela
+  overflow: hidden; // Evitar rolagem do conteúdo */
 }
 
 /* Menu Lateral */
@@ -22,6 +30,15 @@ body {
   color: #ecf0f1;
   padding: 20px 0;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  top: 0;
+  left: -250px;
+  bottom: 0;
+  transition: all 0.3s ease;
+}
+
+.sidebar.active {
+  left: 0; /* Quando ativa, volta à posição */
 }
 
 .logo {
@@ -57,11 +74,28 @@ body {
   border-left: 3px solid #fff;
 }
 
+/* Ícone de menu para celular */
+.hamburger {
+  display: block;
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 10;
+}
+
 /* Conteúdo Principal */
 .main-content {
   flex: 1;
   padding: 30px;
   overflow-y: auto;
+  margin-left: 250px; /* Garantir que o conteúdo não sobreponha o menu */
+  transition: all 0.3s ease;
+}
+
+.main-content.active {
+  margin-left: 250px;
 }
 
 .header {
@@ -259,7 +293,7 @@ body {
   display: inline-block;
   width: 20px;
   height: 20px;
-  border: 3px solid rgba(255, 255, 255, .3);
+  border: 3px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   border-top-color: #fff;
   animation: spin 1s ease-in-out infinite;
@@ -298,5 +332,10 @@ body {
   .logo {
     text-align: center;
     padding: 10px 0;
+  }
+
+  .main-content {
+    margin-left: 0; /* Garantir que o conteúdo ocupe toda a tela */
+    padding-top: 80px; /* Para evitar que o conteúdo seja coberto pelo menu */
   }
 }
