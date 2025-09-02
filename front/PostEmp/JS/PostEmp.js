@@ -355,7 +355,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (
       confirm("Deseja realmente cancelar? Todas as alterações serão perdidas.")
     ) {
-      window.location.href = "emprestimos.html";
+      window.location.href = "../VerEmprestimo/Emprestimos.html";
     }
   });
   
