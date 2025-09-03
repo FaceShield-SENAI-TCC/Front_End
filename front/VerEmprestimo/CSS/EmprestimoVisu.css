@@ -264,6 +264,30 @@ body {
   border-top-color: #fff;
   animation: spin 1s ease-in-out infinite;
 }
+/* Estilo para o botão Devolver */
+.return-btn {
+    background-color: #2196f3;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.08);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.return-btn:hover {
+    background-color: #1769aa;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.18);
+}
+
+.return-btn i {
+    font-size: 17px;
+}
 
 @keyframes spin {
   to {

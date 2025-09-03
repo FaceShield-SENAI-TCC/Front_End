@@ -140,45 +140,47 @@ function renderTable() {
 // ===================================================================
 // AQUI ESTÁ A FUNÇÃO CORRIGIDA CONFORME SUA SOLICITAÇÃO
 // ===================================================================
+// ...existing code...
 function calculateLoanStatus(loan) {
-    // IMPORTANTE: Esta função agora prioriza o status "Atrasado" e não tem como
-    // identificar um item que já foi "Devolvido". Leia o alerta na minha resposta.
     const now = new Date();
-    const dueDate = loan.data_devolucao ? new Date(loan.data_devolucao) : null;
 
-    // Cenário 1: Existe uma data de devolução (data limite).
-    if (dueDate) {
-        // Se a data de hoje for posterior à data limite, o status é "Em atraso".
-        if (now > dueDate) {
-            return "Em atraso";
+    // Se já foi devolvido (data_devolucao existe e é menor ou igual a agora)
+    if (loan.data_devolucao) {
+        const dataDevolucao = new Date(loan.data_devolucao);
+        if (dataDevolucao <= now) {
+            return "Devolvido";
         }
-        // Se a data limite ainda não chegou, o status é "Em andamento".
-        return "Em andamento";
     }
 
-    // Cenário 2: Não há data de devolução definida. Usa a regra padrão de 7 dias.
-    const withdrawalDate = new Date(loan.data_retirada);
-    const expectedReturnDate = new Date(withdrawalDate);
-    expectedReturnDate.setDate(expectedReturnDate.getDate() + 7);
+    // Data prevista de devolução (use o campo do backend se existir)
+    let expectedReturnDate;
+    if (loan.data_devolucao_prevista) {
+        expectedReturnDate = new Date(loan.data_devolucao_prevista);
+    } else {
+        const withdrawalDate = new Date(loan.data_retirada);
+        expectedReturnDate = new Date(withdrawalDate);
+        expectedReturnDate.setDate(expectedReturnDate.getDate() + 7);
+    }
 
+    // EM ATRASO: passou da data prevista e não foi devolvido
     if (now > expectedReturnDate) {
-        return "Devolvido";
+        return "Em atraso";
     }
 
+    // PENDENTE: ainda não chegou a data prevista e não foi devolvido
     return "Em andamento";
 }
-// ===================================================================
 
-// Função para obter classe CSS do status
 function getStatusClass(status) {
     switch (status) {
+        case "Pendente": return "status-pending";
         case "Em andamento": return "status-active";
         case "Devolvido": return "status-returned";
         case "Em atraso": return "status-delayed";
         default: return "";
     }
 }
-
+// ...existing code...
 // Função para formatar data para exibição
 function formatDate(dateString) {
     if (!dateString) return "N/A";
