@@ -1,106 +1,168 @@
+  // Elementos DOM
+        const loansTableBody = document.getElementById("loans-table-body");
+        const filterUser = document.getElementById("filter-user");
+        const filterTool = document.getElementById("filter-tool");
+        const filterStatus = document.getElementById("filter-status");
+        const prevPageBtn = document.getElementById("prev-page");
+        const nextPageBtn = document.getElementById("next-page");
+        const pageInfo = document.getElementById("page-info");
+        const feedbackMessage = document.getElementById("feedback-message");
+        const novoEmprestimoBtn = document.getElementById("novo-emprestimo-btn");
 
-// Elementos DOM
-const loansTableBody = document.getElementById("loans-table-body");
-const filterUser = document.getElementById("filter-user");
-const filterTool = document.getElementById("filter-tool");
-const filterStatus = document.getElementById("filter-status");
-const prevPageBtn = document.getElementById("prev-page");
-const nextPageBtn = document.getElementById("next-page");
-const pageInfo = document.getElementById("page-info");
-const feedbackMessage = document.getElementById("feedback-message");
-const novoEmprestimoBtn = document.getElementById("novo-emprestimo-btn");
+        // URLs da API
+        const EMPRESTIMOS_API = "http://localhost:8080/emprestimos/buscar";
+        const FINALIZAR_EMPRESTIMO_API = "http://localhost:8080/emprestimos/finalizar";
 
-// URLs da API
-const EMPRESTIMOS_API = "http://localhost:8080/emprestimos/buscar";
+        // Variáveis globais
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let allLoans = [];
+        let filteredLoans = [];
 
-// Variáveis globais
-let currentPage = 1;
-const itemsPerPage = 10;
-let allLoans = [];
-let filteredLoans = [];
+        // Função para formatar data no formato ISO (YYYY-MM-DDTHH:mm:ss) para o fuso de Brasília
+        function formatToISOLocal(date) {
+            if (!date) return null;
+            
+            const pad = (n) => n.toString().padStart(2, '0');
+            
+            const year = date.getFullYear();
+            const month = pad(date.getMonth() + 1);
+            const day = pad(date.getDate());
+            const hours = pad(date.getHours());
+            const minutes = pad(date.getMinutes());
+            const seconds = pad(date.getSeconds());
+            
+            return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+        }
 
-// Função para exibir mensagem de feedback
-function showFeedback(message, type = "error") {
-  feedbackMessage.textContent = message;
-  feedbackMessage.className = `feedback-message feedback-${type}`;
-  feedbackMessage.style.display = "block";
+        // Função para exibir mensagem de feedback
+        function showFeedback(message, type = "error") {
+            feedbackMessage.textContent = message;
+            feedbackMessage.className = `feedback-message feedback-${type}`;
+            feedbackMessage.style.display = "block";
 
-  if (type === "success") {
-    setTimeout(() => {
-      feedbackMessage.style.display = "none";
-    }, 3000);
-  }
-}
+            if (type === "success") {
+                setTimeout(() => {
+                    feedbackMessage.style.display = "none";
+                }, 3000);
+            }
+        }
 
-// Função para carregar empréstimos
-async function loadLoans() {
-  try {
-    showFeedback("Carregando empréstimos...", "success");
+        // Função para carregar empréstimos
+        async function loadLoans() {
+            try {
+                showFeedback("Carregando empréstimos...", "success");
 
-    // Adicionar indicador de carregamento
-    loansTableBody.innerHTML = `
+                // Adicionar indicador de carregamento
+                loansTableBody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 20px;">
+                        <td colspan="8" style="text-align: center; padding: 20px;">
                             <div style="display: inline-block; margin-right: 10px;" class="loading"></div>
                             Carregando empréstimos...
                         </td>
                     </tr>
                 `;
 
-    const response = await fetch(EMPRESTIMOS_API);
+                const response = await fetch(EMPRESTIMOS_API);
 
-    if (!response.ok) {
-      throw new Error(`Erro HTTP ${response.status}`);
-    }
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP ${response.status}`);
+                }
 
-    const data = await response.json();
-    allLoans = data;
-    filteredLoans = [...allLoans];
+                const data = await response.json();
+                allLoans = data;
+                filteredLoans = [...allLoans];
 
-    renderTable();
-    setupPagination();
+                renderTable();
+                setupPagination();
 
-    feedbackMessage.style.display = "none";
-  } catch (error) {
-    console.error("Erro ao carregar empréstimos:", error);
-    loansTableBody.innerHTML = `
+                feedbackMessage.style.display = "none";
+            } catch (error) {
+                console.error("Erro ao carregar empréstimos:", error);
+                loansTableBody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 20px; color: #c62828;">
+                        <td colspan="8" style="text-align: center; padding: 20px; color: #c62828;">
                             Erro ao carregar empréstimos. Verifique se o servidor está rodando.
                         </td>
                     </tr>
                 `;
-    showFeedback("Erro ao carregar empréstimos. Verifique se o servidor está rodando.");
-  }
-}
+                showFeedback("Erro ao carregar empréstimos. Verifique se o servidor está rodando.");
+            }
+        }
 
-// Função para renderizar a tabela
-function renderTable() {
-  loansTableBody.innerHTML = "";
+        // Função para finalizar empréstimo - CORRIGIDA
+        async function finalizarEmprestimo(loanId) {
+            try {
+                showFeedback("Registrando devolução...", "success");
+                
+                // Obter a data atual no fuso de Brasília
+                const now = new Date();
+                
+                // Formatar a data no formato ISO (YYYY-MM-DDTHH:mm:ss)
+                const dataDevolucao = formatToISOLocal(now);
+                
+                // Encontrar o empréstimo para obter observações
+                const emprestimo = allLoans.find(loan => loan.id == loanId);
+                
+                // Preparar os parâmetros para a query string
+                const params = new URLSearchParams();
+                params.append('dataDevolucao', dataDevolucao);
+                
+                if (emprestimo && emprestimo.observacoes) {
+                    params.append('observacoes', emprestimo.observacoes);
+                }
 
-  if (filteredLoans.length === 0) {
-    loansTableBody.innerHTML = `
+                // Fazer a requisição PUT com os parâmetros na query string
+                const response = await fetch(`${FINALIZAR_EMPRESTIMO_API}/${loanId}?${params}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || `Erro HTTP ${response.status}`);
+                }
+
+                showFeedback("Devolução registrada com sucesso!", "success");
+                
+                // Recarregar a lista de empréstimos
+                loadLoans();
+            } catch (error) {
+                console.error("Erro ao registrar devolução:", error);
+                showFeedback(`Erro ao registrar devolução: ${error.message}`);
+            }
+        }
+
+        // Função para renderizar a tabela
+        function renderTable() {
+            loansTableBody.innerHTML = "";
+
+            if (filteredLoans.length === 0) {
+                loansTableBody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 20px;">
+                        <td colspan="8" style="text-align: center; padding: 20px;">
                             Nenhum empréstimo encontrado
                         </td>
                     </tr>
                 `;
-    return;
-  }
+                return;
+            }
 
-  // Calcular itens para a página atual
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, filteredLoans.length);
-  const currentLoans = filteredLoans.slice(startIndex, endIndex);
+            // Calcular itens para a página atual
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, filteredLoans.length);
+            const currentLoans = filteredLoans.slice(startIndex, endIndex);
 
-  currentLoans.forEach((loan) => {
-    const row = document.createElement("tr");
+            currentLoans.forEach((loan) => {
+                const row = document.createElement("tr");
 
-    // Calcular status
-    const status = calculateLoanStatus(loan);
+                // Calcular status
+                const status = calculateLoanStatus(loan);
+                const isReturned = status === "Devolvido";
 
-    row.innerHTML = `
+                row.innerHTML = `
                     <td>${loan.id}</td>
                     <td>${loan.nomeUsuario || "N/A"}</td>
                     <td>${loan.nomeFerramenta || "N/A"}</td>
@@ -112,137 +174,149 @@ function renderTable() {
                         </span>
                     </td>
                     <td>${loan.observacoes || "Nenhuma"}</td>
+                    <td>
+                        ${!isReturned ? 
+                            `<button class="return-btn" data-id="${loan.id}">
+                                <i class="fas fa-check-circle"></i> Devolver
+                            </button>` : 
+                            '<span class="status-badge status-returned">Devolvido</span>'
+                        }
+                    </td>
                 `;
 
-    loansTableBody.appendChild(row);
-  });
-}
+                loansTableBody.appendChild(row);
+            });
 
-// Função para calcular o status do empréstimo
-function calculateLoanStatus(loan) {
-  const now = new Date();
-  const devolutionDate = loan.data_devolucao ? new Date(loan.data_devolucao) : null;
-  const withdrawalDate = new Date(loan.data_retirada);
+            // Adicionar event listeners para os botões de devolução
+            document.querySelectorAll('.return-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const loanId = e.target.closest('.return-btn').getAttribute('data-id');
+                    finalizarEmprestimo(loanId);
+                });
+            });
+        }
 
-  if (!loan.data_devolucao) {
-    // Verificar se está em atraso (considerando 7 dias como prazo)
-    const expectedReturnDate = new Date(withdrawalDate);
-    expectedReturnDate.setDate(expectedReturnDate.getDate() + 7);
+        // Função para calcular o status do empréstimo
+        function calculateLoanStatus(loan) {
+            const now = new Date();
+            const devolutionDate = loan.data_devolucao ? new Date(loan.data_devolucao) : null;
+            const withdrawalDate = new Date(loan.data_retirada);
 
-    if (now > expectedReturnDate) {
-      return "Em atraso";
-    }
-    return "Em andamento";
-  }
+            if (!loan.data_devolucao) {
+                // Verificar se está em atraso (considerando 7 dias como prazo)
+                const expectedReturnDate = new Date(withdrawalDate);
+                expectedReturnDate.setDate(expectedReturnDate.getDate() + 7);
 
-  return "Devolvido";
-}
+                if (now > expectedReturnDate) {
+                    return "Em atraso";
+                }
+                return "Em andamento";
+            }
 
-// Função para obter classe CSS do status
-function getStatusClass(status) {
-  switch (status) {
-    case "Em andamento":
-      return "status-active";
-    case "Devolvido":
-      return "status-returned";
-    case "Em atraso":
-      return "status-delayed";
-    default:
-      return "";
-  }
-}
+            return "Devolvido";
+        }
 
-// Função para formatar data
-function formatDate(dateString) {
-  if (!dateString) return "N/A";
+        // Função para obter classe CSS do status
+        function getStatusClass(status) {
+            switch (status) {
+                case "Em andamento":
+                    return "status-active";
+                case "Devolvido":
+                    return "status-returned";
+                case "Em atraso":
+                    return "status-delayed";
+                default:
+                    return "";
+            }
+        }
 
-  const date = new Date(dateString);
-  return date.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-}
+        // Função para formatar data para exibição
+        function formatDate(dateString) {
+            if (!dateString) return "N/A";
 
-// Função para configurar paginação
-function setupPagination() {
-  const totalPages = Math.ceil(filteredLoans.length / itemsPerPage);
+            const date = new Date(dateString);
+            return date.toLocaleDateString("pt-BR", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+        }
 
-  // Atualizar informações da página
-  pageInfo.textContent = `Página ${currentPage} de ${totalPages || 1}`;
+        // Função para configurar paginação
+        function setupPagination() {
+            const totalPages = Math.ceil(filteredLoans.length / itemsPerPage);
 
-  // Habilitar/desabilitar botões
-  prevPageBtn.disabled = currentPage === 1;
-  nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+            // Atualizar informações da página
+            pageInfo.textContent = `Página ${currentPage} de ${totalPages || 1}`;
 
-  // Adicionar event listeners
-  prevPageBtn.onclick = () => {
-    if (currentPage > 1) {
-      currentPage--;
-      renderTable();
-      setupPagination();
-    }
-  };
+            // Habilitar/desabilitar botões
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
 
-  nextPageBtn.onclick = () => {
-    if (currentPage < totalPages) {
-      currentPage++;
-      renderTable();
-      setupPagination();
-    }
-  };
-}
+            // Adicionar event listeners
+            prevPageBtn.onclick = () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                    setupPagination();
+                }
+            };
 
-// Função para aplicar filtros
-function applyFilters() {
-  const userText = filterUser.value.toLowerCase();
-  const toolText = filterTool.value.toLowerCase();
-  const status = filterStatus.value;
+            nextPageBtn.onclick = () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable();
+                    setupPagination();
+                }
+            };
+        }
 
-  filteredLoans = allLoans.filter((loan) => {
-    // Filtro por usuário (texto)
-    if (userText && !(loan.nomeUsuario || "").toLowerCase().includes(userText)) return false;
+        // Função para aplicar filtros
+        function applyFilters() {
+            const userText = filterUser.value.toLowerCase();
+            const toolText = filterTool.value.toLowerCase();
+            const status = filterStatus.value;
 
-    // Filtro por ferramenta (texto)
-    if (toolText && !(loan.nomeFerramenta || "").toLowerCase().includes(toolText)) return false;
+            filteredLoans = allLoans.filter((loan) => {
+                // Filtro por usuário (texto)
+                if (userText && !(loan.nomeUsuario || "").toLowerCase().includes(userText)) return false;
 
-    // Filtro por status
-    if (status) {
-      const loanStatus = calculateLoanStatus(loan).toLowerCase();
-      const statusMap = {
-        active: "em andamento",
-        returned: "devolvido",
-        delayed: "em atraso"
-      };
+                // Filtro por ferramenta (texto)
+                if (toolText && !(loan.nomeFerramenta || "").toLowerCase().includes(toolText)) return false;
 
-      if (loanStatus !== statusMap[status]) return false;
-    }
+                // Filtro por status
+                if (status) {
+                    const loanStatus = calculateLoanStatus(loan).toLowerCase();
+                    const statusMap = {
+                        active: "em andamento",
+                        returned: "devolvido",
+                        delayed: "em atraso"
+                    };
 
-    return true;
-  });
+                    if (loanStatus !== statusMap[status]) return false;
+                }
 
-  currentPage = 1;
-  renderTable();
-  setupPagination();
-}
+                return true;
+            });
 
-// Adicionar event listeners para filtros
-filterUser.addEventListener("input", applyFilters);
-filterTool.addEventListener("input", applyFilters);
-filterStatus.addEventListener("change", applyFilters);
+            currentPage = 1;
+            renderTable();
+            setupPagination();
+        }
 
-// Navegação para novo empréstimo
-novoEmprestimoBtn.addEventListener("click", () => {
-  window.location.href = "novo-emprestimo.html";
-});
+        // Adicionar event listeners para filtros
+        filterUser.addEventListener("input", applyFilters);
+        filterTool.addEventListener("input", applyFilters);
+        filterStatus.addEventListener("change", applyFilters);
 
-// Inicializar
-document.addEventListener("DOMContentLoaded", function () {
-  loadLoans();
-});
-// Redirecionamento para Novo Empréstimo
-document.getElementById('novo-emprestimo-btn').addEventListener('click', function() {
-    window.location.href = '../PostEmp/PostEmp.html';
-});
+        // Navegação para novo empréstimo
+        novoEmprestimoBtn.addEventListener("click", () => {
+            window.location.href = "../PostEmp/PostEmp.html";
+        });
+
+        // Inicializar
+        document.addEventListener("DOMContentLoaded", function () {
+            loadLoans();
+        });
