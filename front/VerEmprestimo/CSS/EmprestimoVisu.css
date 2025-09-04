@@ -156,6 +156,7 @@ body {
 }
 
 .loans-table th {
+
   background-color: #3498db;
   color: white;
   padding: 15px;
@@ -266,7 +267,7 @@ body {
 }
 /* Estilo para o botão Devolver */
 .return-btn {
-    background-color: #2196f3;
+    background-color: #3498db;
     color: #fff;
     border: none;
     border-radius: 20px;
@@ -281,8 +282,11 @@ body {
 }
 
 .return-btn:hover {
-    background-color: #1769aa;
+    background-color: #3498db;
     box-shadow: 0 4px 12px rgba(33, 150, 243, 0.18);
+}
+.return-btn:disabled {
+  background-color: red;
 }
 
 .return-btn i {

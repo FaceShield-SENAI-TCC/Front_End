@@ -123,7 +123,7 @@ function renderTable() {
             <td>
                 ${!isReturned ?
                     `<button class="return-btn" data-id="${loan.id}"><i class="fas fa-check-circle"></i> Devolver</button>` :
-                    '<span class="status-badge status-returned">Devolvido</span>'
+                    `<button class="return-btn btn-finalizado" disabled><i class="fas fa-check-square"></i> Finalizado</button>`
                 }
             </td>
         `;
@@ -131,7 +131,10 @@ function renderTable() {
     });
     document.querySelectorAll('.return-btn').forEach(button => {
         button.addEventListener('click', (e) => {
-            const loanId = e.target.closest('.return-btn').getAttribute('data-id');
+            const btn = e.target.closest('.return-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Devolvendo...';
+            const loanId = btn.getAttribute('data-id');
             finalizarEmprestimo(loanId);
         });
     });
