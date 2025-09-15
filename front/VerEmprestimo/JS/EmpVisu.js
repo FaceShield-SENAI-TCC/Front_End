@@ -115,7 +115,7 @@ function getToolLocation(toolId) {
   }
 
   console.log("Ferramenta encontrada:", tool);
-  
+
   if (tool.local) {
     console.log("Localização encontrada na ferramenta:", tool.local);
     return tool.local;
@@ -163,7 +163,7 @@ async function finalizarEmprestimo(loanId) {
     showFeedback(`Erro ao registrar devolução: ${error.message}`);
   }
 }
-
+console.log = id_local;
 // Função para renderizar a tabela
 function renderTable() {
   loansTableBody.innerHTML = "";
