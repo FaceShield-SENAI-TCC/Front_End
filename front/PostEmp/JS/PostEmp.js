@@ -46,38 +46,38 @@ function formatarDataBrasilia(date) {
     month: "2-digit",
     year: "numeric",
     hour: "2-digit",
-    minute: "2-digit"
+    minute: "2-digit",
   });
 }
 
 // Função para converter data para formato ISO (YYYY-MM-DDTHH:MM) sem alterar o horário
 function toISOLocal(date) {
   if (!date) return null;
-  
-  const pad = (n) => n.toString().padStart(2, '0');
-  
+
+  const pad = (n) => n.toString().padStart(2, "0");
+
   const year = date.getFullYear();
   const month = pad(date.getMonth() + 1);
   const day = pad(date.getDate());
   const hours = pad(date.getHours());
   const minutes = pad(date.getMinutes());
-  
+
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
 // Função para converter data local para ISO string mantendo o horário local
 function toISOLocalString(date) {
   if (!date) return null;
-  
-  const pad = (n) => n.toString().padStart(2, '0');
-  
+
+  const pad = (n) => n.toString().padStart(2, "0");
+
   const year = date.getFullYear();
   const month = pad(date.getMonth() + 1);
   const day = pad(date.getDate());
   const hours = pad(date.getHours());
   const minutes = pad(date.getMinutes());
   const seconds = pad(date.getSeconds());
-  
+
   // Retorna no formato: YYYY-MM-DDTHH:MM:SS (horário local)
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 }
@@ -180,20 +180,32 @@ alunoSelect.addEventListener("change", function () {
 });
 
 // Atualizar localização quando ferramenta for selecionada
+// Atualizar localização quando ferramenta for selecionada - VERSÃO CORRIGIDA
 ferramentaSelect.addEventListener("change", function () {
   const selectedOption = this.options[this.selectedIndex];
-  const localId = selectedOption.getAttribute("data-local-id");
+  const ferramentaId = selectedOption.value;
 
-  if (localId && locais.length > 0) {
-    const local = locais.find((l) => l.id == localId);
+  // Encontrar a ferramenta selecionada no array de ferramentas
+  const ferramenta = ferramentas.find((f) => f.id == ferramentaId);
+
+  if (ferramenta && ferramenta.id_local && locais.length > 0) {
+    // Buscar o local correspondente ao id_local da ferramenta
+    const local = locais.find((l) => l.id == ferramenta.id_local);
+
     if (local) {
-      document.getElementById(
-        "localizacao"
-      ).value = `${local.nomeEspaco} - Armário ${local.armario}, Prateleira ${local.prateleira}`;
+      // Construir a string de localização
+      let localizacaoTexto = local.nomeEspaco || "";
+      if (local.armario) localizacaoTexto += ` - Armário ${local.armario}`;
+      if (local.prateleira)
+        localizacaoTexto += `, Prateleira ${local.prateleira}`;
+      if (local.estojo) localizacaoTexto += `, Estojo ${local.estojo}`;
+
+      document.getElementById("localizacao").value = localizacaoTexto;
       return;
     }
   }
 
+  // Fallback caso não encontre
   document.getElementById("localizacao").value = "Local não definido";
 });
 
@@ -301,7 +313,6 @@ async function registrarEmprestimo() {
     const devolucao = getDataHoraBrasilia();
     devolucao.setDate(devolucao.getDate() + 7);
     document.getElementById("data-devolucao").value = toISOLocal(devolucao);
-    
   } catch (error) {
     console.error("Erro ao registrar empréstimo:", error);
     showFeedback(
@@ -331,7 +342,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Definir data de retirada como agora (Brasília/São Carlos)
   const agoraBrasilia = getDataHoraBrasilia();
-  document.getElementById("data-retirada").value = formatarDataBrasilia(agoraBrasilia);
+  document.getElementById("data-retirada").value =
+    formatarDataBrasilia(agoraBrasilia);
 
   // Definir data de registro
   document.getElementById("data-registro").textContent =
@@ -358,9 +370,12 @@ document.addEventListener("DOMContentLoaded", async function () {
       window.location.href = "../VerEmprestimo/Emprestimos.html";
     }
   });
-  
+
   // DEBUG: Exibir informações de fuso horário
-  console.log("Hora local (São Carlos/Brasília):", formatarDataBrasilia(getDataHoraBrasilia()));
+  console.log(
+    "Hora local (São Carlos/Brasília):",
+    formatarDataBrasilia(getDataHoraBrasilia())
+  );
   console.log("Hora atual (objeto Date):", getDataHoraBrasilia().toString());
 });
 
