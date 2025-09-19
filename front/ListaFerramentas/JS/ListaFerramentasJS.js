@@ -31,6 +31,12 @@ const locais_get = "http://localhost:8080/locais/buscar";
 // Cache de locais
 let locaisCache = [];
 
+// Função para alternar a visibilidade do menu lateral
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  sidebar.classList.toggle("active"); // Alterna a classe "active" no menu
+}
+
 // Função para mostrar notificação
 function showNotification(message, isSuccess = true) {
   notification.textContent = message;
@@ -223,7 +229,9 @@ async function loadToolsTable() {
                   (ferramenta.descricao.length > 20 ? "..." : "")
                 : "N/A"
             }</td>
-            <td>${ferramenta.nomeLocal}</td> <!-- CORREÇÃO 2: Usar a variável nomeLocal -->
+            <td>${
+              ferramenta.nomeLocal
+            }</td> <!-- CORREÇÃO 2: Usar a variável nomeLocal -->
             <td class="action-buttons-cell">
               <button class="btn-action btn-edit" data-id="${ferramenta.id}">
                 <i class="fas fa-edit"></i> Editar
