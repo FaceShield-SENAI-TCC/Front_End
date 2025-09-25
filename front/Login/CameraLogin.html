@@ -3,26 +3,40 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Entrar</title>
-    <link rel="stylesheet" href="CSS/LoginCamera.css" />
+    <title>Login com Reconhecimento Facial</title>
+    <link rel="stylesheet" href="./CSS/LoginCamera.css" />
+    <script src="./JS/Loginjs.js" defer></script>
   </head>
   <body>
+    <div class="decorative-border"></div>
+
     <div class="botaoVoltar">
       <a href="../index.html" class="buttonVoltar">Voltar</a>
     </div>
-    <h1>Login com Reconhecimento Facial</h1>
 
-    <div class="face-scan-widget">
-      <video id="video" autoplay playsinline muted></video>
-      <div class="scan-animation-overlay"></div>
+    <div class="login-container">
+      <h1>Login com Reconhecimento Facial</h1>
+
+      <div class="face-scan-widget">
+        <video id="video" autoplay playsinline muted></video>
+        <div class="scan-animation-overlay"></div>
+        <div class="scanning-line-effect"></div>
+      </div>
+
+      <p id="mensagem">Aguardando reconhecimento...</p>
+
+      <div class="botaoProf">
+        <a href="LoginProfessor.html" class="buttonProfessor"
+          >Login Professor</a
+        >
+      </div>
     </div>
 
-    <p id="mensagem">Aguardando reconhecimento...</p>
+    <!-- Feedback -->
+    <div id="feedback" class="feedback"></div>
 
-    <div class="botaoProf">
-      <a href="LoginProfessor.html" class="buttonProfessor">Login Professor</a>
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
     </div>
-
-    <script src="JS/Loginjs.js" defer></script>
   </body>
 </html>
