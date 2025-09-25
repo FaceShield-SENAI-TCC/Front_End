@@ -5,16 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
     <link rel="stylesheet" href="CSS/LoginProf.css" />
+    <script src="JS/loginProfEspanhol.js"></script>
   </head>
   <body>
+    <div class="language-selector">
+      <button class="lang-btn active" data-lang="pt">PT</button>
+      <button class="lang-btn" data-lang="es">ES</button>
+    </div>
+
     <div class="background">
       <div class="background-image"></div>
       <div class="background-overlay"></div>
     </div>
 
     <div class="botaoVoltar">
-      <a class="buttonVoltar" href="../index.html">Voltar</a>
+      <a class="buttonVoltar" href="../index.html" data-i18n="back-button">Voltar</a>
     </div>
+
     <main class="main-content">
       <div class="logo-container">
         <img
@@ -26,24 +33,29 @@
 
       <div class="form-container">
         <form id="loginForm" class="form-grid">
-          <h1 class="title">Login Professor</h1>
+          <h1 class="title" data-i18n="main-title">Login Professor</h1>
+
           <div class="input-group floating-label">
             <input type="text" id="username" required />
-            <label for="username">Nome de Usuário</label>
+            <label for="username" data-i18n="username-label">Nome de Usuário</label>
             <div class="input-border"></div>
             <span class="validation-icon"></span>
           </div>
 
           <div class="input-group floating-label">
             <input type="password" id="senha" required />
-            <label for="senha">Senha</label>
+            <label for="senha" data-i18n="password-label">Senha</label>
             <div class="input-border"></div>
             <span class="validation-icon"></span>
           </div>
 
-          <a href="../MenuProf/Menu.html" class="botao">Entrar</a>
+          <button type="submit" class="botao" data-i18n="submit-button">Entrar</button>
+
+          <a href="#" class="link-password" data-i18n="forgot-password">Esqueci a senha</a>
         </form>
       </div>
     </main>
+
+    <script src="JS/traducaoProf.js" defer></script>
   </body>
 </html>

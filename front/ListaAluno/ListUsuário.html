@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sistema de Empréstimos - Usuários</title>
+    <title>Sistema de Préstamos - Usuarios</title>
     <script src="./JS/ListaUsuario.js" defer></script>
+    <script src="JS/ListaUsuariEsapnho.js"></script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -15,73 +16,71 @@
     <div class="container">
       <div class="sidebar">
         <div class="logo">
-          <h2><i class="fas fa-user"></i> Controle de Usuários</h2>
+          <h2><i class="fas fa-user"></i> Control de Usuarios</h2>
         </div>
         <div
           class="menu-item active"
           onclick="window.location.href='../ListaAluno/ListUsuário.html'"
         >
-          <i class="fas fa-user"></i> Usuários
+          <i class="fas fa-user"></i> Usuarios
         </div>
 
         <div
           class="menu-item"
           onclick="window.location.href='../VerEmprestimo/Emprestimos.html'"
         >
-          <i class="fas fa-clipboard-list"></i> Empréstimos
+          <i class="fas fa-clipboard-list"></i> Préstamos
         </div>
 
         <div
           class="menu-item"
           onclick="window.location.href='../ListaFerramentas/ListaFerramentas.html'"
         >
-          <i class="fas fa-toolbox"></i> Ferramentas
+          <i class="fas fa-toolbox"></i> Herramientas
         </div>
 
         <div
           class="menu-item"
           onclick="window.location.href='../Locais/local.html'"
         >
-          <i class="fas fa-map-marker-alt"></i> Locais
+          <i class="fas fa-map-marker-alt"></i> Ubicaciones
         </div>
 
         <div
           class="menu-item"
           onclick="window.location.href='../PostEmp/PostEmp.html'"
         >
-          <i class="fas fa-plus-circle"></i> Novo Empréstimo
+          <i class="fas fa-plus-circle"></i> Nuevo Préstamo
         </div>
         <div class="menu-item" onclick="window.location.href='../index.html'">
-          <i class="fas fa-sign-out-alt"></i> Sair
+          <i class="fas fa-sign-out-alt"></i> Salir
         </div>
       </div>
 
       <div class="main-content">
         <div class="header">
-          <h1 class="page-title"><i class="fas fa-user"></i> Usuários</h1>
+          <h1 class="page-title"><i class="fas fa-user"></i> Usuarios</h1>
           <button
             class="logout-btn"
             onclick="window.location.href='../index.html'"
           >
-            <i class="fas fa-sign-out-alt"></i> Sair do Sistema
+            <i class="fas fa-sign-out-alt"></i> Salir del Sistema
           </button>
         </div>
 
-        <!-- Botões de Ação -->
         <div class="action-buttons">
           <button class="btn btn-primary" onclick="openAddStudentModal()">
-            <i class="fas fa-plus"></i> Adicionar Usuário
+            <i class="fas fa-plus"></i> Añadir Usuario
           </button>
         </div>
 
-        <!-- Filtros e Pesquisa -->
         <div class="search-section">
           <div class="search-group">
             <i class="fas fa-search"></i>
             <input
               type="text"
               id="search-input"
-              placeholder="Pesquisar Usuário..."
+              placeholder="Buscar Usuario..."
               oninput="searchStudents()"
             />
           </div>
@@ -92,22 +91,21 @@
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Nome</th>
-                <th>Sobrenome</th>
-                <th>Turma</th>
-                <th>Ações</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Clase</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody id="students-table-body">
-              <!-- Dados serão carregados via JavaScript -->
-            </tbody>
+              </tbody>
           </table>
         </div>
 
         <div id="student-modal" class="modal">
           <div class="modal-content">
             <div class="modal-header">
-              <h2 id="modal-title">Adicionar Novo Usuário</h2>
+              <h2 id="modal-title">Añadir Nuevo Usuario</h2>
               <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body">
@@ -116,7 +114,7 @@
 
                 <div class="form-row">
                   <div class="form-group">
-                    <label for="first-name">Nome</label>
+                    <label for="first-name">Nombre</label>
                     <input
                       type="text"
                       id="first-name"
@@ -125,7 +123,7 @@
                     />
                   </div>
                   <div class="form-group">
-                    <label for="last-name">Sobrenome</label>
+                    <label for="last-name">Apellido</label>
                     <input
                       type="text"
                       id="last-name"
@@ -136,9 +134,9 @@
                 </div>
 
                 <div class="form-group">
-                  <label for="class">Turma</label>
+                  <label for="class">Clase</label>
                   <select id="class" class="form-control" required>
-                    <option value="">Selecione uma turma</option>
+                    <option value="">Selecciona una clase</option>
                     <option value="1º INFO A">1º Oficina Industrial</option>
                     <option value="1º INFO B">2º Oficina</option>
                   </select>
@@ -148,7 +146,7 @@
             <div class="modal-footer">
               <button class="btn" onclick="closeModal()">Cancelar</button>
               <button class="btn btn-primary" onclick="saveStudent()">
-                Salvar Usuário
+                Guardar Usuario
               </button>
             </div>
           </div>

@@ -3,11 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FaceShield - Auth 3.0</title>
+    <title data-i18n="main-title">FaceShield - Auth 3.0</title>
     <link rel="stylesheet" href="Inicio/CSS/css.css" />
+    <script src="Inicio/JS/inicioEspanhol.js"></script>
+    <script src="Inicio/JS/js.js"></script>
   </head>
   <body class="auth-container">
     <div class="decorative-border"></div>
+
+    <div class="language-selector">
+      <button class="lang-btn active" data-lang="pt">PT</button>
+      <button class="lang-btn" data-lang="es">ES</button>
+    </div>
 
     <div class="page-header">
       <img
@@ -15,7 +22,7 @@
         src="Recursos/LogoFaceShield.png"
         alt="Logo FaceShield"
       />
-      <h1 class="main-title">FaceShield</h1>
+      <h1 class="main-title" data-i18n="main-title">FaceShield</h1>
     </div>
 
     <div class="face-recognition-container">
@@ -30,6 +37,7 @@
         href="Login/CameraLogin.html"
         class="glowingbutton"
         onclick="initAuth('login', event)"
+        data-i18n="glowing-button-login"
       >
         Entrar
       </a>
@@ -38,6 +46,7 @@
         href="Cadastro/cadastro.html"
         class="glowingbutton secondary-button"
         onclick="initAuth('register')"
+        data-i18n="glowing-button-register"
       >
         Novo Cadastro
       </a>
@@ -46,7 +55,5 @@
     <div class="loading-overlay">
       <div class="loading-spinner"></div>
     </div>
-
-    <script src="Inicio/JS/js.js"></script>
   </body>
 </html>

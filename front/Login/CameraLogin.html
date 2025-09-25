@@ -5,24 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Entrar</title>
     <link rel="stylesheet" href="CSS/LoginCamera.css" />
+    <script src="JS/cameraEspanhol.js"></script>
   </head>
   <body>
-    <div class="botaoVoltar">
-      <a href="../index.html" class="buttonVoltar">Voltar</a>
+    <div class="language-selector">
+      <button class="lang-btn active" data-lang="pt">PT</button>
+      <button class="lang-btn" data-lang="es">ES</button>
     </div>
-    <h1>Login com Reconhecimento Facial</h1>
+
+    <div class="botaoVoltar">
+      <a href="../index.html" class="buttonVoltar" data-i18n="back-button">Voltar</a>
+    </div>
+    <h1 data-i18n="main-title">Login com Reconhecimento Facial</h1>
 
     <div class="face-scan-widget">
       <video id="video" autoplay playsinline muted></video>
       <div class="scan-animation-overlay"></div>
     </div>
 
-    <p id="mensagem">Aguardando reconhecimento...</p>
+    <p id="mensagem" data-i18n="status-message">Aguardando reconhecimento...</p>
 
     <div class="botaoProf">
-      <a href="LoginProfessor.html" class="buttonProfessor">Login Professor</a>
+      <a href="LoginProfessor.html" class="buttonProfessor" data-i18n="teacher-login">Login Professor</a>
     </div>
 
+    <script src="JS/traducaoLogin.js" defer></script>
     <script src="JS/Loginjs.js" defer></script>
   </body>
 </html>
