@@ -28,7 +28,190 @@ const Ferramenta_DELETE = "http://localhost:8080/ferramentas/deletar";
 
 const locais_get = "http://localhost:8080/locais/buscar";
 
-// Cache de locais
+// Adicionar após as variáveis existentes no JS
+const qrScannerModal = document.createElement('div');
+qrScannerModal.innerHTML = `
+<div id="qr-scanner-modal" class="modal">
+  <div class="modal-content" style="max-width: 600px;">
+    <div class="modal-header">
+      <h2>Escanear QR Code</h2>
+      <button class="close-btn close-scan-btn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="scanner-container" style="text-align: center;">
+        <video id="qr-video" width="100%" height="300" style="border: 2px solid var(--primary-color); border-radius: 8px;"></video>
+        <div id="scan-result" style="margin: 15px 0; font-weight: bold;"></div>
+        <canvas id="qr-canvas" style="display: none;"></canvas>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" id="cancel-scan-btn">Cancelar</button>
+      <button class="btn btn-primary" id="capture-btn">Capturar e Escanear</button>
+    </div>
+  </div>
+</div>
+`;
+
+document.body.appendChild(qrScannerModal.firstElementChild);
+
+// Variáveis do scanner
+const startScanBtn = document.createElement('button');
+const videoElement = document.getElementById('qr-video');
+const scanResultElement = document.getElementById('scan-result');
+const canvasElement = document.getElementById('qr-canvas');
+const context = canvasElement.getContext('2d');
+let qrStream = null;
+let scanInterval = null;
+
+// URL do seu backend Python para escanear QR Code
+const QR_SCAN_API = "http://localhost:5000/read-qrcode"; // Ajuste conforme sua API
+
+// Modificar o campo QR Code no formulário existente
+const qrCodeField = document.getElementById('tool-qrcode');
+if (qrCodeField) {
+    const qrContainer = qrCodeField.parentElement;
+    qrContainer.style.display = 'flex';
+    qrContainer.style.gap = '10px';
+    qrContainer.style.alignItems = 'center';
+    
+    qrCodeField.style.flex = '1';
+    
+    // Criar botão de escanear
+    startScanBtn.innerHTML = '<i class="fas fa-camera"></i> Escanear';
+    startScanBtn.className = 'btn';
+    startScanBtn.type = 'button';
+    startScanBtn.style.whiteSpace = 'nowrap';
+    
+    qrContainer.appendChild(startScanBtn);
+}
+
+// Função para inicializar o scanner
+async function initializeQRScanner() {
+    try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error('Câmera não suportada neste dispositivo');
+        }
+
+        qrStream = await navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                facingMode: 'environment',
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            } 
+        });
+        
+        videoElement.srcObject = qrStream;
+        scanResultElement.textContent = 'Câmera ativa. Clique em "Capturar e Escanear" para ler o QR Code.';
+        scanResultElement.style.color = 'var(--primary-color)';
+        
+    } catch (error) {
+        console.error('Erro ao acessar câmera:', error);
+        scanResultElement.textContent = 'Erro: ' + error.message;
+        scanResultElement.style.color = 'var(--accent-color)';
+    }
+}
+
+// Função para capturar imagem e enviar para o backend
+async function captureAndScan() {
+    try {
+        showLoading(true);
+        scanResultElement.textContent = 'Processando imagem...';
+        
+        // Configurar canvas com as dimensões do vídeo
+        canvasElement.width = videoElement.videoWidth;
+        canvasElement.height = videoElement.videoHeight;
+        
+        // Desenhar o frame atual do vídeo no canvas
+        context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+        
+        // Converter canvas para Blob
+        canvasElement.toBlob(async (blob) => {
+            try {
+                // Criar FormData para enviar a imagem
+                const formData = new FormData();
+                formData.append('image', blob, 'qrcode.png');
+                
+                // Enviar para o backend Python
+                const response = await fetch(QR_SCAN_API, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success && result.qrCode) {
+                    // QR Code detectado com sucesso
+                    document.getElementById('tool-qrcode').value = result.qrCode;
+                    closeQRScanner();
+                    showNotification('QR Code escaneado com sucesso!', true);
+                } else {
+                    scanResultElement.textContent = 'QR Code não detectado. Tente novamente.';
+                    scanResultElement.style.color = 'var(--accent-color)';
+                }
+                
+            } catch (error) {
+                console.error('Erro ao escanear QR Code:', error);
+                scanResultElement.textContent = 'Erro no escaneamento: ' + error.message;
+                scanResultElement.style.color = 'var(--accent-color)';
+            } finally {
+                showLoading(false);
+            }
+        }, 'image/png');
+        
+    } catch (error) {
+        console.error('Erro na captura:', error);
+        scanResultElement.textContent = 'Erro na captura: ' + error.message;
+        scanResultElement.style.color = 'var(--accent-color)';
+        showLoading(false);
+    }
+}
+
+// Abrir scanner
+function openQRScanner() {
+    document.getElementById('qr-scanner-modal').style.display = 'flex';
+    scanResultElement.textContent = 'Iniciando câmera...';
+    scanResultElement.style.color = 'inherit';
+    initializeQRScanner();
+}
+
+// Fechar scanner
+function closeQRScanner() {
+    document.getElementById('qr-scanner-modal').style.display = 'none';
+    
+    if (qrStream) {
+        qrStream.getTracks().forEach(track => track.stop());
+        qrStream = null;
+    }
+    
+    if (scanInterval) {
+        clearInterval(scanInterval);
+        scanInterval = null;
+    }
+}
+
+// Event listeners
+startScanBtn.addEventListener('click', openQRScanner);
+document.getElementById('cancel-scan-btn').addEventListener('click', closeQRScanner);
+document.querySelector('.close-scan-btn').addEventListener('click', closeQRScanner);
+document.getElementById('capture-btn').addEventListener('click', captureAndScan);
+
+// Fechar modal ao clicar fora
+document.getElementById('qr-scanner-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeQRScanner();
+    }
+});
+
+// Tecla ESC para fechar
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('qr-scanner-modal').style.display === 'flex') {
+        closeQRScanner();
+    }
+});
 let locaisCache = [];
 
 // Função para mostrar notificação
