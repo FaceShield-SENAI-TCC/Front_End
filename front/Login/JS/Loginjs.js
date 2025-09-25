@@ -90,8 +90,8 @@ function reconhecerFace(imageData) {
   toggleLoading(true);
 
   // Código real para enviar para a API (descomente quando a API estiver disponível)
-  /*
-            fetch('http://localhost:8080/reconhecer', {
+  
+            fetch('http://localhost:5005/face-login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ function reconhecerFace(imageData) {
                     
                     // Redirecionar após login bem-sucedido
                     setTimeout(() => {
-                        window.location.href = "pagina-inicial.html";
+                        window.location.href = "../ListaAluno/ListUsuário.html";
                     }, 2000);
                 } else {
                     mensagem.textContent = data.message || "Usuário não reconhecido. Tente novamente.";
@@ -123,7 +123,6 @@ function reconhecerFace(imageData) {
                 mensagem.textContent = "Erro no reconhecimento. Tente novamente.";
                 showFeedback("error", "Erro de conexão com o servidor. Tente novamente.");
             });
-            */
 }
 
 // Iniciar a câmera quando a página carregar
