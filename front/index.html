@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FaceShield - Auth 3.0</title>
+    <title data-translate-key="title">FaceShield - Auth 3.0</title>
     <link rel="stylesheet" href="./Inicio/CSS/css.css" />
     <script src="./Inicio/JS/js.js" defer></script>
   </head>
@@ -15,7 +15,7 @@
           src="./Recursos/LogoFaceShield.png"
           alt="Logo FaceShield"
         />
-        <h1 class="main-title">FaceShield</h1>
+        <h1 class="main-title" data-translate-key="site-name">FaceShield</h1>
       </div>
 
       <div class="face-recognition-container">
@@ -26,7 +26,7 @@
       </div>
 
       <div class="auth-actions-container">
-        <a href="#" class="glowingbutton" onclick="initAuth('login', event)">
+        <a href="#" class="glowingbutton" onclick="initAuth('login', event)" data-translate-key="login-btn">
           Entrar
         </a>
 
@@ -34,6 +34,7 @@
           href="#"
           class="glowingbutton secondary-button"
           onclick="initAuth('register')"
+          data-translate-key="register-btn"
         >
           Novo Cadastro
         </a>
@@ -43,5 +44,11 @@
     <div class="loading-overlay">
       <div class="loading-spinner"></div>
     </div>
+
+    <script src="js/translate.js"></script>
+
+    <!-- Trocar idioma para Inglês ou Português -->
+    <button onclick="switchLanguage('pt')">Português</button>
+    <button onclick="switchLanguage('en')">English</button>
   </body>
 </html>

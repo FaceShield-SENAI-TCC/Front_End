@@ -1,101 +1,109 @@
 <!DOCTYPE html>
-<html lang="pt-br">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FaceShield - Cadastro</title>
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    <link rel="stylesheet" href="./CSS/CssCadastro.css" />
-    <script src="./JS/JSCadastro.js" defer></script>
-  </head>
-  <body>
-    <div class="decorative-border"></div>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title data-translate-key="title">FaceShield - Cadastro</title>
+  <link rel="stylesheet" href="./CSS/CssCadastro.css" />
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script src="./JS/JSCadastro.js" defer></script>
+</head>
+<body>
+  <div class="botaoVoltar">
+    <a class="buttonVoltar" href="../index.html" data-translate-key="back-btn">Voltar</a>
+  </div>
 
-    <div class="botaoVoltar">
-      <a class="buttonVoltar" href="../index.html">Voltar</a>
+  <main class="main-content">
+    <div class="form-container">
+      <form id="cadastroForm" class="form-grid">
+        <div class="input-group floating-label">
+          <select id="tipoUsuario" name="tipoUsuario" required>
+            <option value="" disabled selected hidden data-translate-key="select-user-type">
+              Selecione o tipo de usuário
+            </option>
+            <option value="1" data-translate-key="student">Aluno</option>
+            <option value="2" data-translate-key="teacher">Professor</option>
+          </select>
+          <label for="tipoUsuario" data-translate-key="user-type">Tipo de Usuário</label>
+          <div class="input-border"></div>
+          <span class="validation-icon"></span>
+          <div class="error-message"></div>
+        </div>
+
+        <div class="input-group floating-label">
+          <input type="text" id="nome" name="nome" required placeholder="Nome"/>
+          <label for="nome" data-translate-key="first-name">Nome</label>
+          <div class="input-border"></div>
+          <span class="validation-icon"></span>
+          <div class="error-message"></div>
+        </div>
+
+        <div class="input-group floating-label">
+          <input type="text" id="sobrenome" name="sobrenome" required placeholder="Sobrenome"/>
+          <label for="sobrenome" data-translate-key="last-name">Sobrenome</label>
+          <div class="input-border"></div>
+          <span class="validation-icon"></span>
+          <div class="error-message"></div>
+        </div>
+
+        <div class="input-group floating-label">
+          <input type="text" id="turma" name="turma" required placeholder="Turma"/>
+          <label for="turma" data-translate-key="class">Turma</label>
+          <div class="input-border"></div>
+          <span class="validation-icon"></span>
+          <div class="error-message"></div>
+        </div>
+
+        <div class="input-group floating-label" id="username-group">
+          <input type="text" id="username" name="username" placeholder="Nome de Usuário"/>
+          <label for="username" data-translate-key="username">Nome de Usuário</label>
+          <div class="input-border"></div>
+          <span class="validation-icon"></span>
+          <div class="error-message"></div>
+        </div>
+
+        <div class="input-group floating-label" id="senha-group">
+          <input type="password" id="senha" name="senha" placeholder="Senha"/>
+          <label for="senha" data-translate-key="password">Senha</label>
+          <div class="input-border"></div>
+          <span class="validation-icon"></span>
+          <div class="error-message"></div>
+        </div>
+
+        <div class="face-recognition-container">
+          <button type="button" class="view-camera-btn" data-translate-key="view-camera">
+            Visualizar Câmera
+          </button>
+
+          <div class="face-scan-widget">
+            <div class="scan-animation-overlay"></div>
+            <div class="scanning-line-effect"></div>
+            <img id="camera-feed" alt="Camera Feed" />
+            <p class="upload-instruction" data-translate-key="upload-instruction">
+              Clique para captura biométrica
+            </p>
+          </div>
+        </div>
+
+        <button type="submit" class="botao" data-translate-key="register-btn">Cadastrar</button>
+      </form>
     </div>
+  </main>
 
-    <main class="main-content">
-      <div class="form-container">
-        <form id="cadastroForm" class="form-grid">
-          <div class="input-group floating-label">
-            <select id="tipoUsuario" name="tipoUsuario" required>
-              <option value="" disabled selected hidden>
-                Selecione o tipo de usuário
-              </option>
-              <option value="1">Aluno</option>
-              <option value="2">Professor</option>
-            </select>
-            <label for="tipoUsuario">Tipo de Usuário</label>
-            <div class="input-border"></div>
-            <span class="validation-icon"></span>
-            <div class="error-message"></div>
-          </div>
+  <!-- Feedback -->
+  <div id="feedback" class="feedback"></div>
 
-          <div class="input-group floating-label">
-            <input type="text" id="nome" name="nome" required />
-            <label for="nome">Nome</label>
-            <div class="input-border"></div>
-            <span class="validation-icon"></span>
-            <div class="error-message"></div>
-          </div>
+  <div class="loading-overlay">
+    <div class="loading-spinner"></div>
+  </div>
 
-          <div class="input-group floating-label">
-            <input type="text" id="sobrenome" name="sobrenome" required />
-            <label for="sobrenome">Sobrenome</label>
-            <div class="input-border"></div>
-            <span class="validation-icon"></span>
-            <div class="error-message"></div>
-          </div>
+  <!-- Botões para alternar idioma -->
+  <button onclick="switchLanguage('pt')">Português</button>
+  <button onclick="switchLanguage('en')">English</button>
 
-          <div class="input-group floating-label">
-            <input type="text" id="turma" name="turma" required />
-            <label for="turma">Turma</label>
-            <div class="input-border"></div>
-            <span class="validation-icon"></span>
-            <div class="error-message"></div>
-          </div>
-
-          <div class="input-group floating-label" id="username-group">
-            <input type="text" id="username" name="username" />
-            <label for="username">Nome de Usuário</label>
-            <div class="input-border"></div>
-            <span class="validation-icon"></span>
-            <div class="error-message"></div>
-          </div>
-
-          <div class="input-group floating-label" id="senha-group">
-            <input type="password" id="senha" name="senha" />
-            <label for="senha">Senha</label>
-            <div class="input-border"></div>
-            <span class="validation-icon"></span>
-            <div class="error-message"></div>
-          </div>
-
-          <!-- Widget de Captura Biométrica -->
-          <div class="face-recognition-container">
-            <button type="button" class="view-camera-btn">
-              Visualizar Câmera
-            </button>
-
-            <div class="face-scan-widget">
-              <div class="scan-animation-overlay"></div>
-              <div class="scanning-line-effect"></div>
-              <img id="camera-feed" alt="Camera Feed" />
-              <p class="upload-instruction">Clique para captura biométrica</p>
-            </div>
-          </div>
-
-          <button type="submit" class="botao">Cadastrar</button>
-        </form>
-      </div>
-    </main>
-
-    <!-- Feedback -->
-    <div id="feedback" class="feedback"></div>
-
-    <div class="loading-overlay">
-      <div class="loading-spinner"></div>
-    </div>
-  </body>
+  <!-- Tradução + JS -->
+  <script>
+    
+  </script>
+</body>
 </html>
