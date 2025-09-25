@@ -8,14 +8,11 @@
 body {
   background-color: #f5f7fa;
   color: #333;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
 
 .container {
   display: flex;
-  flex: 1;
+  min-height: 100vh;
 }
 
 /* Menu Lateral */
@@ -25,6 +22,8 @@ body {
   color: #ecf0f1;
   padding: 20px 0;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  height: 100vh;
 }
 
 .logo {
@@ -64,6 +63,7 @@ body {
 .main-content {
   flex: 1;
   padding: 30px;
+  margin-left: 250px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -306,13 +306,26 @@ body {
 
 /* Responsividade */
 @media (max-width: 768px) {
-  .form-row {
-    flex-direction: column;
-    gap: 15px;
+  .sidebar {
+    width: 60px;
+    padding: 10px 0;
+    position: fixed;
+    height: 100vh;
+    z-index: 1000;
   }
 
-  .sidebar {
-    width: 70px;
+  .logo {
+    padding: 10px;
+    text-align: center;
+  }
+
+  .logo h2 {
+    font-size: 1.1rem;
+  }
+
+  .menu-item {
+    justify-content: center;
+    padding: 10px;
   }
 
   .logo h2 span,
@@ -320,9 +333,9 @@ body {
     display: none;
   }
 
-  .logo {
-    text-align: center;
-    padding: 10px 0;
+  .main-content {
+    margin-left: 60px;
+    padding: 15px;
   }
 
   .header {
@@ -333,5 +346,15 @@ body {
 
   .user-info {
     align-self: flex-end;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 15px;
   }
 }

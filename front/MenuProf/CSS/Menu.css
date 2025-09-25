@@ -134,3 +134,9 @@ body {
     right: 15px;
   }
 }
+
+@media (max-width: 768px) {
+  .menu-container {
+    grid-template-columns: 1fr;
+  }
+}
