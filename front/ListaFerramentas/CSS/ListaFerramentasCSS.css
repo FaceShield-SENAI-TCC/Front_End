@@ -725,6 +725,55 @@ body {
     display: none;
   }
 }
+/* Garantir que o vídeo seja visível */
+#qr-video {
+  width: 100%;
+  height: 300px;
+  border: 2px solid var(--primary-color);
+  border-radius: 8px;
+  background: #000;
+  object-fit: cover; /* Isso garante que o vídeo preencha o container */
+}
+
+/* Indicador de que a câmera está ativa */
+.scanner-active {
+  box-shadow: 0 0 20px rgba(0, 224, 255, 0.5);
+}
+
+/* Mensagens de status */
+#scan-result {
+  margin: 15px 0;
+  font-weight: bold;
+  min-height: 24px;
+  text-align: center;
+}
+
+/* Loading durante inicialização */
+.scanner-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+}
+
+.scanner-loading::after {
+  content: "";
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--primary-color);
+  border-top: 4px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 
 /* Alternar entre tabela e cards */
 @media (max-width: 768px) {
