@@ -813,7 +813,7 @@ function closeModal() {
 }
 
 async function saveTool() {
-  // Validar campos obrigatórios
+  // Validar campos OBRIGATORIO
   if (
     !toolName.value ||
     !toolBrand.value ||
