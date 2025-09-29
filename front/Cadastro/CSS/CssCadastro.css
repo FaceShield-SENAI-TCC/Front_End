@@ -237,12 +237,9 @@ body {
 }
 
 .view-camera-btn {
+  opacity: 10%;
   display: block;
-  margin: 0 auto 1rem;
-  padding: 0.5rem 1rem;
-  background: rgba(0, 224, 255, 0.2);
   border: 1px solid var(--primary-color);
-  color: white;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s ease;
