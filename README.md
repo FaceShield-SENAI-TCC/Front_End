@@ -1,7 +1,7 @@
 # Front-End - Projeto Lista Ferramentas
 
 Este é o front-end do sistema de **Lista de Ferramentas**, que é responsável pela interface de usuário. O projeto está organizado em diversas páginas HTML com funcionalidades em JavaScript e CSS para uma experiência interativa.
-
+```bash
 ## Estrutura do Projeto
 
 A estrutura de diretórios do projeto é a seguinte:
