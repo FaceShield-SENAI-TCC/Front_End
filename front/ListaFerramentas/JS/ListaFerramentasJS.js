@@ -683,7 +683,7 @@ async function loadToolsTable() {
                   (ferramenta.descricao.length > 20 ? "..." : "")
                 : "N/A"
             }</td>
-            <td>${nomeLocal}</td>
+            <td>${ferramenta.nomeLocal}</td>
             <td class="action-buttons-cell">
               <button class="btn-action btn-edit" data-id="${ferramenta.id}">
                 <i class="fas fa-edit"></i> Editar
