@@ -1,32 +1,40 @@
-```bash
-frontend/
-├── js/
-│   ├── api.js                 # Configuração do Axios
-│   ├── utils.js               # Funções utilitárias (formatação, validação, etc.)
-│   ├── dom/                   # Manipulação de DOM separada por recurso
-│   │   ├── produtosDOM.js     # Criação de elementos HTML dos produtos
-│   │   └── carrinhoDOM.js     # Criação de elementos do carrinho
-│   ├── services/              # Comunicação com o backend (Spring)
-│   │   ├── produtoService.js  # Chamada da API para produtos
-│   │   └── usuarioService.js  # Cadastro, login, etc.
-│   └── pages/                 # Lógica principal de cada página
-│       ├── index.js           # Página inicial
-│       ├── produto.js         # Página individual do produto
-│       └── carrinho.js        # Página do carrinho
-├── index.html                 # Página principal
-├── produto.html               # Página de produto
-└── carrinho.html              # Página do carrinho
+# Front-End - Projeto Lista Ferramentas
 
-📂 services/
-Guarda funções que comunicam com o backend (Spring) usando Axios ou o fetch padrão, depende do que forem usar
+Este é o front-end do sistema de **Lista de Ferramentas**, que é responsável pela interface de usuário. O projeto está organizado em diversas páginas HTML com funcionalidades em JavaScript e CSS para uma experiência interativa.
 
-📂 dom/
-Cria elementos HTML dinamicamente com base nos dados.Ex criar um card de produto ou pedido, carrinho..., *gerar html dinamicamente*
+## Estrutura do Projeto
 
-📂 pages/
-É onde fica a lógica principal de cada página. Chama os services, monta elementos com dom/, adiciona eventos. Exemplo os eventos do funcionamento do carrinho
+A estrutura de diretórios do projeto é a seguinte:
 
-📄 utils.js
-Guarda funções úteis reutilizáveis como validação de formulário, máscara de campos, formatação de preços, etc.
+front/
+│
+├── Cadastro/
+├── Inicio/
+├── ListaAluno/
+├── ListaFerramentas/
+├── Locais/
+├── Login/
+├── MenuProf/
+├── PostEmp/
+├── Recursos/
+├── VerEmprestimo/
+├── index.html
 
-DUVIDAS É SO PESQUISAR OU PERGUNTAR.
+
+
+- **Cadastro**: Página de cadastro de ferramentas ou usuários.
+- **Inicio**: Página inicial do sistema.
+- **ListaAluno**: Página com a lista de alunos ou registros relacionados.
+- **ListaFerramentas**: Página de listagem de ferramentas.
+- **Locais**: Página de locais ou áreas de utilização.
+- **Login**: Página de login para acesso ao sistema.
+- **MenuProf**: Menu de opções para professores ou administradores.
+- **PostEmp**: Página de postagens de emprego ou recursos relacionados.
+- **Recursos**: Área para acessar recursos ou outras ferramentas úteis.
+- **VerEmprestimo**: Página para visualização de empréstimos.
+
+## Tecnologias Utilizadas
+
+- **HTML**: Estruturação do conteúdo da página.
+- **CSS**: Estilos e layout das páginas.
+- **JavaScript**: Funcionalidade dinâmica para interação do usuário.
