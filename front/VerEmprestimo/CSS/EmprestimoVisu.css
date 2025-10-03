@@ -22,6 +22,9 @@ body {
   color: #ecf0f1;
   padding: 20px 0;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  height: 100vh;
+  z-index: 1000;
 }
 
 .logo {
@@ -62,6 +65,7 @@ body {
   flex: 1;
   padding: 30px;
   overflow-y: auto;
+  margin-left: 250px;
 }
 
 .header {
@@ -145,6 +149,35 @@ body {
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
+/* Estilos para o botão "Salvar Configurações" */
+.action-buttons-bottom {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+  margin-top: -5px;
+}
+
+.btn {
+  padding: 12px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  border: none;
+}
+
+.btn-primary {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #2980b9;
+}
+
 /* Tabela */
 .loans-table {
   width: 100%;
@@ -170,29 +203,6 @@ body {
 
 .loans-table tr:hover {
   background-color: #f8f9fa;
-}
-
-.status-badge {
-  padding: 5px 10px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  display: inline-block;
-}
-
-.status-active {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
-
-.status-returned {
-  background-color: #e3f2fd;
-  color: #1565c0;
-}
-
-.status-delayed {
-  background-color: #ffebee;
-  color: #c62828;
 }
 
 /* Paginação */
@@ -264,33 +274,6 @@ body {
   border-top-color: #fff;
   animation: spin 1s ease-in-out infinite;
 }
-/* Estilo para o botão Devolver */
-.return-btn {
-  background-color: #3498db;
-  color: #fff;
-  border: none;
-  border-radius: 20px;
-  padding: 8px 20px;
-  font-size: 15px;
-  cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.08);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.return-btn:hover {
-  background-color: #3498db;
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.18);
-}
-.return-btn:disabled {
-  background-color: red;
-}
-
-.return-btn i {
-  font-size: 17px;
-}
 
 @keyframes spin {
   to {
@@ -298,38 +281,9 @@ body {
   }
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
-  .filters {
-    flex-direction: column;
-  }
-
-  .filter-group {
-    min-width: 100%;
-  }
-
-  .loans-table {
-    display: block;
-    overflow-x: auto;
-  }
-
-  .sidebar {
-    width: 70px;
-  }
-
-  .logo h2 span,
-  .menu-item span {
-    display: none;
-  }
-
-  .logo {
-    text-align: center;
-    padding: 10px 0;
-  }
-}
-/* Estilos para o Modal */
+/* Estilos para o Modal (Base) */
 .modal {
-  display: none;
+  display: none; /* CORRETO: Começa escondido */
   position: fixed;
   z-index: 1000;
   left: 0;
@@ -341,6 +295,7 @@ body {
 
 .modal-content {
   background-color: #fefefe;
+  /* CORREÇÃO: Usa margin para centralizar o bloco (funciona com display: block) */
   margin: 5% auto;
   padding: 0;
   border-radius: 8px;
@@ -348,6 +303,9 @@ body {
   max-width: 700px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   animation: modalopen 0.3s;
+  max-height: 90vh; /* Mantido para rolagem em tela cheia */
+  display: flex; /* Mantido para a rolagem interna do body */
+  flex-direction: column; /* Mantido para a rolagem interna do body */
 }
 
 @keyframes modalopen {
@@ -370,6 +328,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .modal-header h2 {
@@ -391,6 +350,8 @@ body {
 
 .modal-body {
   padding: 20px;
+  overflow-y: auto; /* PERMITE ROLAGEM */
+  flex-grow: 1;
 }
 
 .details-grid {
@@ -450,6 +411,7 @@ body {
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
   text-align: right;
+  flex-shrink: 0;
 }
 
 /* Botões de ação na tabela */
@@ -498,6 +460,34 @@ body {
   cursor: not-allowed;
 }
 
+/* Estilo para o botão Devolver no Modal */
+.modal-footer .return-btn {
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.08);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modal-footer .return-btn:hover {
+  background-color: #3498db;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.18);
+}
+.modal-footer .return-btn:disabled {
+  background-color: red;
+}
+
+.modal-footer .return-btn i {
+  font-size: 17px;
+}
+
 /* Status badges */
 .status-badge {
   padding: 4px 8px;
@@ -526,11 +516,68 @@ body {
   color: #c0392b;
 }
 
-/* Responsividade */
+/* RESPONSIVIDADE (MOBILE) */
 @media (max-width: 768px) {
+  /* BARRA LATERAL (mantido como corrigido) */
+  .sidebar {
+    width: 60px;
+    padding: 10px 0;
+  }
+
+  .logo {
+    padding: 10px;
+    text-align: center;
+  }
+
+  .logo h2 span,
+  .menu-item span {
+    display: none;
+  }
+
+  .menu-item {
+    justify-content: center;
+    padding: 10px;
+  }
+
+  .main-content {
+    margin-left: 60px;
+    padding: 15px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .logout-btn {
+    align-self: flex-end;
+  }
+
+  .filters {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .filter-group {
+    min-width: 100%;
+  }
+
+  .loans-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  /* CORREÇÃO DO MODAL PARA MOBILE (mantido rolagem e ajustes, removido o margin auto do desktop) */
   .modal-content {
     width: 95%;
-    margin: 10% auto;
+    max-width: none;
+    max-height: 95vh;
+    margin: 10px auto; /* Mantém a centralização horizontal e garante um pequeno espaçamento no topo */
+  }
+
+  .modal {
+    padding: 10px;
   }
 
   .details-grid {

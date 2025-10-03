@@ -223,9 +223,13 @@ async function loadToolsTable() {
                   (ferramenta.descricao.length > 20 ? "..." : "")
                 : "N/A"
             }</td>
+<<<<<<< HEAD
             <td>${
               ferramenta.nomeLocal
             }</td> <!-- CORREÇÃO 2: Usar a variável nomeLocal -->
+=======
+            <td>${ferramenta.nomeLocal}</td>
+>>>>>>> 9c4eb3c4cc1814fedf0fac66ff598e275d43f153
             <td class="action-buttons-cell">
               <button class="btn-action btn-edit" data-id="${ferramenta.id}">
                 <i class="fas fa-edit"></i> Editar
