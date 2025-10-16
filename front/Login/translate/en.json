@@ -1,0 +1,24 @@
+{
+  "back-btn": "Back",
+  "login-btn": "Login",
+  "teacher-login-btn": "Teacher Login",
+
+  "camera-login-title": "Login with Facial Recognition",
+  "camera-login-header": "Login with Facial Recognition",
+  "camera-status-waiting": "Awaiting recognition...",
+  "camera-status-activated": "Camera activated, awaiting recognition...",
+  "camera-status-recognizing": "Processing recognition...",
+  "camera-status-success": "Welcome, {name}!",
+  "camera-status-fail": "Face not recognized. Please try again.",
+  "camera-status-error": "Recognition error. Please try again.",
+  "camera-error-access": "Error accessing camera. Please check permissions.",
+  "camera-error-server": "Connection error with the recognition server.",
+
+  "teacher-login-title": "Teacher Login",
+  "teacher-login-header": "Teacher Login",
+  "username-label": "Username",
+  "password-label": "Password",
+  "alert-login-fail": "Invalid username or password.",
+  "alert-login-success": "Login successful!",
+  "alert-login-camera-success": "Login successful! Welcome, {name}."
+}

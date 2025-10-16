@@ -1,0 +1,15 @@
+{
+  "page-title": "Teacher's System",
+  "header-title": "Teacher's System",
+  "card-users-title": "Users",
+  "card-users-desc": "View Users",
+  "card-loans-title": "Loans",
+  "card-loans-desc": "History of borrowed items",
+  "card-tools-title": "Tools",
+  "card-tools-desc": "View registered tools",
+  "card-locations-title": "Locations",
+  "card-locations-desc": "Registered areas",
+  "card-new-loan-title": "Make a Loan",
+  "card-new-loan-desc": "Register a teacher's loan",
+  "logout-btn": "Logout"
+}

@@ -1,465 +1,92 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("cadastroForm");
-  if (!form) {
-    console.error("Elemento #cadastroForm não encontrado!");
-    return;
+// ========================== LÓGICA DE TRADUÇÃO ==========================
+
+// Objeto que guardará as traduções do arquivo JSON carregado.
+let translations = {};
+
+/**
+ * Busca uma tradução a partir de uma chave.
+ * @param {string} key - A chave da tradução (ex: "login-btn").
+ * @returns {string} O texto traduzido.
+ */
+function t(key) {
+  return translations[key] || key;
+}
+
+/**
+ * Carrega o arquivo de tradução (JSON) do idioma especificado.
+ * @param {string} lang - O idioma a ser carregado (ex: "pt" ou "en").
+ */
+async function loadTranslations(lang) {
+  try {
+    // Busca o arquivo JSON na pasta "translate" DENTRO da pasta "Inicio".
+    const response = await fetch(`./Inicio/translate/${lang}.json`);
+    if (!response.ok) {
+      throw new Error(
+        `Arquivo de tradução não encontrado: ./Inicio/translate/${lang}.json`
+      );
+    }
+    translations = await response.json();
+  } catch (error) {
+    console.error("Falha ao carregar o arquivo de tradução:", error);
   }
+}
 
-  const feedback = document.getElementById("feedback");
-  const tipoUsuarioSelect = document.getElementById("tipoUsuario");
-  const usernameGroup = document.getElementById("username-group");
-  const usernameInput = document.getElementById("username");
-  const scanWidget = document.querySelector(".face-scan-widget");
-  const scanInstruction = scanWidget.querySelector(".upload-instruction");
-  const senhaGroup = document.getElementById("senha-group");
-  const senhaInput = document.getElementById("senha");
-  const nomeInput = document.getElementById("nome");
-  const sobrenomeInput = document.getElementById("sobrenome");
-  const turmaInput = document.getElementById("turma");
-  const viewCameraBtn = document.querySelector(".view-camera-btn");
-
-  const API_URL = "http://localhost:8080/usuarios/novoUsuario";
-  const CAPTURE_API_URL = "http://localhost:7001";
-
-  let isScanning = false;
-  let isViewingCamera = false;
-  let captureSessionId = null;
-  let faceCaptureComplete = false;
-  let faceCaptureSuccess = false;
-
-  const cameraFeed = document.getElementById("camera-feed");
-
-  const checkmark = document.createElement("div");
-  checkmark.innerHTML = "&#10004;";
-  checkmark.style.position = "absolute";
-  checkmark.style.top = "50%";
-  checkmark.style.left = "50%";
-  checkmark.style.transform = "translate(-50%, -50%) scale(0)";
-  checkmark.style.fontSize = "0rem";
-  checkmark.style.color = "#00ffaa";
-  checkmark.style.textShadow = "0 0 20px rgba(0, 255, 170, 0.8)";
-  checkmark.style.zIndex = "10";
-  checkmark.style.opacity = "0";
-  checkmark.style.transition = "all 0.8s ease-out";
-  scanWidget.appendChild(checkmark);
-
-  const socket = io(CAPTURE_API_URL, {
-    reconnection: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 3000,
-    autoConnect: false,
+/**
+ * Atualiza todos os textos da interface (HTML) com base nas traduções carregadas.
+ */
+function updateUI() {
+  document.querySelectorAll("[data-translate-key]").forEach((element) => {
+    const key = element.getAttribute("data-translate-key");
+    if (key) {
+      element.textContent = t(key);
+    }
   });
+  document.title = t("title");
+}
 
-  // Função para mostrar/ocultar campos de professor
-  function toggleUsernameField() {
-    if (!tipoUsuarioSelect) return;
-    const isProfessor = tipoUsuarioSelect.value === "2";
+/**
+ * Função global para trocar o idioma.
+ * @param {string} lang - O novo idioma ("pt" ou "en").
+ */
+async function switchLanguage(lang) {
+  localStorage.setItem("language", lang);
+  await loadTranslations(lang);
+  updateUI();
+}
 
-    setTimeout(() => {
-      if (usernameGroup)
-        usernameGroup.style.display = isProfessor ? "block" : "none";
-      if (senhaGroup) senhaGroup.style.display = isProfessor ? "block" : "none";
+// Expõe a função para ser acessível pelo HTML (onclick)
+window.switchLanguage = switchLanguage;
 
-      if (senhaInput) senhaInput.required = isProfessor;
-      if (usernameInput) usernameInput.required = isProfessor;
+// ========================== LÓGICA DA PÁGINA DE INÍCIO ==========================
 
-      if (!isProfessor) {
-        if (usernameInput) usernameInput.value = "";
-        if (senhaInput) senhaInput.value = "";
-      }
-    }, 300);
-  }
+/**
+ * Inicia o fluxo de autenticação (login ou registro).
+ * @param {string} type - 'login' ou 'register'.
+ * @param {Event} event - O evento do clique para prevenir o comportamento padrão.
+ */
+function initAuth(type, event) {
+  if (event) event.preventDefault();
 
-  // Validação em tempo real
-  function validarCampo(input) {
-    const parent = input.parentElement;
-    if (!parent) return;
+  const loadingOverlay = document.querySelector(".loading-overlay");
+  loadingOverlay.style.display = "grid";
 
-    const errorElement = parent.querySelector(".error-message");
-
-    if (input.checkValidity()) {
-      parent.classList.add("valid");
-      parent.classList.remove("invalid");
-      if (errorElement) errorElement.style.display = "none";
+  // Simulação de processo de autenticação
+  setTimeout(() => {
+    loadingOverlay.style.display = "none";
+    if (type === "login") {
+      window.location.href = "Login/CameraLogin.html";
     } else {
-      parent.classList.add("invalid");
-      parent.classList.remove("valid");
-      if (errorElement) {
-        errorElement.textContent = "Este campo é obrigatório.";
-        errorElement.style.display = "block";
-      }
+      window.location.href = "Cadastro/cadastro.html";
     }
-  }
+  }, 1000); // Reduzi o tempo para 1 segundo para melhorar a experiência
+}
 
-  // Exibir mensagens de feedback
-  function showFeedback(tipo, mensagem) {
-    if (!feedback) return;
+// Expõe a função para ser acessível pelo HTML (onclick)
+window.initAuth = initAuth;
 
-    feedback.textContent = mensagem;
-    feedback.className = "feedback " + tipo;
-    feedback.style.display = "block";
-
-    setTimeout(() => {
-      feedback.style.opacity = 0;
-      feedback.style.transform = "translateX(120%)";
-      setTimeout(() => {
-        feedback.style.display = "none";
-      }, 400);
-    }, 5000);
-  }
-
-  // Socket.IO event handlers
-  socket.on("connect", () => {
-    console.log("Conectado ao servidor de captura facial.");
-
-    if (isViewingCamera) {
-      // Modo apenas visualização - não inicia captura
-      scanInstruction.textContent = "Visualizando câmera...";
-      return;
-    }
-
-    // Modo captura biométrica
-    if (
-      !nomeInput.value.trim() ||
-      !sobrenomeInput.value.trim() ||
-      !turmaInput.value.trim()
-    ) {
-      showFeedback(
-        "error",
-        "Preencha nome, sobrenome e turma antes da captura biométrica"
-      );
-      isScanning = false;
-      socket.disconnect();
-      return;
-    }
-
-    socket.emit("start_camera", {
-      nome: nomeInput.value.trim(),
-      sobrenome: sobrenomeInput.value.trim(),
-      turma: turmaInput.value.trim(),
-      session_id: captureSessionId,
-    });
-
-    scanInstruction.textContent = "Siga as instruções...";
-  });
-
-  socket.on("connect_error", (err) => {
-    console.error(`Erro de conexão com Socket.IO: ${err.message}`);
-    showFeedback(
-      "error",
-      "Não foi possível conectar ao servidor de captura. Verifique se o back-end está rodando na porta 7001."
-    );
-    isScanning = false;
-    isViewingCamera = false;
-    scanInstruction.textContent = "Falha na conexão. Tente novamente.";
-    scanWidget.style.background = "rgba(255, 77, 125, 0.2)";
-  });
-
-  socket.on("capture_progress", (data) => {
-    // Só mostra progresso se estiver no modo de captura, não apenas visualização
-    if (!isViewingCamera) {
-      const progress = Math.min(
-        100,
-        Math.round((data.captured / data.total) * 100)
-      );
-      scanInstruction.textContent = `Capturando... ${progress}%`;
-
-      scanWidget.style.background = `linear-gradient(
-                        to right,
-                        rgba(0, 224, 255, 0.5) ${progress}%,
-                        rgba(30, 41, 59, 0.3) ${progress}%
-                    )`;
-    }
-  });
-
-  socket.on("capture_frame", (data) => {
-    cameraFeed.src = `data:image/jpeg;base64,${data.frame}`;
-    cameraFeed.style.display = "block";
-    scanInstruction.style.display = "none";
-    checkmark.style.display = "none";
-  });
-
-  socket.on("capture_complete", (data) => {
-    isScanning = false;
-    faceCaptureComplete = true;
-
-    if (data.success) {
-      faceCaptureSuccess = true;
-      cameraFeed.style.display = "none";
-      scanInstruction.style.display = "none";
-
-      checkmark.style.display = "block";
-      checkmark.style.opacity = "1";
-      checkmark.style.fontSize = "5rem";
-      checkmark.style.transform = "translate(-50%, -50%) scale(1)";
-
-      setTimeout(() => {
-        checkmark.style.opacity = "0";
-        checkmark.style.transform = "translate(-50%, -50%) scale(0.5)";
-        scanInstruction.style.display = "block";
-        scanInstruction.textContent = "Biometria capturada!";
-        scanWidget.style.background = "rgba(0, 255, 170, 0.1)";
-        scanWidget.classList.add("capture-success");
-      }, 2500);
-
-      setTimeout(() => {
-        checkmark.style.display = "none";
-      }, 3300);
-    } else {
-      faceCaptureSuccess = false;
-      cameraFeed.style.display = "none";
-      checkmark.style.display = "none";
-      scanInstruction.style.display = "block";
-      scanInstruction.textContent =
-        "Falha na captura. Clique para tentar novamente";
-      scanWidget.style.background = "rgba(255, 77, 125, 0.2)";
-      showFeedback("error", `Erro na captura biométrica: ${data.message}`);
-    }
-    console.log(
-      "Captura completa. Resultado: ",
-      data.success ? "Sucesso" : "Falha",
-      "Mensagem:",
-      data.message
-    );
-    socket.disconnect();
-  });
-
-  // Função para visualizar a câmera sem iniciar captura
-  viewCameraBtn.addEventListener("click", () => {
-    if (isViewingCamera) {
-      // Se já está visualizando, para a visualização
-      socket.disconnect();
-      isViewingCamera = false;
-      viewCameraBtn.textContent = "Visualizar Câmera";
-      cameraFeed.style.display = "none";
-      scanInstruction.style.display = "block";
-      scanInstruction.textContent = "Clique para captura biométrica";
-      return;
-    }
-
-    isViewingCamera = true;
-    captureSessionId = Date.now().toString() + "_view";
-
-    cameraFeed.src = "";
-    cameraFeed.style.display = "none";
-    checkmark.style.display = "none";
-    checkmark.style.opacity = "0";
-    checkmark.style.fontSize = "0rem";
-    checkmark.style.transform = "translate(-50%, -50%) scale(0)";
-
-    scanInstruction.style.display = "block";
-    scanInstruction.textContent = "Preparando câmera...";
-    scanWidget.style.background = "rgba(30, 41, 59, 0.5)";
-    scanWidget.classList.remove("capture-success");
-
-    socket.io.opts.query = { session_id: captureSessionId };
-    socket.connect();
-    viewCameraBtn.textContent = "Parar Visualização";
-  });
-
-  scanWidget.addEventListener("click", () => {
-    if (isScanning || isViewingCamera) return;
-
-    if (
-      !nomeInput.value.trim() ||
-      !sobrenomeInput.value.trim() ||
-      !turmaInput.value.trim()
-    ) {
-      showFeedback(
-        "error",
-        "Preencha nome, sobrenome e turma antes da captura biométrica"
-      );
-      return;
-    }
-
-    isScanning = true;
-    isViewingCamera = false; // Garante que não está no modo visualização
-    faceCaptureComplete = false;
-    faceCaptureSuccess = false;
-    captureSessionId = Date.now().toString();
-
-    cameraFeed.src = "";
-    cameraFeed.style.display = "none";
-    checkmark.style.display = "none";
-    checkmark.style.opacity = "0";
-    checkmark.style.fontSize = "0rem";
-    checkmark.style.transform = "translate(-50%, -50%) scale(0)";
-
-    scanInstruction.style.display = "block";
-    scanInstruction.textContent = "Preparando câmera...";
-    scanWidget.style.background = "rgba(30, 41, 59, 0.5)";
-    scanWidget.classList.remove("capture-success");
-
-    socket.io.opts.query = { session_id: captureSessionId };
-    socket.connect();
-    console.log("Iniciando conexão com Socket.IO...");
-  });
-
-  // Inicialização
-  if (tipoUsuarioSelect) {
-    tipoUsuarioSelect.addEventListener("change", toggleUsernameField);
-    toggleUsernameField();
-  }
-
-  document.querySelectorAll("input").forEach((input) => {
-    input.addEventListener("input", () => validarCampo(input));
-  });
-
-  // Submit do formulário
-  form.addEventListener("submit", async function (event) {
-    event.preventDefault();
-
-    // Validação dos campos
-    const tipoUsuario = tipoUsuarioSelect ? tipoUsuarioSelect.value : "";
-    const campos = ["nome", "sobrenome", "turma"];
-
-    if (tipoUsuario === "2") {
-      campos.push("username", "senha");
-    }
-
-    const invalidos = [];
-    let isValid = true;
-
-    campos.forEach((id) => {
-      const campo = document.getElementById(id);
-      if (!campo) return;
-
-      const erroMensagem = campo.parentElement.querySelector(".error-message");
-
-      if (!campo.value.trim()) {
-        invalidos.push(id);
-        campo.classList.add("input-error");
-        isValid = false;
-
-        if (!erroMensagem) {
-          const errorElement = document.createElement("div");
-          errorElement.classList.add("error-message");
-          errorElement.textContent = "Este campo é obrigatório.";
-          campo.parentElement.appendChild(errorElement);
-        }
-      } else {
-        campo.classList.remove("input-error");
-        if (erroMensagem) {
-          erroMensagem.remove();
-        }
-      }
-    });
-
-    if (!tipoUsuario) {
-      showFeedback("error", "Selecione o tipo de usuário");
-      return;
-    }
-
-    if (!isValid) {
-      const firstInvalid = document.getElementById(invalidos[0]);
-      if (firstInvalid) firstInvalid.focus();
-      showFeedback(
-        "error",
-        "Por favor, preencha todos os campos obrigatórios."
-      );
-      return;
-    }
-
-    if (!faceCaptureComplete) {
-      showFeedback("error", "Realize a captura biométrica antes de cadastrar");
-      return;
-    }
-
-    if (!faceCaptureSuccess) {
-      showFeedback("error", "Captura biométrica não concluída com sucesso");
-      return;
-    }
-
-    const formData = {
-      nome: nomeInput.value.trim(),
-      sobrenome: sobrenomeInput.value.trim(),
-      turma: turmaInput.value.trim(),
-      tipoUsuario: tipoUsuario === "1" ? "ALUNO" : "PROFESSOR",
-      username: tipoUsuario === "2" ? usernameInput.value.trim() : null,
-      senha: tipoUsuario === "2" ? senhaInput.value : null,
-    };
-
-    try {
-      showFeedback("info", "Enviando dados de cadastro...");
-
-      // Mostrar loading
-      document.querySelector(".loading-overlay").style.display = "grid";
-
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      // Esconder loading
-      document.querySelector(".loading-overlay").style.display = "none";
-
-      if (!response.ok) {
-        let errorMessage = `Erro HTTP! Status: ${response.status}`;
-        try {
-          const errorData = await response.json();
-          if (errorData.message) {
-            errorMessage += ` - ${errorData.message}`;
-          }
-        } catch (e) {}
-        throw new Error(errorMessage);
-      }
-
-      const responseData = await response.json();
-
-      if (response.status === 201 && responseData.id) {
-        showFeedback("success", "Cadastro realizado com sucesso!");
-        form.reset();
-        toggleUsernameField();
-
-        faceCaptureComplete = false;
-        faceCaptureSuccess = false;
-        scanInstruction.textContent = "Clique para captura biométrica";
-        scanWidget.style.background = "";
-        scanWidget.classList.remove("capture-success");
-
-        cameraFeed.style.display = "none";
-        checkmark.style.display = "none";
-        checkmark.style.opacity = "0";
-        checkmark.style.fontSize = "0rem";
-        checkmark.style.transform = "translate(-50%, -50%) scale(0)";
-
-        setTimeout(() => {
-          const firstInput = form.querySelector("input");
-          if (firstInput) firstInput.focus();
-        }, 100);
-      } else {
-        const errorMsg =
-          responseData.message ||
-          "Cadastro aparentemente realizado, mas sem confirmação do servidor";
-        showFeedback("warning", errorMsg);
-      }
-    } catch (error) {
-      // Esconder loading em caso de erro
-      document.querySelector(".loading-overlay").style.display = "none";
-
-      console.error("Erro completo na requisição:", error);
-      let errorMessage;
-      if (
-        error.message.includes("Failed to fetch") ||
-        error.message.includes("ERR_CONNECTION_REFUSED")
-      ) {
-        errorMessage =
-          "Servidor de cadastro offline! Verifique se o backend está rodando na porta 8080.";
-      } else if (error.message.includes("PropertyValueException")) {
-        errorMessage =
-          "Erro de validação: Campo obrigatório não preenchido no servidor";
-      } else if (
-        error.message.includes("Erro HTTP") &&
-        !error.message.includes("400")
-      ) {
-        errorMessage = `Erro no servidor: ${error.message}`;
-      } else {
-        errorMessage = error.message || "Erro ao processar o cadastro";
-      }
-      showFeedback("error", errorMessage);
-    }
-  });
+// --- INICIALIZAÇÃO QUANDO A PÁGINA CARREGA ---
+document.addEventListener("DOMContentLoaded", async () => {
+  const currentLanguage = localStorage.getItem("language") || "pt";
+  await loadTranslations(currentLanguage);
+  updateUI();
 });

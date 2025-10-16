@@ -1,0 +1,24 @@
+{
+  "back-btn": "Voltar",
+  "login-btn": "Entrar",
+  "teacher-login-btn": "Login Professor",
+
+  "camera-login-title": "Login com Reconhecimento Facial",
+  "camera-login-header": "Login com Reconhecimento Facial",
+  "camera-status-waiting": "Aguardando reconhecimento...",
+  "camera-status-activated": "Câmera ativada, aguardando reconhecimento...",
+  "camera-status-recognizing": "Processando reconhecimento...",
+  "camera-status-success": "Bem-vindo(a), {name}!",
+  "camera-status-fail": "Rosto não reconhecido. Tente novamente.",
+  "camera-status-error": "Erro no reconhecimento. Tente novamente.",
+  "camera-error-access": "Erro ao acessar a câmera. Verifique as permissões.",
+  "camera-error-server": "Erro de conexão com o servidor de reconhecimento.",
+
+  "teacher-login-title": "Login Professor",
+  "teacher-login-header": "Login Professor",
+  "username-label": "Nome de Usuário",
+  "password-label": "Senha",
+  "alert-login-fail": "Usuário ou senha inválidos.",
+  "alert-login-success": "Login realizado com sucesso!",
+  "alert-login-camera-success": "Login realizado com sucesso! Bem-vindo(a), {name}."
+}
