@@ -34,9 +34,6 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Adicionado para permitir scroll interno se necessário */
-  overflow-y: auto;
-  max-height: 90vh;
 }
 
 .page-header {
