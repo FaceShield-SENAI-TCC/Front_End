@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const translations = {
+    // ... (Suas traduções 'pt' e 'es' aqui, como já estão no arquivo)
     pt: {
       "page-title": "Controle de Usuários",
       "sidebar-users": "Usuários",
@@ -27,11 +28,15 @@ document.addEventListener("DOMContentLoaded", () => {
       "modal-user-type": "Tipo de Usuário",
       "modal-type-student": "Aluno",
       "modal-type-professor": "Professor",
-      "modal-save-button": "Salvar Usuário",
+      "modal-username": "Nome de Usuário",
+      "modal-password": "Senha",
       "modal-cancel-button": "Cancelar",
-      "modal-no-data": "Nenhum usuário encontrado.",
+      "modal-save-button": "Salvar Usuário",
       "loading-users": "Carregando usuários...",
-      "server-error": "Erro ao carregar os dados. O servidor pode estar offline.",
+      "error-loading-users": "Erro ao carregar usuários.",
+      "confirm-delete": "Tem certeza que deseja deletar este usuário?",
+      "delete-success": "Usuário deletado com sucesso!",
+      "delete-error": "Erro ao deletar usuário.",
     },
     es: {
       "page-title": "Control de Usuarios",
@@ -56,15 +61,19 @@ document.addEventListener("DOMContentLoaded", () => {
       "modal-last-name": "Apellido",
       "modal-enrollment": "Matrícula",
       "modal-class": "Clase",
-      "modal-class-placeholder": "Seleccione una clase",
+      "modal-class-placeholder": "Selecciona una clase",
       "modal-user-type": "Tipo de Usuario",
       "modal-type-student": "Estudiante",
       "modal-type-professor": "Profesor",
-      "modal-save-button": "Guardar Usuario",
+      "modal-username": "Nombre de Usuario",
+      "modal-password": "Contraseña",
       "modal-cancel-button": "Cancelar",
-      "modal-no-data": "No se encontró ningún usuario.",
+      "modal-save-button": "Guardar Usuario",
       "loading-users": "Cargando usuarios...",
-      "server-error": "Error al cargar los datos. El servidor puede estar fuera de línea.",
+      "error-loading-users": "Error al cargar usuarios.",
+      "confirm-delete": "¿Estás seguro de que quieres eliminar este usuario?",
+      "delete-success": "Usuario eliminado con éxito!",
+      "delete-error": "Error al eliminar usuario.",
     },
   };
 
@@ -74,24 +83,44 @@ document.addEventListener("DOMContentLoaded", () => {
   const classSelect = document.getElementById("class");
 
   function setLanguage(lang) {
+    // Salva o idioma selecionado no Local Storage
+    localStorage.setItem("userLanguage", lang);
+
+    // Altera o atributo 'lang' do HTML
+    document.documentElement.lang = lang;
+
     elementsToTranslate.forEach((el) => {
       const key = el.getAttribute("data-i18n");
       if (translations[lang] && translations[lang][key]) {
-        el.textContent = translations[lang][key];
+        if (el.tagName === "INPUT" && el.hasAttribute("placeholder")) {
+          el.setAttribute("placeholder", translations[lang][key]);
+        } else if (el.tagName === "OPTION" && el.value === "") {
+          // Atualiza o placeholder da opção de turma
+          el.textContent = translations[lang][key];
+        } else {
+          el.textContent = translations[lang][key];
+        }
       }
     });
 
+    // Atualiza o placeholder da busca
     if (searchInput) {
-      searchInput.setAttribute("placeholder", translations[lang]["search-placeholder"]);
+      searchInput.setAttribute(
+        "placeholder",
+        translations[lang]["search-placeholder"]
+      );
     }
-    
+
+    // Atualiza o placeholder da opção de turma (caso não tenha sido pega acima)
     if (classSelect) {
       const defaultOption = classSelect.querySelector('option[value=""]');
       if (defaultOption) {
-        defaultOption.textContent = translations[lang]["modal-class-placeholder"];
+        defaultOption.textContent =
+          translations[lang]["modal-class-placeholder"];
       }
     }
 
+    // Marca o botão de idioma ativo
     langButtons.forEach((btn) => {
       btn.classList.remove("active");
       if (btn.getAttribute("data-lang") === lang) {
@@ -107,16 +136,26 @@ document.addEventListener("DOMContentLoaded", () => {
         ? translations[lang]["modal-title-edit"]
         : translations[lang]["modal-title-add"];
     }
-    
+
     // Atualiza o texto da mensagem de carregamento ou erro
     const tableBody = document.getElementById("users-table-body");
     if (tableBody) {
-        if (tableBody.querySelector('.loading-message')) {
-            tableBody.querySelector('.loading-message').textContent = translations[lang]["loading-users"];
-        }
+      // Encontra o elemento com a mensagem de carregamento/erro e atualiza
+      const loadingMessage = tableBody.querySelector(".loading-message");
+      if (loadingMessage) {
+        loadingMessage.textContent = translations[lang]["loading-users"];
+      }
     }
   }
 
+  // Função para carregar o idioma inicial
+  function setInitialLanguage() {
+    // Tenta carregar do Local Storage, ou usa 'pt' como padrão
+    const savedLang = localStorage.getItem("userLanguage") || "pt";
+    setLanguage(savedLang);
+  }
+
+  // Adiciona listeners aos botões de idioma
   langButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
       const lang = btn.getAttribute("data-lang");
@@ -124,6 +163,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Define o idioma padrão ao carregar a página
-  setLanguage("pt");
+  // Define o idioma padrão/salvo quando o documento carrega
+  setInitialLanguage();
 });

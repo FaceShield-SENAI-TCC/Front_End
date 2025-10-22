@@ -476,3 +476,45 @@ body {
   color: var(--secondary-color);
   box-shadow: 0 0 10px var(--primary-color);
 }
+/* Estilos para o seletor de idioma */
+.language-selector {
+  position: absolute; /* Posição absoluta em relação ao body */
+  top: 20px;
+  right: 20px;
+  z-index: 1000; /* Garante que fique acima de outros elementos */
+  display: flex;
+  gap: 5px; /* Espaçamento entre os botões */
+}
+
+.lang-btn {
+  background-color: #3498db; /* Cor primária do seu sistema */
+  color: white;
+  border: 1px solid #3498db;
+  padding: 8px 12px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.lang-btn:hover {
+  background-color: #2980b9;
+  border-color: #2980b9;
+}
+
+.lang-btn.active {
+  background-color: #e74c3c; /* Cor de destaque (vermelho/perigo) para o ativo */
+  border-color: #e74c3c;
+  cursor: default;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+  .language-selector {
+    position: static; /* Volta para o fluxo normal em telas pequenas */
+    justify-content: center;
+    padding: 10px 0;
+    width: 100%;
+    background-color: #f5f7fa; /* Fundo para não se misturar com o body */
+  }
+}
