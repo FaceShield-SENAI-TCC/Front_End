@@ -3,53 +3,55 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title data-i18n="main-title">FaceShield - Auth 3.0</title>
-    <link rel="stylesheet" href="Inicio/CSS/CssInicioIndex.css" />
-    <script src="Inicio/JS/inicioEspanhol.js"></script>
-    <script src="Inicio/JS/js.js"></script>
+    <title data-translate-key="title">FaceShield - Auth 3.0</title>
+    <link rel="stylesheet" href="./Inicio/CSS/CssInicioIndex.css" />
+    <script src="./Inicio/JS/JSInicioIndex.js" defer></script>
   </head>
   <body class="auth-container">
-    <div class="decorative-border"></div>
 
+    <!-- Trocar idioma para Português, Espanhol ou Inglês -->
     <div class="language-selector">
-      <button class="lang-btn active" data-lang="pt">PT</button>
-      <button class="lang-btn" data-lang="es">ES</button>
+    <button onclick="switchLanguage('pt')">Português</button>
+    <button onclick="switchLanguage('es')">Español</button>
+    <button onclick="switchLanguage('en')">English</button>
     </div>
 
-    <div class="page-header">
-      <img
-        class="imagemheader"
-        src="Recursos/LogoFaceShield.png"
-        alt="Logo FaceShield"
-      />
-      <h1 class="main-title" data-i18n="main-title">FaceShield</h1>
-    </div>
-
-    <div class="face-recognition-container">
-      <div class="face-scan-widget">
-        <div class="scan-animation-overlay"></div>
-        <div class="scanning-line-effect"></div>
+    <div class="main-container">
+      <div class="page-header">
+        <img
+          class="imagemheader"
+          src="./Recursos/LogoFaceShield.png"
+          alt="Logo FaceShield"
+        />
+        <h1 class="main-title" data-translate-key="site-name">FaceShield</h1>
       </div>
-    </div>
 
-    <div class="auth-actions-container">
-      <a
-        href="Login/CameraLogin.html"
-        class="glowingbutton"
-        onclick="initAuth('login', event)"
-        data-i18n="glowing-button-login"
-      >
-        Entrar
-      </a>
+      <div class="face-recognition-container">
+        <div class="face-scan-widget">
+          <div class="scan-animation-overlay"></div>
+          <div class="scanning-line-effect"></div>
+        </div>
+      </div>
 
-      <a
-        href="Cadastro/cadastro.html"
-        class="glowingbutton secondary-button"
-        onclick="initAuth('register')"
-        data-i18n="glowing-button-register"
-      >
-        Novo Cadastro
-      </a>
+      <div class="auth-actions-container">
+        <a
+          href="#"
+          class="glowingbutton"
+          onclick="initAuth('login', event)"
+          data-translate-key="login-btn"
+        >
+          Entrar
+        </a>
+
+        <a
+          href="#"
+          class="glowingbutton secondary-button"
+          onclick="initAuth('register')"
+          data-translate-key="register-btn"
+        >
+          Novo Cadastro
+        </a>
+      </div>
     </div>
 
     <div class="loading-overlay">

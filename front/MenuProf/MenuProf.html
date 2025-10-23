@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-translate-key="page-title">Sistema do Professor</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./CSS/CssMenu.css" />
+    <script src="./JS/JSMenuProf.js" defer></script>
+  </head>
+  <body>
+
+    <!-- Trocar idioma para Português, Espanhol ou Inglês -->
+    <div class="language-selector">
+    <button onclick="switchLanguage('pt')">Português</button>
+    <button onclick="switchLanguage('es')">Español</button>
+    <button onclick="switchLanguage('en')">English</button>
+    </div>
+
+    <div class="header">
+      <h1 data-translate-key="header-title">Sistema do Professor</h1>
+    </div>
+
+    <div class="menu-container">
+      <div
+        class="menu-card"
+        id="alunos"
+        onclick="window.location.href='../ListaAluno/ListaUsuario.html'"
+      >
+        <h2 data-translate-key="card-users-title">Usuários</h2>
+        <p data-translate-key="card-users-desc">Visualizar Usuários</p>
+      </div>
+
+      <div
+        class="menu-card"
+        id="emprestimos"
+        onclick="window.location.href='../VerEmprestimo/Emprestimos.html'"
+      >
+        <h2 data-translate-key="card-loans-title">Empréstimos</h2>
+        <p data-translate-key="card-loans-desc">
+          Histórico de itens emprestados
+        </p>
+      </div>
+
+      <div
+        class="menu-card"
+        id="ferramentas"
+        onclick="window.location.href='../ListaFerramentas/ListaFerramentas.html'"
+      >
+        <h2 data-translate-key="card-tools-title">Ferramentas</h2>
+        <p data-translate-key="card-tools-desc">
+          Visualizar ferramentas cadastradas
+        </p>
+      </div>
+
+      <div
+        class="menu-card"
+        id="locais"
+        onclick="window.location.href='../Locais/Local.html'"
+      >
+        <h2 data-translate-key="card-locations-title">Locais</h2>
+        <p data-translate-key="card-locations-desc">Áreas cadastradas</p>
+      </div>
+
+      <div
+        class="menu-card"
+        id="novo-emprestimo"
+        onclick="window.location.href='../PostEmp/PostEmp.html'"
+      >
+        <h2 data-translate-key="card-new-loan-title">Fazer Empréstimo</h2>
+        <p data-translate-key="card-new-loan-desc">
+          Registrar empréstimo do professor
+        </p>
+      </div>
+    </div>
+
+    <a
+      href="../index.html"
+      class="logout-btn"
+      id="logout"
+      data-translate-key="logout-btn"
+      >Sair</a
+    >
+  </body>
+</html>

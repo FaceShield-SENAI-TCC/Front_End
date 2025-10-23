@@ -1,0 +1,15 @@
+{
+  "page-title": "Sistema del Profesor",
+  "header-title": "Sistema del Profesor",
+  "card-users-title": "Usuarios",
+  "card-users-desc": "Ver Usuarios",
+  "card-loans-title": "Préstamos",
+  "card-loans-desc": "Historial de artículos prestados",
+  "card-tools-title": "Herramientas",
+  "card-tools-desc": "Ver herramientas registradas",
+  "card-locations-title": "Ubicaciones",
+  "card-locations-desc": "Áreas registradas",
+  "card-new-loan-title": "Realizar Préstamo",
+  "card-new-loan-desc": "Registrar préstamo del profesor",
+  "logout-btn": "Salir"
+}

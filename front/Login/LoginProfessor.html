@@ -3,14 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login</title>
-    <link rel="stylesheet" href="CSS/LoginProf.css" />
-    <script src="JS/loginProfEspanhol.js"></script>
+    <title data-translate-key="teacher-login-title">Login</title>
+    <link rel="stylesheet" href="CSS/CssLoginProf.css" />
+    <script src="./JS/JSLogin.js" defer></script>
   </head>
   <body>
+
+    <!-- Trocar idioma para Português, Espanhol ou Inglês -->
     <div class="language-selector">
-      <button class="lang-btn active" data-lang="pt">PT</button>
-      <button class="lang-btn" data-lang="es">ES</button>
+    <button onclick="switchLanguage('pt')">Português</button>
+    <button onclick="switchLanguage('es')">Español</button>
+    <button onclick="switchLanguage('en')">English</button>
     </div>
 
     <div class="background">
@@ -19,9 +22,10 @@
     </div>
 
     <div class="botaoVoltar">
-      <a class="buttonVoltar" href="../index.html" data-i18n="back-button">Voltar</a>
+      <a class="buttonVoltar" href="../index.html" data-translate-key="back-btn"
+        >Voltar</a
+      >
     </div>
-
     <main class="main-content">
       <div class="logo-container">
         <img
@@ -33,29 +37,28 @@
 
       <div class="form-container">
         <form id="loginForm" class="form-grid">
-          <h1 class="title" data-i18n="main-title">Login Professor</h1>
-
+          <h1 class="title" data-translate-key="teacher-login-header">
+            Login Professor
+          </h1>
           <div class="input-group floating-label">
             <input type="text" id="username" required />
-            <label for="username" data-i18n="username-label">Nome de Usuário</label>
+            <label for="username" data-translate-key="username-label"
+              >Nome de Usuário</label
+            >
             <div class="input-border"></div>
             <span class="validation-icon"></span>
           </div>
-
           <div class="input-group floating-label">
             <input type="password" id="senha" required />
-            <label for="senha" data-i18n="password-label">Senha</label>
+            <label for="senha" data-translate-key="password-label">Senha</label>
             <div class="input-border"></div>
             <span class="validation-icon"></span>
           </div>
-
-          <button type="submit" class="botao" data-i18n="submit-button">Entrar</button>
-
-          <a href="#" class="link-password" data-i18n="forgot-password">Esqueci a senha</a>
+          <button type="submit" class="botao" data-translate-key="login-btn">
+            Entrar
+          </button>
         </form>
       </div>
     </main>
-
-    <script src="JS/traducaoProf.js" defer></script>
   </body>
 </html>

@@ -3,33 +3,53 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Entrar</title>
-    <link rel="stylesheet" href="CSS/LoginCamera.css" />
-    <script src="JS/cameraEspanhol.js"></script>
+    <title data-translate-key="camera-login-title">
+      Login com Reconhecimento Facial
+    </title>
+    <link rel="stylesheet" href="./CSS/CssLoginCamera.css" />
+    <script src="./JS/JSLogin.js" defer></script>
   </head>
   <body>
+
+    <!-- Trocar idioma para Português, Espanhol ou Inglês -->
     <div class="language-selector">
-      <button class="lang-btn active" data-lang="pt">PT</button>
-      <button class="lang-btn" data-lang="es">ES</button>
+    <button onclick="switchLanguage('pt')">Português</button>
+    <button onclick="switchLanguage('es')">Español</button>
+    <button onclick="switchLanguage('en')">English</button>
     </div>
 
+    <div class="decorative-border"></div>
     <div class="botaoVoltar">
-      <a href="../index.html" class="buttonVoltar" data-i18n="back-button">Voltar</a>
-    </div>
-    <h1 data-i18n="main-title">Login com Reconhecimento Facial</h1>
-
-    <div class="face-scan-widget">
-      <video id="video" autoplay playsinline muted></video>
-      <div class="scan-animation-overlay"></div>
+      <a href="../index.html" class="buttonVoltar" data-translate-key="back-btn"
+        >Voltar</a
+      >
     </div>
 
-    <p id="mensagem" data-i18n="status-message">Aguardando reconhecimento...</p>
-
-    <div class="botaoProf">
-      <a href="LoginProfessor.html" class="buttonProfessor" data-i18n="teacher-login">Login Professor</a>
+    <div class="login-container">
+      <h1 data-translate-key="camera-login-header">
+        Login com Reconhecimento Facial
+      </h1>
+      <div class="face-scan-widget">
+        <video id="video" autoplay playsinline muted></video>
+        <div class="scan-animation-overlay"></div>
+        <div class="scanning-line-effect"></div>
+      </div>
+      <p id="mensagem" data-translate-key="camera-status-waiting">
+        Aguardando reconhecimento...
+      </p>
+      <div class="botaoProf">
+        <a
+          href="LoginProfessor.html"
+          class="buttonProfessor"
+          data-translate-key="teacher-login-btn"
+          >Login Professor</a
+        >
+      </div>
     </div>
 
-    <script src="JS/traducaoLogin.js" defer></script>
-    <script src="JS/Loginjs.js" defer></script>
+    <div id="feedback" class="feedback"></div>
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
   </body>
 </html>

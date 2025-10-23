@@ -1,3 +1,4 @@
+
 * {
   margin: 0;
   padding: 0;
@@ -334,35 +335,4 @@ body {
   .user-info {
     align-self: flex-end;
   }
-}
-
-/* Estilos para o seletor de idioma */
-.language-selector {
-  position: absolute;
-  top: 20px;
-  left: 20px; /* Alterado de 'right' para 'left' */
-  z-index: 10;
-  display: flex;
-  gap: 10px;
-}
-
-.lang-btn {
-  background: rgba(30, 41, 59, 0.5);
-  border: 1px solid var(--primary-color);
-  color: white;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.lang-btn:hover {
-  background: rgba(30, 41, 59, 0.8);
-}
-
-.lang-btn.active {
-  background: var(--primary-color);
-  color: var(--secondary-color);
-  box-shadow: 0 0 10px var(--primary-color);
 }
