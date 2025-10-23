@@ -171,7 +171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Redirecionamento temporário
       showFeedback("success", "alert-login-success");
       setTimeout(() => {
-        window.location.href = "../MenuProf/Menu.html";
+        window.location.href = "../MenuProf/MenuProf.html";
       }, 1500);
     });
   }
