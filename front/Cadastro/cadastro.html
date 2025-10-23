@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cadastro</title>
+    <title data-i18n="page-title">Cadastro</title>
     <link rel="stylesheet" href="CSS/CssCadastro.css" />
-    <script src="JS/cadastroEspanhol.js"></script>
-    <script src="JS/JSCadastro.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="JS/JSCadastro.js" defer></script>
   </head>
   <body>
     <div class="language-selector">
@@ -14,14 +14,17 @@
       <button class="lang-btn" data-lang="es">ES</button>
     </div>
 
+    <div class="language-selector">
+      </div>
+
     <div class="background">
       <div class="background-image"></div>
       <div class="background-overlay"></div>
     </div>
     <div class="botaoVoltar">
-      <a class="buttonVoltar" href="../index.html" data-i18n="go-back-btn"
-        >Voltar</a
-      >
+      <a class="buttonVoltar" href="../index.html" data-i18n="back-btn">
+        Voltar
+      </a>
     </div>
 
     <main class="main-content">
@@ -34,60 +37,52 @@
       </div>
 
       <div class="form-container">
-        <h2 data-i18n="cadastro-title">Cadastro de Usuário</h2>
-        <form id="cadastroForm" class="form-grid">
+        <h1 data-i18n="page-title">FaceShield - Cadastro</h1>
+        <form id="cadastroForm">
           <div class="input-group floating-label">
-            <label for="tipoUsuario" data-i18n="tipo-usuario-label"
-              >Tipo de Usuário</label
+            <label for="tipoUsuario" data-i18n="select-user-type"
+              >Selecione o tipo de usuário</label
             >
-            <select id="tipoUsuario" name="tipoUsuario" required>
-              <option value="1" data-i18n="aluno-option">Aluno</option>
-              <option value="2" data-i18n="professor-option">Professor</option>
+            <select id="tipoUsuario" name="tipoUsuario">
+              <option value=""></option>
+              <option value="1" data-i18n="student">Aluno</option>
+              <option value="2" data-i18n="teacher">Professor</option>
             </select>
             <div class="input-border"></div>
             <span class="validation-icon"></span>
           </div>
 
-          <div class="input-group floating-label">
+          <div class="input-group floating-label" id="nome-group">
             <input type="text" id="nome" name="nome" required />
-            <label for="nome" data-i18n="nome-label">Nome</label>
+            <label for="nome" data-i18n="first-name">Nome</label>
             <div class="input-border"></div>
             <span class="validation-icon"></span>
           </div>
 
-          <div class="input-group floating-label">
+          <div class="input-group floating-label" id="sobrenome-group">
             <input type="text" id="sobrenome" name="sobrenome" required />
-            <label for="sobrenome" data-i18n="sobrenome-label">Sobrenome</label>
+            <label for="sobrenome" data-i18n="last-name">Sobrenome</label>
             <div class="input-border"></div>
             <span class="validation-icon"></span>
           </div>
 
-          <div class="input-group floating-label">
-            <input type="text" id="matricula" name="matricula" required />
-            <label for="matricula" data-i18n="matricula-label">Matrícula</label>
-            <div class="input-border"></div>
-            <span class="validation-icon"></span>
-          </div>
-
-          <div class="input-group floating-label">
+          <div class="input-group floating-label" id="turma-group">
             <input type="text" id="turma" name="turma" required />
-            <label for="turma" data-i18n="turma-label">Turma</label>
+            <label for="turma" data-i18n="class">Turma</label>
             <div class="input-border"></div>
             <span class="validation-icon"></span>
           </div>
 
           <div class="input-group floating-label" id="username-group">
             <input type="text" id="username" name="username" />
-            <label for="username" data-i18n="username-label"
-              >Nome de Usuário</label
-            >
+            <label for="username" data-i18n="username">Nome de Usuário</label>
             <div class="input-border"></div>
             <span class="validation-icon"></span>
           </div>
 
           <div class="input-group floating-label" id="senha-group">
             <input type="password" id="senha" name="senha" />
-            <label for="senha" data-i18n="senha-label">Senha</label>
+            <label for="senha" data-i18n="password">Senha</label>
             <div class="input-border"></div>
             <span class="validation-icon"></span>
           </div>
@@ -103,18 +98,17 @@
               color: white;
             "
           >
-            <p class="upload-instruction" data-i18n="scan-instruction">
+            <p class="upload-instruction" data-i18n="upload-instruction">
               Clique para captura biométrica
             </p>
           </div>
 
-          <button type="submit" class="botao" data-i18n="cadastro-btn">
+          <button type="submit" class="botao" data-i18n="register-btn">
             Cadastrar
           </button>
         </form>
+        <div id="feedback" class="feedback" style="display: none"></div>
       </div>
-
-      <div id="feedback" class="feedback"></div>
     </main>
   </body>
 </html>

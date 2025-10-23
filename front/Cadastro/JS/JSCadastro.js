@@ -5,17 +5,143 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  // Elementos DOM
   const feedback = document.getElementById("feedback");
   const tipoUsuarioSelect = document.getElementById("tipoUsuario");
   const usernameGroup = document.getElementById("username-group");
   const usernameInput = document.getElementById("username");
-  const scanWidget = document.querySelector(".face-scan-widget");
   const senhaGroup = document.getElementById("senha-group");
   const senhaInput = document.getElementById("senha");
-  const turmaInput = document.getElementById("turma");
-  let isScanning = false;
 
   const API_URL = "http://localhost:8080/usuarios/novoUsuario";
+
+  // =================================================================
+  // LÓGICA DE TRADUÇÃO (I18n) - CORRIGIDA E VERIFICADA
+  // =================================================================
+  const elementsToTranslate = document.querySelectorAll("[data-i18n]");
+  const langButtons = document.querySelectorAll(".lang-btn");
+  let currentLanguage = "pt";
+  let i18n_messages = {}; // Objeto para armazenar o JSON do idioma atual
+
+  // Função para aplicar as traduções nos elementos da página
+  function applyTranslations(translations) {
+    // 1. Atualiza a tag <title>
+    const titleElement = document.querySelector("title");
+    if (titleElement) {
+      const titleKey = titleElement.getAttribute("data-i18n");
+      if (titleKey && translations[titleKey]) {
+        titleElement.textContent = translations[titleKey];
+      }
+    }
+
+    // 2. Atualiza todos os elementos com o atributo data-i18n
+    elementsToTranslate.forEach((element) => {
+      const key = element.getAttribute("data-i18n");
+      if (translations[key]) {
+        // Trata placeholders (para inputs)
+        if (element.placeholder !== undefined) {
+          element.placeholder = translations[key];
+        }
+        // Trata conteúdo de outros elementos (botões, links, labels, etc.)
+        else {
+          element.textContent = translations[key];
+        }
+      }
+    });
+
+    // 3. Atualiza os textos das options do select (se tiverem data-i18n)
+    if (tipoUsuarioSelect) {
+      tipoUsuarioSelect.querySelectorAll("option").forEach((option) => {
+        const key = option.getAttribute("data-i18n");
+        if (key && translations[key]) {
+          option.textContent = translations[key];
+        }
+      });
+    }
+  }
+
+  // Função principal para carregar e aplicar o idioma
+  async function changeLanguage(langCode) {
+    // Não recarrega o mesmo idioma
+    if (currentLanguage === langCode && Object.keys(i18n_messages).length > 0)
+      return;
+
+    try {
+      // 1. Busca o arquivo JSON
+      const response = await fetch(`${langCode}.json`);
+      if (!response.ok) {
+        throw new Error(`Não foi possível carregar ${langCode}.json`);
+      }
+      const translations = await response.json();
+
+      // 2. Armazena e aplica as traduções
+      i18n_messages = translations;
+      applyTranslations(translations);
+      currentLanguage = langCode;
+
+      // 3. Atualiza o estado visual dos botões
+      langButtons.forEach((button) => {
+        if (button.getAttribute("data-lang") === langCode) {
+          button.classList.add("active");
+        } else {
+          button.classList.remove("active");
+        }
+      });
+    } catch (error) {
+      console.error(`Erro ao carregar o idioma ${langCode}:`, error);
+      // Mensagem de fallback com o código do erro
+      // O 'null' na mensagem de erro será resolvido se o HTML estiver correto
+      showFeedback(
+        "error",
+        `Erro ao carregar idioma ${langCode}. Verifique se o arquivo ${langCode}.json existe.`
+      );
+    }
+  }
+
+  // 4. Adiciona event listeners aos botões
+  langButtons.forEach((button) => {
+    const langCode = button.getAttribute("data-lang");
+
+    // ESTA VERIFICAÇÃO É CRÍTICA E CORRIGE O ERRO 'null.json'
+    if (langCode) {
+      button.addEventListener("click", () => changeLanguage(langCode));
+    } else {
+      console.warn(
+        "AVISO: Um botão de idioma não tem o atributo data-lang. Corrija o HTML."
+      );
+    }
+  });
+
+  // 5. Carrega o idioma padrão ao iniciar (Português)
+  changeLanguage(currentLanguage);
+
+  // =================================================================
+  // FIM DA LÓGICA DE TRADUÇÃO
+  // =================================================================
+
+  // Exibir mensagens de feedback - AGORA USA AS CHAVES DO JSON
+  function showFeedback(tipo, mensagemKey, ...args) {
+    if (!feedback) return;
+
+    // Tenta usar a chave de tradução, senão usa a string como mensagem literal.
+    let mensagem = i18n_messages[mensagemKey] || mensagemKey;
+
+    // Aplica formatação se necessário (ex: {progress}%)
+    args.forEach((arg, index) => {
+      // {0}, {1}, etc.
+      mensagem = mensagem.replace(`{${index}}`, arg);
+      // {message}
+      mensagem = mensagem.replace(`{message}`, arg); 
+    });
+
+    feedback.textContent = mensagem;
+    feedback.className = "feedback " + tipo;
+    feedback.style.display = "block";
+
+    setTimeout(() => {
+      feedback.style.display = "none";
+    }, 5000);
+  }
 
   // Função para mostrar/ocultar campos de professor
   function toggleUsernameField() {
@@ -62,19 +188,6 @@ document.addEventListener("DOMContentLoaded", () => {
     input.addEventListener("input", () => validarCampo(input));
   });
 
-  // Exibir mensagens de feedback
-  function showFeedback(tipo, mensagem) {
-    if (!feedback) return;
-
-    feedback.textContent = mensagem;
-    feedback.className = "feedback " + tipo;
-    feedback.style.display = "block";
-
-    setTimeout(() => {
-      feedback.style.display = "none";
-    }, 5000);
-  }
-
   // Submit do formulário
   form.addEventListener("submit", async function (event) {
     event.preventDefault();
@@ -94,18 +207,23 @@ document.addEventListener("DOMContentLoaded", () => {
       const campo = document.getElementById(id);
       if (!campo) return;
 
-      const erroMensagem = campo.parentElement.querySelector(".error-message");
+      let erroMensagem = campo.parentElement.querySelector(".error-message");
 
       if (!campo.value.trim()) {
         invalidos.push(id);
         campo.classList.add("input-error");
         isValid = false;
 
+        // Usa a tradução
+        const requiredMsg = i18n_messages["feedback-required-field"] || "Este campo é obrigatório."; 
+        
         if (!erroMensagem) {
           const errorElement = document.createElement("div");
           errorElement.classList.add("error-message");
-          errorElement.textContent = "Este campo é obrigatório.";
+          errorElement.textContent = requiredMsg;
           campo.parentElement.appendChild(errorElement);
+        } else {
+          erroMensagem.textContent = requiredMsg;
         }
       } else {
         campo.classList.remove("input-error");
@@ -116,17 +234,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (!tipoUsuario) {
-      showFeedback("error", "Selecione o tipo de usuário");
+      showFeedback("error", "feedback-select-user-type"); // Usa chave de tradução
       return;
     }
 
     if (!isValid) {
       const firstInvalid = document.getElementById(invalidos[0]);
       if (firstInvalid) firstInvalid.focus();
-      showFeedback(
-        "error",
-        "Por favor, preencha todos os campos obrigatórios."
-      );
+      showFeedback("error", "feedback-fill-all-fields"); // Usa chave de tradução
       return;
     }
 
@@ -134,25 +249,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const nome = document.getElementById("nome").value.trim();
     const sobrenome = document.getElementById("sobrenome").value.trim();
     const isAluno = tipoUsuario === "1";
-    
+
     // Montar objeto com os dados do formulário
     const formData = {
       nome: nome,
       sobrenome: sobrenome,
       turma: document.getElementById("turma").value.trim(),
       tipoUsuario: isAluno ? "ALUNO" : "PROFESSOR",
-      
+
       // Gerar username automático para alunos
-      username: isAluno 
+      username: isAluno
         ? `${nome.toLowerCase()}.${sobrenome.toLowerCase()}`
         : document.getElementById("username").value.trim(),
-      
+
       // Alunos não usam senha
-      senha: isAluno ? null : document.getElementById("senha").value
+      senha: isAluno ? null : document.getElementById("senha").value,
     };
 
     try {
       console.log("Enviando dados para o backend:", formData);
+      showFeedback("info", "feedback-sending-data"); // Usa chave de tradução
 
       const response = await fetch(API_URL, {
         method: "POST",
@@ -164,7 +280,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Verificação inicial da resposta
       if (!response.ok) {
-        // Tentar obter a mensagem de erro do servidor
         let errorMessage = `Erro HTTP! Status: ${response.status}`;
         try {
           const errorData = await response.json();
@@ -184,7 +299,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Verificação robusta de sucesso
       if (response.status === 201 && responseData.id) {
-        showFeedback("success", "Cadastro realizado com sucesso!");
+        showFeedback("success", "feedback-register-success"); // Usa chave de tradução
         form.reset();
         toggleUsernameField();
 
@@ -195,9 +310,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 100);
       } else {
         // Tratar casos onde o status é 201 mas sem confirmação real
-        const errorMsg =
-          responseData.message ||
-          "Cadastro aparentemente realizado, mas sem confirmação do servidor";
+        const warningKey = "feedback-register-warning";
+        const errorMsg = responseData.message || i18n_messages[warningKey];
         showFeedback("warning", errorMsg);
       }
     } catch (error) {
@@ -208,15 +322,15 @@ document.addEventListener("DOMContentLoaded", () => {
         error.message.includes("Failed to fetch") ||
         error.message.includes("ERR_CONNECTION_REFUSED")
       ) {
-        errorMessage =
-          "Servidor offline! Verifique se o backend está rodando na porta 8080.";
+        errorMessage = i18n_messages["error-server-offline"]; // Usa chave de tradução
       } else if (error.message.includes("PropertyValueException")) {
-        errorMessage =
-          "Erro de validação: Campo obrigatório não preenchido no servidor";
+        errorMessage = i18n_messages["error-server-validation"]; // Usa chave de tradução
       } else if (error.message.includes("Erro HTTP")) {
-        errorMessage = `Erro no servidor: ${error.message}`;
+        // Usa a chave de erro genérica e injeta a mensagem HTTP
+        errorMessage = (i18n_messages["error-server-generic"] || "Erro no servidor: {message}").replace('{message}', error.message);
       } else {
-        errorMessage = error.message || "Erro ao processar o cadastro";
+        errorMessage =
+          error.message || i18n_messages["error-processing-register"]; // Usa chave de tradução
       }
 
       showFeedback("error", errorMessage);
