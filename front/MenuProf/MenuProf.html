@@ -12,6 +12,14 @@
     <script src="./JS/JSMenuProf.js" defer></script>
   </head>
   <body>
+
+    <!-- Trocar idioma para Português, Espanhol ou Inglês -->
+    <div class="language-selector">
+    <button onclick="switchLanguage('pt')">Português</button>
+    <button onclick="switchLanguage('es')">Español</button>
+    <button onclick="switchLanguage('en')">English</button>
+    </div>
+
     <div class="header">
       <h1 data-translate-key="header-title">Sistema do Professor</h1>
     </div>
@@ -76,10 +84,5 @@
       data-translate-key="logout-btn"
       >Sair</a
     >
-
-    <div class="language-switcher">
-      <button onclick="switchLanguage('pt')">Português</button>
-      <button onclick="switchLanguage('en')">English</button>
-    </div>
   </body>
 </html>

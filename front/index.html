@@ -4,10 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title data-translate-key="title">FaceShield - Auth 3.0</title>
-    <link rel="stylesheet" href="./Inicio/CSS/CssIndex.css" />
+    <link rel="stylesheet" href="./Inicio/CSS/CssInicioIndex.css" />
     <script src="./Inicio/JS/JSInicioIndex.js" defer></script>
   </head>
   <body class="auth-container">
+
+    <!-- Trocar idioma para Português, Espanhol ou Inglês -->
+    <div class="language-selector">
+    <button onclick="switchLanguage('pt')">Português</button>
+    <button onclick="switchLanguage('es')">Español</button>
+    <button onclick="switchLanguage('en')">English</button>
+    </div>
+
     <div class="main-container">
       <div class="page-header">
         <img
@@ -49,9 +57,5 @@
     <div class="loading-overlay">
       <div class="loading-spinner"></div>
     </div>
-
-    <!-- Trocar idioma para Inglês ou Português -->
-    <button onclick="switchLanguage('pt')">Português</button>
-    <button onclick="switchLanguage('en')">English</button>
   </body>
 </html>

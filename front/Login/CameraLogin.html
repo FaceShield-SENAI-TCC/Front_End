@@ -10,6 +10,14 @@
     <script src="./JS/JSLogin.js" defer></script>
   </head>
   <body>
+
+    <!-- Trocar idioma para Português, Espanhol ou Inglês -->
+    <div class="language-selector">
+    <button onclick="switchLanguage('pt')">Português</button>
+    <button onclick="switchLanguage('es')">Español</button>
+    <button onclick="switchLanguage('en')">English</button>
+    </div>
+
     <div class="decorative-border"></div>
     <div class="botaoVoltar">
       <a href="../index.html" class="buttonVoltar" data-translate-key="back-btn"
@@ -42,11 +50,6 @@
     <div id="feedback" class="feedback"></div>
     <div class="loading-overlay">
       <div class="loading-spinner"></div>
-    </div>
-
-    <div class="language-switcher">
-      <button onclick="switchLanguage('pt')">Português</button>
-      <button onclick="switchLanguage('en')">English</button>
     </div>
   </body>
 </html>
