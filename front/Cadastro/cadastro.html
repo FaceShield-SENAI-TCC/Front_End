@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title data-i18n="page-title">Cadastro</title>
+    <title data-translate-key="page-title">Cadastro</title>
     <link rel="stylesheet" href="CSS/CssCadastro.css" />
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="JS/JSCadastro.js" defer></script>
@@ -22,7 +22,7 @@
       <div class="background-overlay"></div>
     </div>
     <div class="botaoVoltar">
-      <a class="buttonVoltar" href="../index.html" data-i18n="back-btn">
+      <a class="buttonVoltar" href="../index.html" data-translate-key="back-btn">
         Voltar
       </a>
     </div>
@@ -37,16 +37,16 @@
       </div>
 
       <div class="form-container">
-        <h1 data-i18n="page-title">FaceShield - Cadastro</h1>
+        <h1 data-translate-key="page-title">FaceShield - Cadastro</h1>
         <form id="cadastroForm">
           <div class="input-group floating-label">
-            <label for="tipoUsuario" data-i18n="select-user-type"
+            <label for="tipoUsuario" data-translate-key="select-user-type"
               >Selecione o tipo de usuário</label
             >
             <select id="tipoUsuario" name="tipoUsuario">
               <option value=""></option>
-              <option value="1" data-i18n="student">Aluno</option>
-              <option value="2" data-i18n="teacher">Professor</option>
+              <option value="1" data-translate-key="student">Aluno</option>
+              <option value="2" data-translate-key="teacher">Professor</option>
             </select>
             <div class="input-border"></div>
             <span class="validation-icon"></span>
@@ -54,35 +54,35 @@
 
           <div class="input-group floating-label" id="nome-group">
             <input type="text" id="nome" name="nome" required />
-            <label for="nome" data-i18n="first-name">Nome</label>
+            <label for="nome" data-translate-key="first-name">Nome</label>
             <div class="input-border"></div>
             <span class="validation-icon"></span>
           </div>
 
           <div class="input-group floating-label" id="sobrenome-group">
             <input type="text" id="sobrenome" name="sobrenome" required />
-            <label for="sobrenome" data-i18n="last-name">Sobrenome</label>
+            <label for="sobrenome" data-translate-key="last-name">Sobrenome</label>
             <div class="input-border"></div>
             <span class="validation-icon"></span>
           </div>
 
           <div class="input-group floating-label" id="turma-group">
             <input type="text" id="turma" name="turma" required />
-            <label for="turma" data-i18n="class">Turma</label>
+            <label for="turma" data-translate-key="class">Turma</label>
             <div class="input-border"></div>
             <span class="validation-icon"></span>
           </div>
 
           <div class="input-group floating-label" id="username-group">
             <input type="text" id="username" name="username" />
-            <label for="username" data-i18n="username">Nome de Usuário</label>
+            <label for="username" data-translate-key="username">Nome de Usuário</label>
             <div class="input-border"></div>
             <span class="validation-icon"></span>
           </div>
 
           <div class="input-group floating-label" id="senha-group">
             <input type="password" id="senha" name="senha" />
-            <label for="senha" data-i18n="password">Senha</label>
+            <label for="senha" data-translate-key="password">Senha</label>
             <div class="input-border"></div>
             <span class="validation-icon"></span>
           </div>
@@ -98,12 +98,12 @@
               color: white;
             "
           >
-            <p class="upload-instruction" data-i18n="upload-instruction">
+            <p class="upload-instruction" data-translate-key="upload-instruction">
               Clique para captura biométrica
             </p>
           </div>
 
-          <button type="submit" class="botao" data-i18n="register-btn">
+          <button type="submit" class="botao" data-translate-key="register-btn">
             Cadastrar
           </button>
         </form>
