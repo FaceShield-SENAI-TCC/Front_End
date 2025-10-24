@@ -8,18 +8,26 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./CSS/CssMenu.css" />
+    <link rel="stylesheet" href="CSS/CssMenuProf.css" />
     <script src="./JS/JSMenuProf.js" defer></script>
   </head>
   <body>
-
     <!-- Trocar idioma para Português, Espanhol ou Inglês -->
     <div class="language-selector">
-    <button onclick="switchLanguage('pt')">Português</button>
-    <button onclick="switchLanguage('es')">Español</button>
-    <button onclick="switchLanguage('en')">English</button>
+      <button
+        class="lang-btn active"
+        data-lang="pt"
+        onclick="switchLanguage('pt')"
+      >
+        PT
+      </button>
+      <button class="lang-btn" data-lang="es" onclick="switchLanguage('es')">
+        ES
+      </button>
+      <button class="lang-btn" data-lang="en" onclick="switchLanguage('en')">
+        EN
+      </button>
     </div>
-
     <div class="header">
       <h1 data-translate-key="header-title">Sistema do Professor</h1>
     </div>

@@ -1,4 +1,3 @@
-
 :root {
   --primary-color: #00e0ff;
   --secondary-color: #0f172a;
@@ -236,6 +235,68 @@ h1 {
   100% {
     top: 100%;
     opacity: 0;
+  }
+}
+
+/* Posicionamento Fixo SUPERIOR ESQUERDO */
+.language-selector {
+  position: fixed !important;
+  top: 30px !important; /* Distância do topo */
+  left: 30px !important; /* Distância da esquerda */
+  bottom: auto !important; /* Desabilita regra de baixo */
+  right: auto !important; /* Desabilita regra de direita */
+  z-index: 10000;
+  display: flex;
+  gap: 8px;
+}
+
+/* Estilo Base dos Botões (Fundo Escuro/Sidebar, Texto Néon) - MANTIDO */
+.language-selector .lang-btn {
+  /* Fundo Escuro, Texto Néon, Borda Néon */
+  background-color: var(--secondary-color) !important;
+  color: var(--primary-color) !important;
+  border: 2px solid var(--primary-color) !important;
+  padding: 5px 10px !important;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  text-transform: uppercase;
+}
+
+/* Efeito de HOVER PARA TODOS OS BOTÕES (INCLUINDO O ATIVO) */
+.language-selector .lang-btn:hover,
+.language-selector .lang-btn.active:hover {
+  /* Fundo levemente transparente com brilho néon */
+  background-color: rgba(0, 224, 255, 0.2) !important;
+  box-shadow: 0 0 10px var(--primary-color), 0 0 20px rgba(0, 224, 255, 0.6) !important;
+  transform: scale(1.05);
+}
+
+/* Estilo do Botão ATIVO (PT) NO ESTADO NORMAL (Sem Hover) */
+.language-selector .lang-btn.active {
+  /* Garante que o botão ativo seja a cor padrão, sem brilho extra */
+  background-color: var(--secondary-color) !important;
+  color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5) !important;
+  transform: scale(1); /* Garante que o botão ativo não fique escalado */
+}
+
+/* Responsividade básica para telas menores */
+@media (max-width: 768px) {
+  .language-selector {
+    top: 15px !important;
+    left: 15px !important;
+    bottom: auto !important;
+    right: auto !important;
+    gap: 5px;
+  }
+  .language-selector .lang-btn {
+    padding: 3px 8px !important;
+    font-size: 0.75rem !important;
   }
 }
 

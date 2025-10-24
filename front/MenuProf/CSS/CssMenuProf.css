@@ -105,6 +105,69 @@ body {
   }
 }
 
+/* ================================================= */
+/* ESTILO FINAL: SELETOR DE IDIOMA (Desktop: Superior Direito | Mobile: Inferior Esquerdo) */
+/* ================================================= */
+
+/* POSICIONAMENTO PADRÃO (DESKTOP): SUPERIOR DIREITO */
+.language-selector {
+  position: fixed !important;
+  top: 30px !important; /* Distância do topo */
+  right: 30px !important; /* Distância da direita */
+  bottom: auto !important;
+  left: auto !important;
+  z-index: 10000;
+  display: flex;
+  gap: 8px;
+}
+
+/* Estilo Base dos Botões e Hover (MANTIDO) */
+.language-selector .lang-btn {
+  background-color: var(--secondary-color) !important;
+  color: var(--primary-color) !important;
+  border: 2px solid var(--primary-color) !important;
+  padding: 5px 10px !important;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  text-transform: uppercase;
+}
+
+/* Efeito de HOVER PARA TODOS OS BOTÕES */
+.language-selector .lang-btn:hover,
+.language-selector .lang-btn.active:hover {
+  background-color: rgba(0, 224, 255, 0.2) !important;
+  box-shadow: 0 0 10px var(--primary-color), 0 0 20px rgba(0, 224, 255, 0.6) !important;
+  transform: scale(1.05);
+}
+
+/* Estilo do Botão ATIVO (PT) NO ESTADO NORMAL (Sem Hover) */
+.language-selector .lang-btn.active {
+  background-color: var(--secondary-color) !important;
+  color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5) !important;
+  transform: scale(1);
+}
+
+/* RESPONSIVIDADE (MOBILE): INFERIOR ESQUERDO */
+@media (max-width: 768px) {
+  .language-selector {
+    top: auto !important; /* Desabilita topo */
+    right: auto !important; /* Desabilita direita */
+    bottom: 15px !important; /* Distância de baixo */
+    left: 15px !important; /* Distância da esquerda */
+    gap: 5px;
+  }
+  .language-selector .lang-btn {
+    padding: 3px 8px !important;
+    font-size: 0.75rem !important;
+  }
+}
+
 @media (max-width: 480px) {
   .menu-container {
     padding: 15px;

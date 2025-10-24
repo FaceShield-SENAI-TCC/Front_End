@@ -546,6 +546,65 @@ body {
   transform: translateX(0);
 }
 
+/* ================================================= */
+/* NOVO ESTILO: SELETOR DE IDIOMA (Canto Superior Direito) */
+/* ================================================= */
+
+/* Posicionamento Fixo Superior Direito com !important para garantir a aplicação */
+.language-selector {
+  position: fixed !important;
+  top: 30px !important; /* Distância do topo */
+  right: 30px !important; /* Distância da direita */
+  display: flex;
+  gap: 8px; /* Espaçamento entre os botões */
+  z-index: 10000; /* Garante que fique acima de TODOS os elementos */
+}
+
+/* Estilo dos Botões de Idioma (Néon) */
+.language-selector .lang-btn {
+  /* Estilo base do botão combinando com o tema */
+  background-color: var(--secondary-color) !important; /* Fundo escuro */
+  color: var(--primary-color) !important; /* Texto néon */
+  border: 1px solid var(--primary-color) !important;
+  padding: 5px 10px !important;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  /* Usando a variável de sombra néon para maior coerência */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5), var(--neon-shadow);
+  text-transform: uppercase;
+}
+
+.language-selector .lang-btn:hover {
+  /* Efeito de brilho ao passar o mouse */
+  background-color: rgba(0, 224, 255, 0.2) !important;
+  box-shadow: 0 0 10px var(--primary-color), 0 0 20px rgba(0, 224, 255, 0.6);
+  transform: scale(1.05);
+}
+
+/* Estilo para o idioma ativo (destaque néon) */
+.language-selector .lang-btn.active {
+  background-color: var(--primary-color) !important;
+  color: var(--secondary-color) !important; /* Inverte as cores para destaque */
+  box-shadow: 0 0 12px var(--primary-color), 0 0 25px rgba(0, 224, 255, 0.8);
+  border-color: var(--primary-color) !important;
+}
+
+/* Responsividade básica para telas menores */
+@media (max-width: 768px) {
+  .language-selector {
+    top: 15px !important;
+    right: 15px !important;
+    gap: 5px;
+  }
+  .language-selector .lang-btn {
+    padding: 3px 8px !important;
+    font-size: 0.75rem !important;
+  }
+}
+
 @keyframes logo-float {
   0%,
   100% {
