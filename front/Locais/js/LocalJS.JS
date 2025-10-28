@@ -2,7 +2,8 @@ const API_URL = "http://localhost:8080/locais/buscar";
 const API_DELETE = "http://localhost:8080/locais/deletar";
 const API_POST = "http://localhost:8080/locais/novoLocal";
 const API_EDITAR = "http://localhost:8080/locais/editar";
-// Elementos DOM
+
+// Elementos DOM (seu código original)
 const locationsTableBody = document.getElementById("locations-table-body");
 const locationGrid = document.getElementById("location-grid");
 const searchInput = document.getElementById("search-input");
@@ -29,6 +30,64 @@ const loadingOverlay = document.getElementById("loading-overlay");
 // Variável para armazenar os locais
 let locations = [];
 
+// ==================== FUNÇÕES DE AUTENTICAÇÃO (ADICIONADAS) ====================
+
+/**
+ * Pega o token do localStorage e retorna o cabeçalho de Autorização.
+ * Se o token não existir, lança um erro e redireciona para o login.
+ * @param {boolean} includeContentType - Define se o 'Content-Type: application/json' deve ser incluído
+ * @returns {HeadersInit} - Objeto de Headers pronto para o fetch
+ */
+function getAuthHeaders(includeContentType = false) {
+  const token = localStorage.getItem('authToken');
+console.log("Token", token);
+  if (!token) {
+    alert("Sessão expirada ou usuário não logado.");
+    // ATENÇÃO: Ajuste a URL abaixo para a sua página de login de professor
+    window.location.href = '../LoginProf/LoginProf.html'; // Exemplo
+    throw new Error("Token não encontrado. Redirecionando para login.");
+  }
+
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  };
+
+  if (includeContentType) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  return headers;
+}
+
+/**
+ * Função para tratar erros de resposta da API, especialmente 401/403.
+ * @param {Response} response - O objeto de resposta do fetch
+ */
+async function handleResponseError(response) {
+  if (response.status === 401 || response.status === 403) {
+    // Token inválido ou expirado
+    alert("Acesso negado. Sua sessão pode ter expirado. Faça login novamente.");
+    // ATENÇÃO: Ajuste a URL abaixo para a sua página de login de professor
+    window.location.href = '../LoginProf/LoginProf.html'; // Exemplo
+    throw new Error("Acesso não autorizado (401/403).");
+  }
+  
+  const errorText = await response.text();
+  // Tenta extrair uma mensagem mais amigável do erro, se for JSON
+  try {
+      const errorJson = JSON.parse(errorText);
+      if(errorJson.message) {
+          throw new Error(errorJson.message);
+      }
+  } catch(e) {
+      // Ignora se não for JSON e usa o texto original
+  }
+
+  throw new Error(`Erro na requisição: ${errorText} (Status: ${response.status})`);
+}
+
+// ==================== RESTANTE DO SEU CÓDIGO (MODIFICADO) ====================
+
 // Função para mostrar notificação
 function showNotification(type, message) {
   notification.textContent = message;
@@ -45,21 +104,27 @@ function showLoading(show) {
   loadingOverlay.style.display = show ? "flex" : "none";
 }
 
-// Função para buscar locais da API
+// Função para buscar locais da API (MODIFICADA)
 async function fetchLocations() {
   showLoading(true);
   try {
-    const response = await fetch(API_URL);
+    const response = await fetch(API_URL, {
+      method: 'GET',
+      headers: getAuthHeaders() // <-- MODIFICADO: Adiciona token
+    });
 
     if (!response.ok) {
-      throw new Error(`Erro na requisição: ${response.status}`);
+      await handleResponseError(response); // <-- MODIFICADO: Trata erros
     }
 
     const data = await response.json();
     return data;
   } catch (error) {
     console.error("Erro ao buscar locais:", error);
-    showNotification("error", "Falha ao carregar locais do servidor");
+    // Não exibe notificação se for erro de auth (já tratado com alert)
+    if (!error.message.includes("Token") && !error.message.includes("401/403")) {
+      showNotification("error", "Falha ao carregar locais do servidor");
+    }
     return [];
   } finally {
     showLoading(false);
@@ -86,20 +151,20 @@ function loadLocationsTable(locationsArray = locations) {
       : '<span class="location-badge"><i class="fas fa-box"></i> N/A</span>';
 
     row.innerHTML = `
-                    <td>${location.id}</td>
-                    <td><span class="location-badge"><i class="fas fa-building"></i> ${location.nomeEspaco}</span></td>
-                    <td><span class="location-badge"><i class="fas fa-archive"></i> ${location.armario}</span></td>
-                    <td><span class="location-badge"><i class="fas fa-layer-group"></i> ${location.prateleira}</span></td>
-                    <td>${caseDisplay}</td>
-                    <td class="actions-cell">
-                        <button class="action-btn edit-btn" data-id="${location.id}">
-                            <i class="fas fa-edit"></i> Editar
-                        </button>
-                        <button class="action-btn delete-btn" data-id="${location.id}">
-                            <i class="fas fa-trash"></i> Excluir
-                        </button>
-                    </td>
-                `;
+                <td>${location.id}</td>
+                <td><span class="location-badge"><i class="fas fa-building"></i> ${location.nomeEspaco}</span></td>
+                <td><span class="location-badge"><i class="fas fa-archive"></i> ${location.armario}</span></td>
+                <td><span class="location-badge"><i class="fas fa-layer-group"></i> ${location.prateleira}</span></td>
+                <td>${caseDisplay}</td>
+                <td class="actions-cell">
+                    <button class="action-btn edit-btn" data-id="${location.id}">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="action-btn delete-btn" data-id="${location.id}">
+                        <i class="fas fa-trash"></i> Excluir
+                    </button>
+                </td>
+              `;
     locationsTableBody.appendChild(row);
   });
 
@@ -138,36 +203,36 @@ function loadLocationsCards(locationsArray = locations) {
     const caseDisplay = location.estojo ? location.estojo : "N/A";
 
     card.innerHTML = `
-                    <div class="card-header">
-                        <h3><i class="fas fa-map-marker-alt"></i> Local #${location.id}</h3>
+                <div class="card-header">
+                    <h3><i class="fas fa-map-marker-alt"></i> Local #${location.id}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="location-info">
+                        <i class="fas fa-building"></i>
+                        <span><strong>Espaço:</strong> ${location.nomeEspaco}</span>
                     </div>
-                    <div class="card-body">
-                        <div class="location-info">
-                            <i class="fas fa-building"></i>
-                            <span><strong>Espaço:</strong> ${location.nomeEspaco}</span>
-                        </div>
-                        <div class="location-info">
-                            <i class="fas fa-archive"></i>
-                            <span><strong>Armário:</strong> ${location.armario}</span>
-                        </div>
-                        <div class="location-info">
-                            <i class="fas fa-layer-group"></i>
-                            <span><strong>Prateleira:</strong> ${location.prateleira}</span>
-                        </div>
-                        <div class="location-info">
-                            <i class="fas fa-box"></i>
-                            <span><strong>Estojo:</strong> ${caseDisplay}</span>
-                        </div>
+                    <div class="location-info">
+                        <i class="fas fa-archive"></i>
+                        <span><strong>Armário:</strong> ${location.armario}</span>
                     </div>
-                    <div class="card-footer">
-                        <button class="action-btn edit-btn" data-id="${location.id}">
-                            <i class="fas fa-edit"></i> Editar
-                        </button>
-                        <button class="action-btn delete-btn" data-id="${location.id}">
-                            <i class="fas fa-trash"></i> Excluir
-                        </button>
+                    <div class="location-info">
+                        <i class="fas fa-layer-group"></i>
+                        <span><strong>Prateleira:</strong> ${location.prateleira}</span>
                     </div>
-                `;
+                    <div class="location-info">
+                        <i class="fas fa-box"></i>
+                        <span><strong>Estojo:</strong> ${caseDisplay}</span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button class="action-btn edit-btn" data-id="${location.id}">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="action-btn delete-btn" data-id="${location.id}">
+                        <i class="fas fa-trash"></i> Excluir
+                    </button>
+                </div>
+              `;
     locationGrid.appendChild(card);
   });
 
@@ -239,7 +304,7 @@ function closeModal() {
   locationModal.style.display = "none";
 }
 
-// Função para salvar local (criação ou atualização)
+// Função para salvar local (criação ou atualização) (MODIFICADA)
 async function saveLocation() {
   const id = locationId.value;
   const nomeEspaco = locationSpace.value;
@@ -265,17 +330,12 @@ async function saveLocation() {
 
     const response = await fetch(url, {
       method: method,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(true), // <-- MODIFICADO: Adiciona token + Content-Type
       body: JSON.stringify(localData),
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `Erro ${response.status}: ${errorText || response.statusText}`
-      );
+      await handleResponseError(response); // <-- MODIFICADO: Trata erros
     }
 
     // Recarregar locais após salvar
@@ -294,13 +354,15 @@ async function saveLocation() {
     );
   } catch (error) {
     console.error("Erro ao salvar local:", error);
-    showNotification("error", error.message || "Erro ao salvar local");
+    if (!error.message.includes("Token") && !error.message.includes("401/403")) {
+        showNotification("error", error.message || "Erro ao salvar local");
+    }
   } finally {
     showLoading(false);
   }
 }
 
-// Função para excluir local
+// Função para excluir local (MODIFICADA)
 async function deleteLocation(id) {
   if (!confirm("Tem certeza que deseja excluir este local?")) return;
 
@@ -308,13 +370,11 @@ async function deleteLocation(id) {
   try {
     const response = await fetch(`${API_DELETE}/${id}`, {
       method: "DELETE",
+      headers: getAuthHeaders() // <-- MODIFICADO: Adiciona token
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `Erro ${response.status}: ${errorText || response.statusText}`
-      );
+      await handleResponseError(response); // <-- MODIFICADO: Trata erros
     }
 
     // Recarregar locais após excluir
@@ -329,7 +389,9 @@ async function deleteLocation(id) {
     showNotification("success", "Local excluído com sucesso!");
   } catch (error) {
     console.error("Erro ao excluir local:", error);
-    showNotification("error", error.message || "Erro ao excluir local");
+    if (!error.message.includes("Token") && !error.message.includes("401/403")) {
+        showNotification("error", error.message || "Erro ao excluir local");
+    }
   } finally {
     showLoading(false);
   }
@@ -363,7 +425,10 @@ async function init() {
     }
   } catch (error) {
     console.error("Erro na inicialização:", error);
-    showNotification("error", "Falha ao iniciar a aplicação");
+    // A notificação de erro de auth já foi tratada
+    if (!error.message.includes("Token") && !error.message.includes("401/403")) {
+        showNotification("error", "Falha ao iniciar a aplicação");
+    }
   }
 }
 

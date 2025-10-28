@@ -5,57 +5,81 @@ const API_POST = `${API_BASE}/novoUsuario`;
 const API_PUT = `${API_BASE}/editar`;
 const API_DELETE = `${API_BASE}/deletar`;
 
-// Objeto para manipular os alunos via API (corrigido)
+// ==================== FUNÇÃO AUXILIAR DE AUTENTICAÇÃO ====================
+
+/**
+ * Pega o token do localStorage e retorna o cabeçalho de Autorização.
+ * Se o token não existir, lança um erro e redireciona para o login.
+ * @param {boolean} includeContentType - Define se o 'Content-Type: application/json' deve ser incluído (padrão: false)
+ * @returns {HeadersInit} - Objeto de Headers pronto para o fetch
+ */
+function getAuthHeaders(includeContentType = false) {
+  // Pega o token que foi salvo no login
+  const token = localStorage.getItem('authToken');
+console.log("Token recuperado:", token);
+  if (!token) {
+    alert("Sessão expirada ou usuário não logado.");
+    // ATENÇÃO: Ajuste a URL abaixo para a sua página de login de professor
+    window.location.href = '../LoginProf/LoginProf.html'; // Exemplo
+    throw new Error("Token não encontrado. Redirecionando para login.");
+  }
+
+  const headers = {
+    'Authorization': `Bearer ${token}`
+  };
+
+  if (includeContentType) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  return headers;
+}
+
+/**
+ * Função para tratar erros de resposta da API, especialmente 401/403.
+ * @param {Response} response - O objeto de resposta do fetch
+ */
+async function handleResponseError(response) {
+  if (response.status === 401 || response.status === 403) {
+    // Token inválido ou expirado
+    alert("Acesso negado. Sua sessão pode ter expirado. Faça login novamente.");
+    // ATENÇÃO: Ajuste a URL abaixo para a sua página de login de professor
+    window.location.href = '../LoginProf/LoginProf.html'; // Exemplo
+    throw new Error("Acesso não autorizado (401/403).");
+  }
+  
+  const errorText = await response.text();
+  throw new Error(`Erro na requisição: ${errorText} (Status: ${response.status})`);
+}
+
+// ==================== SERVICE COM TOKEN ====================
+
+// Objeto para manipular os alunos via API (corrigido com Token)
 const alunoService = {
   // Buscar todos os alunos
   getAll: async function () {
     try {
-      const response = await fetch(API_GET);
-      if (!response.ok) {
-        throw new Error("Erro ao buscar todos alunos");
-      }
+      const response = await fetch(API_GET, {
+        method: 'GET',
+        headers: getAuthHeaders() // Adiciona token
+      });
+      if (!response.ok) await handleResponseError(response);
       return await response.json();
     } catch (error) {
       console.error("Erro:", error);
-      alert("Erro ao carregar todos alunos");
+      alert(error.message); // Exibe o erro (ex: "Token não encontrado")
       return [];
     }
   },
 
-  // Buscar aluno por ID - CORRIGIDO
+  // Buscar aluno por ID
   getById: async function (id) {
     try {
-      const response = await fetch(`${API_GET}/${id}`);
-      if (!response.ok) {
-        throw new Error("Erro ao buscar aluno por id");
-      }
-      return await response.json();
-    } catch (error) {
-      console.error("Erro:", error);
-      alert("Erro ao buscar aluno por id");
-      return null;
-    }
-  },
-
-  // Salvar aluno (criar ou atualizar) - CORRIGIDO
-  save: async function (aluno) {
-    try {
-      const url = aluno.id ? `${API_PUT}/${aluno.id}` : API_POST;
-      const method = aluno.id ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(aluno),
+      const response = await fetch(`${API_GET}/${id}`, {
+        method: 'GET',
+        headers: getAuthHeaders() // Adiciona token
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Erro ao salvar aluno: ${errorText}`);
-      }
-
+      if (!response.ok) await handleResponseError(response);
       return await response.json();
     } catch (error) {
       console.error("Erro:", error);
@@ -64,18 +88,36 @@ const alunoService = {
     }
   },
 
-  // Deletar aluno - CORRIGIDO
+  // Salvar aluno (criar ou atualizar)
+  save: async function (aluno) {
+    try {
+      const url = aluno.id ? `${API_PUT}/${aluno.id}` : API_POST;
+      const method = aluno.id ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method: method,
+        headers: getAuthHeaders(true), // Adiciona token + Content-Type
+        body: JSON.stringify(aluno),
+      });
+
+      if (!response.ok) await handleResponseError(response);
+      return await response.json();
+    } catch (error) {
+      console.error("Erro:", error);
+      alert(error.message);
+      return null;
+    }
+  },
+
+  // Deletar aluno
   delete: async function (id) {
     try {
       const response = await fetch(`${API_DELETE}/${id}`, {
         method: "DELETE",
+        headers: getAuthHeaders() // Adiciona token
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Erro ao deletar aluno: ${errorText}`);
-      }
-
+      if (!response.ok) await handleResponseError(response);
       return true;
     } catch (error) {
       console.error("Erro:", error);
@@ -84,17 +126,20 @@ const alunoService = {
     }
   },
 
-  // Pesquisar alunos - CORRIGIDO
+  // Pesquisar alunos
   search: async function (term) {
     try {
-      const response = await fetch(`${API_GET}?search=${term}`);
-      if (!response.ok) {
-        throw new Error("Erro ao pesquisar alunos");
-      }
+      // ATENÇÃO: Verifique se sua API suporta 'search' ou se o parâmetro é outro (ex: 'nome')
+      const response = await fetch(`${API_GET}?search=${term}`, {
+          method: 'GET',
+          headers: getAuthHeaders() // Adiciona token
+      });
+      
+      if (!response.ok) await handleResponseError(response);
       return await response.json();
     } catch (error) {
       console.error("Erro:", error);
-      alert("Erro ao pesquisar alunos");
+      alert(error.message);
       return [];
     }
   },
@@ -139,6 +184,8 @@ async function saveStudent() {
     sobrenome: lastName,
     turma: studentClass,
     // Campos obrigatórios do Swagger com valores padrão
+    // ATENÇÃO: Se for 'save' de um aluno existente, o username não deveria ser recriado.
+    // Esta lógica pode precisar de ajuste dependendo da regra do seu back-end.
     username: `${firstName.toLowerCase()}.${lastName.toLowerCase()}`,
     tipoUsuario: "ALUNO", // Valor fixo, não editável
   };
@@ -149,8 +196,8 @@ async function saveStudent() {
     closeModal();
     alert("Usuário salvo com sucesso!");
   } catch (error) {
+    // O alerta de erro já é tratado dentro do 'alunoService'
     console.error("Erro ao salvar usuário:", error);
-    alert(`Erro ao salvar usuário: ${error.message}`);
   }
 }
 
@@ -195,7 +242,7 @@ function searchStudents() {
 // Função para carregar alunos na tabela
 async function loadStudentsTable(studentsArray = null) {
   const tableBody = document.getElementById("students-table-body");
-  tableBody.innerHTML = "";
+  tableBody.innerHTML = ""; // Limpa a tabela
 
   try {
     const students = studentsArray || (await alunoService.getAll());
@@ -205,30 +252,36 @@ async function loadStudentsTable(studentsArray = null) {
       allStudents = students;
     }
 
+    if (students.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6">Nenhum usuário encontrado.</td></tr>';
+        return;
+    }
+
     students.forEach((student) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-              <td>${student.id}</td>
-              <td>${student.nome}</td>
-              <td>${student.sobrenome}</td>
-              <td>${student.turma}</td>
-              <td>${
-                student.tipoUsuario === "ALUNO" ? "Aluno" : "Professor"
-              }</td>
-              <td class="actions">
-                <button class="btn-icon" onclick="editStudent(${student.id})">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn-icon btn-danger" onclick="deleteStudent(${
-                  student.id
-                })">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </td>
-            `;
+            <td>${student.id}</td>
+            <td>${student.nome}</td>
+            <td>${student.sobrenome}</td>
+            <td>${student.turma}</td>
+            <td>${
+              student.tipoUsuario === "ALUNO" ? "Aluno" : "Professor"
+            }</td>
+            <td class="actions">
+              <button class="btn-icon" onclick="editStudent(${student.id})">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn-icon btn-danger" onclick="deleteStudent(${
+                student.id
+              })">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          `;
       tableBody.appendChild(row);
     });
   } catch (error) {
+    // O erro já é tratado e exibido pelo alunoService
     console.error("Erro ao carregar usuários:", error);
   }
 }
@@ -250,6 +303,7 @@ async function openEditStudentModal(id) {
       document.getElementById("student-modal").style.display = "flex";
     }
   } catch (error) {
+    // O erro já é tratado e exibido pelo alunoService
     console.error("Erro ao abrir modal de edição:", error);
   }
 }
