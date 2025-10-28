@@ -27,19 +27,63 @@ const modalLocationShelf = document.getElementById("modal-location-shelf");
 const modalLocationCase = document.getElementById("modal-location-case");
 
 // URLs da API
-const EMPRESTIMOS_API = "http://localhost:8080/emprestimos/buscar";
-const FINALIZAR_EMPRESTIMO_API = "http://localhost:8080/emprestimos/finalizar";
-const FERRAMENTAS_API = "http://localhost:8080/ferramentas/buscar";
+const API_BASE = "http://localhost:8080";
+const EMPRESTIMOS_API = `${API_BASE}/emprestimos/buscar`;
+const FINALIZAR_EMPRESTIMO_API = `${API_BASE}/emprestimos/finalizar`;
+const FERRAMENTAS_API = `${API_BASE}/ferramentas/buscar`;
+const LOCAIS_API = `${API_BASE}/locais/buscar`;
 
-// Variáveis globais
+// Variáveis globais (Cache de dados)
 let currentPage = 1;
 const itemsPerPage = 10;
 let allLoans = [];
 let filteredLoans = [];
 let currentLoanId = null;
 let allTools = [];
+let allLocals = [];
 
-// Função para formatar data no formato ISO (YYYY-MM-DDTHH:mm:ss) para o fuso de Brasília
+/**
+ * Pega o token do localStorage e retorna o cabeçalho de Autorização.
+ * @param {boolean} includeContentType - Define se o 'Content-Type: application/json' deve ser incluído
+ * @returns {HeadersInit} - Objeto de Headers pronto para o fetch
+ */
+function getAuthHeaders(includeContentType = false) {
+  const token = localStorage.getItem("authToken");
+
+  if (!token) {
+    alert("Sessão expirada ou usuário não logado.");
+    throw new Error("Token não encontrado. Redirecionando para login.");
+  }
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  if (includeContentType) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  return headers;
+}
+
+/**
+ * Função para tratar erros de resposta da API, especialmente 401/403.
+ * @param {Response} response - O objeto de resposta do fetch
+ */
+async function handleResponseError(response) {
+  if (response.status === 401 || response.status === 403) {
+    alert("Acesso negado. Sua sessão pode ter expirado. Faça login novamente.");
+    window.location.href = "../../index.html";
+    throw new Error("Acesso não autorizado (401/403).");
+  }
+
+  const errorText = await response.text();
+  throw new Error(
+    `Erro na requisição: ${errorText} (Status: ${response.status})`
+  );
+}
+
+// Converte um objeto Date para uma string ISO 8601 no fuso horário local.
 function formatToISOLocal(date) {
   if (!date) return null;
   const pad = (n) => n.toString().padStart(2, "0");
@@ -52,7 +96,6 @@ function formatToISOLocal(date) {
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 }
 
-// Função para exibir mensagem de feedback
 function showFeedback(message, type = "error") {
   feedbackMessage.textContent = message;
   feedbackMessage.className = `feedback-message feedback-${type}`;
@@ -64,32 +107,33 @@ function showFeedback(message, type = "error") {
   }
 }
 
-// Função para carregar todos os dados necessários
+// Carrega todos os dados iniciais (Empréstimos, Ferramentas e Locais) da API.
 async function loadAllData() {
   try {
     showFeedback("Carregando dados...", "success");
     loansTableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 20px;"><div style="display: inline-block; margin-right: 10px;" class="loading"></div>Carregando empréstimos...</td></tr>`;
 
-    // Carregar empréstimos e ferramentas simultaneamente
-    const [loansResponse, toolsResponse] = await Promise.all([
-      fetch(EMPRESTIMOS_API),
-      fetch(FERRAMENTAS_API),
+    const authHeaders = getAuthHeaders();
+
+    // Carrega todos os dados necessários em paralelo
+    const [loansResponse, toolsResponse, localsResponse] = await Promise.all([
+      fetch(EMPRESTIMOS_API, { headers: authHeaders }),
+      fetch(FERRAMENTAS_API, { headers: authHeaders }),
+      fetch(LOCAIS_API, { headers: authHeaders }),
     ]);
 
-    if (!loansResponse.ok)
-      throw new Error(
-        `Erro HTTP ${loansResponse.status} ao carregar empréstimos`
-      );
-    if (!toolsResponse.ok)
-      throw new Error(
-        `Erro HTTP ${toolsResponse.status} ao carregar ferramentas`
-      );
+    if (!loansResponse.ok) await handleResponseError(loansResponse);
+    if (!toolsResponse.ok) await handleResponseError(toolsResponse);
+    if (!localsResponse.ok) await handleResponseError(localsResponse);
 
     const loansData = await loansResponse.json();
     const toolsData = await toolsResponse.json();
+    const localsData = await localsResponse.json();
 
+    // Armazena os dados em cache global
     allLoans = loansData;
     allTools = toolsData;
+    allLocals = localsData;
 
     filteredLoans = [...allLoans];
     renderTable();
@@ -98,73 +142,54 @@ async function loadAllData() {
   } catch (error) {
     console.error("Erro ao carregar dados:", error);
     loansTableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 20px; color: #c62828;">Erro ao carregar dados. Verifique se o servidor está rodando.</td></tr>`;
-    showFeedback(
-      "Erro ao carregar dados. Verifique se o servidor está rodando."
-    );
+
+    if (!error.message.includes("Token") && !error.message.includes("401/403")) {
+      showFeedback(
+        "Erro ao carregar dados. Verifique se o servidor está rodando."
+      );
+    }
   }
 }
 
-// Função para obter a localização de uma ferramenta
-function getToolLocation(toolId) {
-  console.log("Buscando ferramenta com ID:", toolId);
-  const tool = allTools.find((t) => t.id == toolId);
-
-  if (!tool) {
-    console.log("Ferramenta não encontrada");
-    return null;
-  }
-
-  console.log("Ferramenta encontrada:", tool);
-
-  if (tool.local) {
-    console.log("Localização encontrada na ferramenta:", tool.local);
-    return tool.local;
-  }
-
-  if (tool.id_local) {
-    console.log("Ferramenta tem ID de local:", tool.id_local);
-    return null;
-  }
-
-  console.log("Ferramenta não tem informações de localização");
-  return null;
-}
-
-// Função para finalizar empréstimo
+// Finaliza um empréstimo (registra devolução)
 async function finalizarEmprestimo(loanId) {
   try {
     showFeedback("Registrando devolução...", "success");
     const now = new Date();
     const dataDevolucao = formatToISOLocal(now);
     const emprestimo = allLoans.find((loan) => loan.id == loanId);
+    
     const params = new URLSearchParams();
     params.append("dataDevolucao", dataDevolucao);
     if (emprestimo && emprestimo.observacoes) {
       params.append("observacoes", emprestimo.observacoes);
     }
+
     const response = await fetch(
       `${FINALIZAR_EMPRESTIMO_API}/${loanId}?${params}`,
       {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(true),
       }
     );
+
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || `Erro HTTP ${response.status}`);
+      await handleResponseError(response);
     }
+
     showFeedback("Devolução registrada com sucesso!", "success");
-    loadAllData();
+    loadAllData(); // Recarrega os dados para atualizar a tabela
     closeModal();
   } catch (error) {
     console.error("Erro ao registrar devolução:", error);
-    showFeedback(`Erro ao registrar devolução: ${error.message}`);
+
+    if (!error.message.includes("Token") && !error.message.includes("401/403")) {
+      showFeedback(`Erro ao registrar devolução: ${error.message}`);
+    }
   }
 }
-console.log = id_local;
-// Função para renderizar a tabela
+
+// Renderiza a tabela de empréstimos com base nos dados filtrados e paginação
 function renderTable() {
   loansTableBody.innerHTML = "";
   if (filteredLoans.length === 0) {
@@ -174,6 +199,7 @@ function renderTable() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, filteredLoans.length);
   const currentLoans = filteredLoans.slice(startIndex, endIndex);
+
   currentLoans.forEach((loan) => {
     const row = document.createElement("tr");
     const status = calculateLoanStatus(loan);
@@ -202,11 +228,11 @@ function renderTable() {
                     }
                 </div>
             </td>
-        `;
+          `;
     loansTableBody.appendChild(row);
   });
 
-  // Adicionar event listeners aos botões
+  // Adiciona listeners aos botões de ação
   document.querySelectorAll(".return-btn:not([disabled])").forEach((button) => {
     button.addEventListener("click", (e) => {
       const btn = e.target.closest(".return-btn");
@@ -217,7 +243,6 @@ function renderTable() {
     });
   });
 
-  // Adicionar event listeners aos botões de visualização
   document.querySelectorAll(".view-btn").forEach((button) => {
     button.addEventListener("click", (e) => {
       const loanId = e.target.closest(".view-btn").getAttribute("data-id");
@@ -226,7 +251,7 @@ function renderTable() {
   });
 }
 
-// Função para abrir o modal com os detalhes do empréstimo
+// Abre o modal de detalhes do empréstimo
 function openModal(loanId) {
   const loan = allLoans.find((item) => item.id == loanId);
   if (!loan) return;
@@ -235,13 +260,12 @@ function openModal(loanId) {
   const status = calculateLoanStatus(loan);
   const isReturned = status === "Devolvido";
 
-  // Preencher os dados no modal
+  // Preenche os dados básicos do modal
   modalId.textContent = loan.id;
   modalUser.textContent = loan.nomeUsuario || "N/A";
   modalTool.textContent = loan.nomeFerramenta || "N/A";
   modalWithdrawal.textContent = formatDate(loan.data_retirada);
 
-  // Calcular data de devolução prevista (7 dias após a retirada)
   const withdrawalDate = new Date(loan.data_retirada);
   const expectedReturnDate = new Date(withdrawalDate);
   expectedReturnDate.setDate(expectedReturnDate.getDate() + 7);
@@ -254,21 +278,36 @@ function openModal(loanId) {
   modalStatus.className = getStatusClass(status);
   modalNotes.textContent = loan.observacoes || "Nenhuma";
 
-  // Buscar informações de localização da ferramenta
-  const toolLocation = getToolLocation(loan.idFerramenta);
+  // --- Lógica de Busca da Localização Corrigida ---
+  
+  let toolLocation = null;
+  
+  // 1. Encontra a ferramenta no cache 'allTools' usando o NOME da ferramenta vindo do empréstimo
+  const tool = allTools.find(t => t.nome === loan.nomeFerramenta);
+
+  // 2. Se a ferramenta for encontrada e tiver um 'nomeLocal' (ex: "dawdwad")
+  if (tool && tool.nomeLocal) {
+    // 3. Procura no cache 'allLocals' pelo objeto 'local' correspondente
+    toolLocation = allLocals.find(l => l.nomeEspaco === tool.nomeLocal);
+  }
+  
+  // 4. Preenche o modal com os dados encontrados
   if (toolLocation) {
+    // Usa 'nomeEspaco' (camelCase) pois é o que vem do JSON de Locais
     modalLocationSpace.textContent = toolLocation.nomeEspaco || "N/A";
     modalLocationCabinet.textContent = toolLocation.armario || "N/A";
     modalLocationShelf.textContent = toolLocation.prateleira || "N/A";
     modalLocationCase.textContent = toolLocation.estojo || "N/A";
   } else {
-    modalLocationSpace.textContent = "Não localizado";
+    // Se não achou a localização completa, mostra o nome (se tiver) ou "Não localizado"
+    modalLocationSpace.textContent = tool ? (tool.nomeLocal || "Não localizado") : "Não localizado";
     modalLocationCabinet.textContent = "N/A";
     modalLocationShelf.textContent = "N/A";
     modalLocationCase.textContent = "N/A";
   }
+  // --- Fim da Lógica de Localização ---
 
-  // Configurar botão de devolução no modal
+  // Configura o botão de devolução no modal
   if (isReturned) {
     modalReturnBtn.disabled = true;
     modalReturnBtn.innerHTML =
@@ -281,21 +320,18 @@ function openModal(loanId) {
     modalReturnBtn.className = "return-btn";
   }
 
-  // Exibir o modal
   modal.style.display = "block";
 }
 
-// Função para fechar o modal
 function closeModal() {
   modal.style.display = "none";
   currentLoanId = null;
 }
 
-// Função para calcular o status do empréstimo
+// Determina o status (Devolvido, Em atraso, Em andamento) de um empréstimo
 function calculateLoanStatus(loan) {
   const now = new Date();
 
-  // Se já foi devolvido (data_devolucao existe e é menor ou igual a agora)
   if (loan.data_devolucao) {
     const dataDevolucao = new Date(loan.data_devolucao);
     if (dataDevolucao <= now) {
@@ -303,20 +339,18 @@ function calculateLoanStatus(loan) {
     }
   }
 
-  // Data prevista de devolução (7 dias após a retirada)
   const withdrawalDate = new Date(loan.data_retirada);
   const expectedReturnDate = new Date(withdrawalDate);
   expectedReturnDate.setDate(expectedReturnDate.getDate() + 7);
 
-  // EM ATRASO: passou da data prevista e não foi devolvido
   if (now > expectedReturnDate) {
     return "Em atraso";
   }
 
-  // PENDENTE: ainda não chegou a data prevista e não foi devolvido
   return "Em andamento";
 }
 
+// Retorna a classe CSS correspondente ao status
 function getStatusClass(status) {
   switch (status) {
     case "Pendente":
@@ -332,7 +366,7 @@ function getStatusClass(status) {
   }
 }
 
-// Função para formatar data para exibição
+// Formata uma string de data (ISO) para o formato "dd/mm/aaaa, HH:MM"
 function formatDate(dateString) {
   if (!dateString) return "N/A";
   const date = new Date(dateString);
@@ -345,12 +379,13 @@ function formatDate(dateString) {
   });
 }
 
-// Função para configurar paginação
+// Configura os botões e informações de paginação
 function setupPagination() {
   const totalPages = Math.ceil(filteredLoans.length / itemsPerPage);
   pageInfo.textContent = `Página ${currentPage} de ${totalPages || 1}`;
   prevPageBtn.disabled = currentPage === 1;
   nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+  
   prevPageBtn.onclick = () => {
     if (currentPage > 1) {
       currentPage--;
@@ -367,11 +402,12 @@ function setupPagination() {
   };
 }
 
-// Função para aplicar filtros
+// Filtra a lista 'allLoans' com base nos inputs de filtro
 function applyFilters() {
   const userText = filterUser.value.toLowerCase();
   const toolText = filterTool.value.toLowerCase();
   const status = filterStatus.value;
+  
   filteredLoans = allLoans.filter((loan) => {
     if (userText && !(loan.nomeUsuario || "").toLowerCase().includes(userText))
       return false;
@@ -391,12 +427,13 @@ function applyFilters() {
     }
     return true;
   });
+  
   currentPage = 1;
   renderTable();
   setupPagination();
 }
 
-// Adicionar event listeners
+// Inicialização e Event Listeners
 filterUser.addEventListener("input", applyFilters);
 filterTool.addEventListener("input", applyFilters);
 filterStatus.addEventListener("change", applyFilters);
@@ -404,7 +441,6 @@ novoEmprestimoBtn.addEventListener("click", () => {
   window.location.href = "../PostEmp/PostEmp.html";
 });
 
-// Event listeners para o modal
 closeModalBtn.addEventListener("click", closeModal);
 modalReturnBtn.addEventListener("click", () => {
   if (currentLoanId) {
@@ -420,5 +456,4 @@ window.addEventListener("click", (event) => {
   }
 });
 
-// Inicializar a página
 document.addEventListener("DOMContentLoaded", loadAllData);

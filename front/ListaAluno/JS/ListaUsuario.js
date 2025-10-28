@@ -19,8 +19,7 @@ function getAuthHeaders(includeContentType = false) {
 console.log("Token recuperado:", token);
   if (!token) {
     alert("Sessão expirada ou usuário não logado.");
-    // ATENÇÃO: Ajuste a URL abaixo para a sua página de login de professor
-    window.location.href = '../LoginProf/LoginProf.html'; // Exemplo
+    window.location.href = '../../Login/LoginProfessor.html'; // Redireciona para a página de login
     throw new Error("Token não encontrado. Redirecionando para login.");
   }
 
@@ -44,7 +43,7 @@ async function handleResponseError(response) {
     // Token inválido ou expirado
     alert("Acesso negado. Sua sessão pode ter expirado. Faça login novamente.");
     // ATENÇÃO: Ajuste a URL abaixo para a sua página de login de professor
-    window.location.href = '../LoginProf/LoginProf.html'; // Exemplo
+    window.location.href = '../../Login/LoginProfessor.html'; // Exemplo
     throw new Error("Acesso não autorizado (401/403).");
   }
   
@@ -52,7 +51,6 @@ async function handleResponseError(response) {
   throw new Error(`Erro na requisição: ${errorText} (Status: ${response.status})`);
 }
 
-// ==================== SERVICE COM TOKEN ====================
 
 // Objeto para manipular os alunos via API (corrigido com Token)
 const alunoService = {
