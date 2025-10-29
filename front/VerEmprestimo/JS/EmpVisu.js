@@ -62,7 +62,8 @@ function getAuthHeaders(includeContentType = false) {
   if (includeContentType) {
     headers["Content-Type"] = "application/json";
   }
-
+  console.log("Token: ", token);
+  console.log(`Headers: ${headers}`);
   return headers;
 }
 
@@ -72,8 +73,9 @@ function getAuthHeaders(includeContentType = false) {
  */
 async function handleResponseError(response) {
   if (response.status === 401 || response.status === 403) {
+    // CORREÇÃO 2: Removido o 'error' que não estava definido
     alert("Acesso negado. Sua sessão pode ter expirado. Faça login novamente.");
-    window.location.href = "../../index.html";
+    window.location.href = "../../MenuProf/Menu.html";
     throw new Error("Acesso não autorizado (401/403).");
   }
 
@@ -143,7 +145,10 @@ async function loadAllData() {
     console.error("Erro ao carregar dados:", error);
     loansTableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 20px; color: #c62828;">Erro ao carregar dados. Verifique se o servidor está rodando.</td></tr>`;
 
-    if (!error.message.includes("Token") && !error.message.includes("401/403")) {
+    if (
+      !error.message.includes("Token") &&
+      !error.message.includes("401/403")
+    ) {
       showFeedback(
         "Erro ao carregar dados. Verifique se o servidor está rodando."
       );
@@ -158,7 +163,7 @@ async function finalizarEmprestimo(loanId) {
     const now = new Date();
     const dataDevolucao = formatToISOLocal(now);
     const emprestimo = allLoans.find((loan) => loan.id == loanId);
-    
+
     const params = new URLSearchParams();
     params.append("dataDevolucao", dataDevolucao);
     if (emprestimo && emprestimo.observacoes) {
@@ -183,7 +188,9 @@ async function finalizarEmprestimo(loanId) {
   } catch (error) {
     console.error("Erro ao registrar devolução:", error);
 
-    if (!error.message.includes("Token") && !error.message.includes("401/403")) {
+    // CORREÇÃO 3: Lógica invertida para mostrar o feedback em qualquer erro, EXCETO 401/403
+    // Se o erro NÃO for 401/403 (que já deu alert), mostre o feedback
+    if (!error.message.includes("401/403")) {
       showFeedback(`Erro ao registrar devolução: ${error.message}`);
     }
   }
@@ -205,43 +212,48 @@ function renderTable() {
     const status = calculateLoanStatus(loan);
     const isReturned = status === "Devolvido";
     row.innerHTML = `
-            <td>${loan.id}</td>
-            <td>${loan.nomeUsuario || "N/A"}</td>
-            <td>${loan.nomeFerramenta || "N/A"}</td>
-            <td>${formatDate(loan.data_retirada)}</td>
-            <td>${
-              loan.data_devolucao ? formatDate(loan.data_devolucao) : "Pendente"
-            }</td>
-            <td><span class="status-badge ${getStatusClass(
-              status
-            )}">${status}</span></td>
-            <td>${loan.observacoes || "Nenhuma"}</td>
-            <td>
-                <div class="action-buttons">
-                    <button class="view-btn" data-id="${loan.id}">
-                        <i class="fas fa-eye"></i> Detalhes
-                    </button>
-                    ${
-                      !isReturned
-                        ? `<button class="return-btn" data-id="${loan.id}"><i class="fas fa-check-circle"></i> Devolver</button>`
-                        : `<button class="return-btn btn-finalizado" disabled><i class="fas fa-check-square"></i> Finalizado</button>`
-                    }
-                </div>
-            </td>
-          `;
+              <td>${loan.id}</td>
+              <td>${loan.nomeUsuario || "N/A"}</td>
+              <td>${loan.nomeFerramenta || "N/A"}</td>
+              <td>${formatDate(loan.data_retirada)}</td>
+              <td>${
+                loan.data_devolucao
+                  ? formatDate(loan.data_devolucao)
+                  : "Pendente"
+              }</td>
+              <td><span class="status-badge ${getStatusClass(
+                status
+              )}">${status}</span></td>
+              <td>${loan.observacoes || "Nenhuma"}</td>
+              <td>
+                  <div class="action-buttons">
+                      <button class="view-btn" data-id="${loan.id}">
+                          <i class="fas fa-eye"></i> Detalhes
+                      </button>
+                      ${
+                        !isReturned
+                          ? `<button class="return-btn" data-id="${loan.id}"><i class="fas fa-check-circle"></i> Devolver</button>`
+                          : `<button class="return-btn btn-finalizado" disabled><i class="fas fa-check-square"></i> Finalizado</button>`
+                      }
+                  </div>
+              </td>
+            `;
     loansTableBody.appendChild(row);
   });
 
   // Adiciona listeners aos botões de ação
-  document.querySelectorAll(".return-btn:not([disabled])").forEach((button) => {
-    button.addEventListener("click", (e) => {
-      const btn = e.target.closest(".return-btn");
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Devolvendo...';
-      const loanId = btn.getAttribute("data-id");
-      finalizarEmprestimo(loanId);
+  // CORREÇÃO 1: A busca agora é feita dentro de 'loansTableBody', e não no 'document' inteiro.
+  loansTableBody
+    .querySelectorAll(".return-btn:not([disabled])")
+    .forEach((button) => {
+      button.addEventListener("click", (e) => {
+        const btn = e.target.closest(".return-btn");
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Devolvendo...';
+        const loanId = btn.getAttribute("data-id");
+        finalizarEmprestimo(loanId);
+      });
     });
-  });
 
   document.querySelectorAll(".view-btn").forEach((button) => {
     button.addEventListener("click", (e) => {
@@ -279,18 +291,18 @@ function openModal(loanId) {
   modalNotes.textContent = loan.observacoes || "Nenhuma";
 
   // --- Lógica de Busca da Localização Corrigida ---
-  
+
   let toolLocation = null;
-  
+
   // 1. Encontra a ferramenta no cache 'allTools' usando o NOME da ferramenta vindo do empréstimo
-  const tool = allTools.find(t => t.nome === loan.nomeFerramenta);
+  const tool = allTools.find((t) => t.nome === loan.nomeFerramenta);
 
   // 2. Se a ferramenta for encontrada e tiver um 'nomeLocal' (ex: "dawdwad")
   if (tool && tool.nomeLocal) {
     // 3. Procura no cache 'allLocals' pelo objeto 'local' correspondente
-    toolLocation = allLocals.find(l => l.nomeEspaco === tool.nomeLocal);
+    toolLocation = allLocals.find((l) => l.nomeEspaco === tool.nomeLocal);
   }
-  
+
   // 4. Preenche o modal com os dados encontrados
   if (toolLocation) {
     // Usa 'nomeEspaco' (camelCase) pois é o que vem do JSON de Locais
@@ -300,7 +312,9 @@ function openModal(loanId) {
     modalLocationCase.textContent = toolLocation.estojo || "N/A";
   } else {
     // Se não achou a localização completa, mostra o nome (se tiver) ou "Não localizado"
-    modalLocationSpace.textContent = tool ? (tool.nomeLocal || "Não localizado") : "Não localizado";
+    modalLocationSpace.textContent = tool
+      ? tool.nomeLocal || "Não localizado"
+      : "Não localizado";
     modalLocationCabinet.textContent = "N/A";
     modalLocationShelf.textContent = "N/A";
     modalLocationCase.textContent = "N/A";
@@ -385,7 +399,7 @@ function setupPagination() {
   pageInfo.textContent = `Página ${currentPage} de ${totalPages || 1}`;
   prevPageBtn.disabled = currentPage === 1;
   nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
-  
+
   prevPageBtn.onclick = () => {
     if (currentPage > 1) {
       currentPage--;
@@ -407,7 +421,7 @@ function applyFilters() {
   const userText = filterUser.value.toLowerCase();
   const toolText = filterTool.value.toLowerCase();
   const status = filterStatus.value;
-  
+
   filteredLoans = allLoans.filter((loan) => {
     if (userText && !(loan.nomeUsuario || "").toLowerCase().includes(userText))
       return false;
@@ -427,7 +441,7 @@ function applyFilters() {
     }
     return true;
   });
-  
+
   currentPage = 1;
   renderTable();
   setupPagination();

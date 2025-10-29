@@ -61,7 +61,7 @@ function iniciarReconhecimentoFacial() {
     if (!isProcessing) {
       capturarEReconhecer();
     }
-  }, 10000);
+  }, 1000);
 }
 
 function capturarEReconhecer() {
@@ -112,7 +112,7 @@ function reconhecerFace(imageData) {
 
         // Redirecionar após login bem-sucedido
         setTimeout(() => {
-          window.location.href = "../ListaAluno/ListUsuário.html";
+          window.location.href = "/front/MenuProf/Menu.html";
         });
       } else {
         mensagem.textContent =
