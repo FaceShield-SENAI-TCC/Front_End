@@ -15,20 +15,24 @@ const API_DELETE = `${API_BASE}/deletar`;
  */
 function getAuthHeaders(includeContentType = false) {
   // Pega o token que foi salvo no login
-  const token = localStorage.getItem('authToken');
-console.log("Token recuperado:", token);
+  const token = localStorage.getItem("authToken");
+  const usuario = localStorage.getItem("username");
+  const id = localStorage.getItem("id");
+  console.log("Token recuperado:", token);
+  console.log(`Username do Token: ${usuario}`);
+  console.log(`ID do Token: ${id}`);
   if (!token) {
     alert("Sessão expirada ou usuário não logado.");
-    window.location.href = '../../Login/LoginProfessor.html'; // Redireciona para a página de login
+    window.location.href = "../../Login/LoginProfessor.html"; // Redireciona para a página de login
     throw new Error("Token não encontrado. Redirecionando para login.");
   }
 
   const headers = {
-    'Authorization': `Bearer ${token}`
+    Authorization: `Bearer ${token}`,
   };
 
   if (includeContentType) {
-    headers['Content-Type'] = 'application/json';
+    headers["Content-Type"] = "application/json";
   }
 
   return headers;
@@ -43,14 +47,15 @@ async function handleResponseError(response) {
     // Token inválido ou expirado
     alert("Acesso negado. Sua sessão pode ter expirado. Faça login novamente.");
     // ATENÇÃO: Ajuste a URL abaixo para a sua página de login de professor
-    window.location.href = '../../Login/LoginProfessor.html'; // Exemplo
+    window.location.href = "../../Login/LoginProfessor.html"; // Exemplo
     throw new Error("Acesso não autorizado (401/403).");
   }
-  
-  const errorText = await response.text();
-  throw new Error(`Erro na requisição: ${errorText} (Status: ${response.status})`);
-}
 
+  const errorText = await response.text();
+  throw new Error(
+    `Erro na requisição: ${errorText} (Status: ${response.status})`
+  );
+}
 
 // Objeto para manipular os alunos via API (corrigido com Token)
 const alunoService = {
@@ -58,8 +63,8 @@ const alunoService = {
   getAll: async function () {
     try {
       const response = await fetch(API_GET, {
-        method: 'GET',
-        headers: getAuthHeaders() // Adiciona token
+        method: "GET",
+        headers: getAuthHeaders(), // Adiciona token
       });
       if (!response.ok) await handleResponseError(response);
       return await response.json();
@@ -74,8 +79,8 @@ const alunoService = {
   getById: async function (id) {
     try {
       const response = await fetch(`${API_GET}/${id}`, {
-        method: 'GET',
-        headers: getAuthHeaders() // Adiciona token
+        method: "GET",
+        headers: getAuthHeaders(), // Adiciona token
       });
       if (!response.ok) await handleResponseError(response);
       return await response.json();
@@ -112,7 +117,7 @@ const alunoService = {
     try {
       const response = await fetch(`${API_DELETE}/${id}`, {
         method: "DELETE",
-        headers: getAuthHeaders() // Adiciona token
+        headers: getAuthHeaders(), // Adiciona token
       });
 
       if (!response.ok) await handleResponseError(response);
@@ -129,10 +134,10 @@ const alunoService = {
     try {
       // ATENÇÃO: Verifique se sua API suporta 'search' ou se o parâmetro é outro (ex: 'nome')
       const response = await fetch(`${API_GET}?search=${term}`, {
-          method: 'GET',
-          headers: getAuthHeaders() // Adiciona token
+        method: "GET",
+        headers: getAuthHeaders(), // Adiciona token
       });
-      
+
       if (!response.ok) await handleResponseError(response);
       return await response.json();
     } catch (error) {
@@ -251,8 +256,9 @@ async function loadStudentsTable(studentsArray = null) {
     }
 
     if (students.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="6">Nenhum usuário encontrado.</td></tr>';
-        return;
+      tableBody.innerHTML =
+        '<tr><td colspan="6">Nenhum usuário encontrado.</td></tr>';
+      return;
     }
 
     students.forEach((student) => {
@@ -262,9 +268,7 @@ async function loadStudentsTable(studentsArray = null) {
             <td>${student.nome}</td>
             <td>${student.sobrenome}</td>
             <td>${student.turma}</td>
-            <td>${
-              student.tipoUsuario === "ALUNO" ? "Aluno" : "Professor"
-            }</td>
+            <td>${student.tipoUsuario === "ALUNO" ? "Aluno" : "Professor"}</td>
             <td class="actions">
               <button class="btn-icon" onclick="editStudent(${student.id})">
                 <i class="fas fa-edit"></i>
