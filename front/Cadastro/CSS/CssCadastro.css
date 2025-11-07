@@ -409,3 +409,30 @@ body {
     height: 220px;
   }
 }
+
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .input-group input,
+  .input-group select {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  .face-scan-widget {
+    width: 180px;
+    height: 180px;
+  }
+
+  .botao {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+}

@@ -172,29 +172,6 @@ body {
   background-color: #f8f9fa;
 }
 
-.status-badge {
-  padding: 5px 10px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  display: inline-block;
-}
-
-.status-active {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
-
-.status-returned {
-  background-color: #e3f2fd;
-  color: #1565c0;
-}
-
-.status-delayed {
-  background-color: #ffebee;
-  color: #c62828;
-}
-
 /* Paginação */
 .pagination {
   display: flex;
@@ -264,33 +241,6 @@ body {
   border-top-color: #fff;
   animation: spin 1s ease-in-out infinite;
 }
-/* Estilo para o botão Devolver */
-.return-btn {
-  background-color: #3498db;
-  color: #fff;
-  border: none;
-  border-radius: 20px;
-  padding: 8px 20px;
-  font-size: 15px;
-  cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.08);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.return-btn:hover {
-  background-color: #3498db;
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.18);
-}
-.return-btn:disabled {
-  background-color: red;
-}
-
-.return-btn i {
-  font-size: 17px;
-}
 
 @keyframes spin {
   to {
@@ -298,35 +248,6 @@ body {
   }
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
-  .filters {
-    flex-direction: column;
-  }
-
-  .filter-group {
-    min-width: 100%;
-  }
-
-  .loans-table {
-    display: block;
-    overflow-x: auto;
-  }
-
-  .sidebar {
-    width: 70px;
-  }
-
-  .logo h2 span,
-  .menu-item span {
-    display: none;
-  }
-
-  .logo {
-    text-align: center;
-    padding: 10px 0;
-  }
-}
 /* Estilos para o Modal */
 .modal {
   display: none;
@@ -504,6 +425,7 @@ body {
   border-radius: 12px;
   font-size: 0.8rem;
   font-weight: 500;
+  display: inline-block;
 }
 
 .status-pending {
@@ -527,7 +449,104 @@ body {
 }
 
 /* Responsividade */
+@media (max-width: 1024px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .logo {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .menu-item {
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    padding: 15px;
+  }
+
+  .menu-item.active {
+    border-left: none;
+    border-bottom: 3px solid #fff;
+  }
+
+  .main-content {
+    padding: 20px;
+  }
+}
+
 @media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .filters {
+    flex-direction: column;
+    padding: 15px;
+  }
+
+  /* Tabela Responsiva */
+  .loans-table {
+    display: block;
+    border: none;
+    box-shadow: none;
+  }
+
+  .loans-table thead {
+    display: none;
+  }
+
+  .loans-table tr {
+    display: block;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    padding: 15px;
+  }
+
+  .loans-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: right;
+    padding: 10px 0;
+    border-bottom: 1px dotted #eee;
+  }
+
+  .loans-table td:last-child {
+    border-bottom: none;
+  }
+
+  .loans-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #3498db;
+    text-align: left;
+    margin-right: 15px;
+  }
+
+  /* Hardcoded labels for table cells */
+  .loans-table td:nth-of-type(1)::before { content: "ID"; }
+  .loans-table td:nth-of-type(2)::before { content: "Ferramenta"; }
+  .loans-table td:nth-of-type(3)::before { content: "Aluno"; }
+  .loans-table td:nth-of-type(4)::before { content: "Data Empréstimo"; }
+  .loans-table td:nth-of-type(5)::before { content: "Data Devolução"; }
+  .loans-table td:nth-of-type(6)::before { content: "Status"; }
+  .loans-table td:nth-of-type(7)::before { content: "Ações"; }
+
   .modal-content {
     width: 95%;
     margin: 10% auto;
@@ -547,5 +566,26 @@ body {
 
   .action-buttons {
     flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px;
+  }
+
+  .main-content {
+    padding: 15px;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 10px;
   }
 }

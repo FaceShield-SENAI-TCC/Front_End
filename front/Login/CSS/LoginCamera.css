@@ -267,13 +267,58 @@ h1 {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+  .login-container {
+    padding-top: 5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
   .face-scan-widget {
-    width: 220px;
-    height: 220px;
+    width: 250px;
+    height: 250px;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  .botaoProf {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    gap: 1rem;
+  }
+
+  .buttonProfessor {
+    width: 80%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding-top: 3rem;
+  }
+
+  .face-scan-widget {
+    width: 60vw;
+    height: 60vw;
+    max-width: 220px;
+    max-height: 220px;
   }
 
   h1 {
     font-size: 1.5rem;
+  }
+
+  #mensagem {
+    font-size: 1rem;
+  }
+
+  .buttonVoltar, .buttonProfessor {
+    padding: 12px 15px;
+    font-size: 0.9rem;
   }
 }

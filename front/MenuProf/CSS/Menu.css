@@ -86,22 +86,30 @@ body {
 }
 
 /* Media Queries para responsividade */
+@media (max-width: 1024px) {
+  .menu-container {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    padding: 20px 30px;
+  }
+}
+
 @media (max-width: 768px) {
   .menu-container {
     grid-template-columns: 1fr;
-    max-width: 500px;
+    max-width: 450px;
+    padding: 20px;
   }
 
   .menu-card {
-    padding: 15px;
+    padding: 20px;
   }
 
   .menu-card h2 {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
   }
 
   .header h1 {
-    font-size: 1.8rem;
+    font-size: clamp(1.8rem, 5vw, 2.2rem);
   }
 }
 
