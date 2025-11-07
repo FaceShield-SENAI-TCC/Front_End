@@ -18,19 +18,39 @@ document.addEventListener("DOMContentLoaded", () => {
   const turmaInput = document.getElementById("turma");
   const viewCameraBtn = document.querySelector(".view-camera-btn");
 
-  const API_URL = "http://localhost:8080/usuarios/novoUsuario";
+  // --- CORREÇÃO DE URL ---
+  // A URL base não deve conter '{id}'
+  const API_BASE_URL = "http://localhost:8080/auth/register"; // Caminho base do endpoint
   const CAPTURE_API_URL = "http://localhost:7001";
+
+  /**
+   * Função para tratar erros de resposta da API
+   * @param {Response} response - O objeto de resposta do fetch
+   */
+  async function handleResponseError(response) {
+    // Bloco de 401/403 removido pois não há token
+    let errorMessage = `Erro HTTP! Status: ${response.status}`;
+    try {
+      const errorData = await response.json();
+      if (errorData.message) {
+        errorMessage += ` - ${errorData.message}`;
+      }
+    } catch (e) {}
+    throw new Error(errorMessage);
+  }
 
   let isScanning = false;
   let isViewingCamera = false;
   let captureSessionId = null;
   let faceCaptureComplete = false;
   let faceCaptureSuccess = false;
+  let preRegisteredUserId = null;
 
   const cameraFeed = document.getElementById("camera-feed");
 
   const checkmark = document.createElement("div");
   checkmark.innerHTML = "&#10004;";
+  // ... (estilização do checkmark)
   checkmark.style.position = "absolute";
   checkmark.style.top = "50%";
   checkmark.style.left = "50%";
@@ -50,33 +70,29 @@ document.addEventListener("DOMContentLoaded", () => {
     autoConnect: false,
   });
 
-  // Função para mostrar/ocultar campos de professor
+  // Função para mostrar/ocultar campos
   function toggleUsernameField() {
     if (!tipoUsuarioSelect) return;
     const isProfessor = tipoUsuarioSelect.value === "2";
 
-    setTimeout(() => {
-      if (usernameGroup)
-        usernameGroup.style.display = isProfessor ? "block" : "none";
-      if (senhaGroup) senhaGroup.style.display = isProfessor ? "block" : "none";
+    // Username é SEMPRE visível e obrigatório
+    if (usernameGroup) usernameGroup.style.display = "block";
+    if (usernameInput) usernameInput.required = true;
 
-      if (senhaInput) senhaInput.required = isProfessor;
-      if (usernameInput) usernameInput.required = isProfessor;
+    // Apenas a SENHA é opcional (só para professor)
+    if (senhaGroup) senhaGroup.style.display = isProfessor ? "block" : "none";
+    if (senhaInput) senhaInput.required = isProfessor;
 
-      if (!isProfessor) {
-        if (usernameInput) usernameInput.value = "";
-        if (senhaInput) senhaInput.value = "";
-      }
-    }, 300);
+    if (!isProfessor) {
+      if (senhaInput) senhaInput.value = "";
+    }
   }
 
   // Validação em tempo real
   function validarCampo(input) {
     const parent = input.parentElement;
     if (!parent) return;
-
     const errorElement = parent.querySelector(".error-message");
-
     if (input.checkValidity()) {
       parent.classList.add("valid");
       parent.classList.remove("invalid");
@@ -94,17 +110,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // Exibir mensagens de feedback
   function showFeedback(tipo, mensagem) {
     if (!feedback) return;
-
     feedback.textContent = mensagem;
     feedback.className = "feedback " + tipo;
     feedback.style.display = "block";
-
     setTimeout(() => {
-      feedback.style.opacity = 0;
-      feedback.style.transform = "translateX(120%)";
+      feedback.style.opacity = "0";
       setTimeout(() => {
         feedback.style.display = "none";
-      }, 400);
+        feedback.style.opacity = "1";
+        feedback.style.transform = "translateX(0)";
+      }, 500);
     }, 5000);
   }
 
@@ -113,17 +128,16 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Conectado ao servidor de captura facial.");
 
     if (isViewingCamera) {
-      // Modo apenas visualização - não inicia captura
       scanInstruction.textContent = "Visualizando câmera...";
       return;
     }
 
-    // Modo captura biométrica
-    if (
-      !nomeInput.value.trim() ||
-      !sobrenomeInput.value.trim() ||
-      !turmaInput.value.trim()
-    ) {
+    const nome = nomeInput.value.trim();
+    const sobrenome = sobrenomeInput.value.trim();
+    const turma = turmaInput.value.trim();
+    const tipoUsuario = tipoUsuarioSelect.value;
+
+    if (!nome || !sobrenome || !turma) {
       showFeedback(
         "error",
         "Preencha nome, sobrenome e turma antes da captura biométrica"
@@ -133,13 +147,15 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    socket.emit("start_camera", {
-      nome: nomeInput.value.trim(),
-      sobrenome: sobrenomeInput.value.trim(),
-      turma: turmaInput.value.trim(),
+    const payload = {
+      nome: nome,
+      sobrenome: sobrenome,
+      turma: turma,
+      tipoUsuario: tipoUsuario,
       session_id: captureSessionId,
-    });
+    };
 
+    socket.emit("start_camera", payload);
     scanInstruction.textContent = "Processando...";
   });
 
@@ -156,19 +172,17 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   socket.on("capture_progress", (data) => {
-    // Só mostra progresso se estiver no modo de captura, não apenas visualização
     if (!isViewingCamera) {
       const progress = Math.min(
         100,
         Math.round((data.captured / data.total) * 100)
       );
       scanInstruction.textContent = `Capturando... ${progress}%`;
-
       scanWidget.style.background = `linear-gradient(
-                        to right,
-                        rgba(0, 224, 255, 0.5) ${progress}%,
-                        rgba(30, 41, 59, 0.3) ${progress}%
-                    )`;
+                      to right,
+                      rgba(0, 224, 255, 0.5) ${progress}%,
+                      rgba(30, 41, 59, 0.3) ${progress}%
+                  )`;
     }
   });
 
@@ -185,14 +199,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (data.success) {
       faceCaptureSuccess = true;
+      preRegisteredUserId = data.id; // Pega o ID (agora deve ser um NÚMERO)
+
+      // Validação se o ID recebido é um número
+      if (!preRegisteredUserId || isNaN(preRegisteredUserId)) {
+        console.error(
+          `Erro fatal: ID recebido do Python não é um número: ${preRegisteredUserId}`
+        );
+        showFeedback(
+          "error",
+          "Erro de comunicação (ID inválido). Tente novamente."
+        );
+        faceCaptureSuccess = false;
+        isScanning = false;
+        socket.disconnect();
+        return;
+      }
+
+      console.log(`Usuário pré-cadastrado com ID: ${preRegisteredUserId}`);
+
       cameraFeed.style.display = "none";
       scanInstruction.style.display = "none";
-
       checkmark.style.display = "block";
       checkmark.style.opacity = "1";
       checkmark.style.fontSize = "5rem";
       checkmark.style.transform = "translate(-50%, -50%) scale(1)";
-
       setTimeout(() => {
         checkmark.style.opacity = "0";
         checkmark.style.transform = "translate(-50%, -50%) scale(0.5)";
@@ -201,7 +232,6 @@ document.addEventListener("DOMContentLoaded", () => {
         scanWidget.style.background = "rgba(0, 255, 170, 0.1)";
         scanWidget.classList.add("capture-success");
       }, 2500);
-
       setTimeout(() => {
         checkmark.style.display = "none";
       }, 3300);
@@ -224,10 +254,9 @@ document.addEventListener("DOMContentLoaded", () => {
     socket.disconnect();
   });
 
-  // Função para visualizar a câmera sem iniciar captura
+  // Função para visualizar a câmera
   viewCameraBtn.addEventListener("click", () => {
     if (isViewingCamera) {
-      // Se já está visualizando, para a visualização
       socket.disconnect();
       isViewingCamera = false;
       viewCameraBtn.textContent = "Visualizar Câmera";
@@ -236,30 +265,25 @@ document.addEventListener("DOMContentLoaded", () => {
       scanInstruction.textContent = "Clique para captura biométrica";
       return;
     }
-
     isViewingCamera = true;
     captureSessionId = Date.now().toString() + "_view";
-
     cameraFeed.src = "";
     cameraFeed.style.display = "none";
     checkmark.style.display = "none";
-    checkmark.style.opacity = "0";
-    checkmark.style.fontSize = "0rem";
-    checkmark.style.transform = "translate(-50%, -50%) scale(0)";
-
     scanInstruction.style.display = "block";
     scanInstruction.textContent = "Preparando câmera...";
     scanWidget.style.background = "rgba(30, 41, 59, 0.5)";
     scanWidget.classList.remove("capture-success");
-
     socket.io.opts.query = { session_id: captureSessionId };
     socket.connect();
     viewCameraBtn.textContent = "Parar Visualização";
   });
 
+  // Clique para iniciar a captura
   scanWidget.addEventListener("click", () => {
     if (isScanning || isViewingCamera) return;
 
+    // Validação de Username para TODOS
     if (
       !nomeInput.value.trim() ||
       !sobrenomeInput.value.trim() ||
@@ -273,9 +297,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     isScanning = true;
-    isViewingCamera = false; // Garante que não está no modo visualização
+    isViewingCamera = false;
     faceCaptureComplete = false;
     faceCaptureSuccess = false;
+    preRegisteredUserId = null;
     captureSessionId = Date.now().toString();
 
     cameraFeed.src = "";
@@ -284,12 +309,10 @@ document.addEventListener("DOMContentLoaded", () => {
     checkmark.style.opacity = "0";
     checkmark.style.fontSize = "0rem";
     checkmark.style.transform = "translate(-50%, -50%) scale(0)";
-
     scanInstruction.style.display = "block";
     scanInstruction.textContent = "Preparando câmera...";
     scanWidget.style.background = "rgba(30, 41, 59, 0.5)";
     scanWidget.classList.remove("capture-success");
-
     socket.io.opts.query = { session_id: captureSessionId };
     socket.connect();
     console.log("Iniciando conexão com Socket.IO...");
@@ -309,39 +332,28 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async function (event) {
     event.preventDefault();
 
-    // Validação dos campos
     const tipoUsuario = tipoUsuarioSelect ? tipoUsuarioSelect.value : "";
-    const campos = ["nome", "sobrenome", "turma"];
+
+    // Validação de campos para o SUBMIT
+    const camposIniciais = ["nome", "sobrenome", "turma"];
+    const campos = ["username"]; // Username é sempre validado
 
     if (tipoUsuario === "2") {
-      campos.push("username", "senha");
+      campos.push("senha"); // Senha só é validada para professor
     }
 
-    const invalidos = [];
     let isValid = true;
-
-    campos.forEach((id) => {
+    [...camposIniciais, ...campos].forEach((id) => {
       const campo = document.getElementById(id);
       if (!campo) return;
-
-      const erroMensagem = campo.parentElement.querySelector(".error-message");
-
-      if (!campo.value.trim()) {
-        invalidos.push(id);
-        campo.classList.add("input-error");
+      if (
+        !campo.value.trim() &&
+        (campo.required || camposIniciais.includes(id))
+      ) {
         isValid = false;
-
-        if (!erroMensagem) {
-          const errorElement = document.createElement("div");
-          errorElement.classList.add("error-message");
-          errorElement.textContent = "Este campo é obrigatório.";
-          campo.parentElement.appendChild(errorElement);
-        }
+        campo.classList.add("input-error");
       } else {
         campo.classList.remove("input-error");
-        if (erroMensagem) {
-          erroMensagem.remove();
-        }
       }
     });
 
@@ -351,8 +363,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (!isValid) {
-      const firstInvalid = document.getElementById(invalidos[0]);
-      if (firstInvalid) firstInvalid.focus();
       showFeedback(
         "error",
         "Por favor, preencha todos os campos obrigatórios."
@@ -365,71 +375,60 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (!faceCaptureSuccess) {
-      showFeedback("error", "Captura biométrica não concluída com sucesso");
+    if (!faceCaptureSuccess || !preRegisteredUserId) {
+      showFeedback(
+        "error",
+        "Captura biométrica não concluída ou ID não encontrado"
+      );
       return;
     }
 
+    // Enviar username para TODOS
     const formData = {
-      nome: nomeInput.value.trim(),
-      sobrenome: sobrenomeInput.value.trim(),
-      turma: turmaInput.value.trim(),
-      tipoUsuario: tipoUsuario === "1" ? "ALUNO" : "PROFESSOR",
-      username: tipoUsuario === "2" ? usernameInput.value.trim() : null,
-      senha: tipoUsuario === "2" ? senhaInput.value : null,
+      username: usernameInput.value.trim(), // Sempre envia o username
+      senha: tipoUsuario === "2" ? senhaInput.value : null, // Senha só para professor
     };
 
     try {
       showFeedback("info", "Enviando dados de cadastro...");
-
-      // Mostrar loading
       document.querySelector(".loading-overlay").style.display = "grid";
 
-      const response = await fetch(API_URL, {
-        method: "POST",
+      // --- CORREÇÃO DE URL ---
+      // API_BASE_URL é ".../auth/register"
+      // O endpoint é ".../auth/register/{id}"
+      const finalApiUrl = `${API_BASE_URL}/${preRegisteredUserId}`;
+
+      console.log(`Enviando PUT para: ${finalApiUrl}`);
+
+      const response = await fetch(finalApiUrl, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          // 'Authorization' foi removido
         },
         body: JSON.stringify(formData),
       });
 
-      // Esconder loading
       document.querySelector(".loading-overlay").style.display = "none";
 
       if (!response.ok) {
-        let errorMessage = `Erro HTTP! Status: ${response.status}`;
-        try {
-          const errorData = await response.json();
-          if (errorData.message) {
-            errorMessage += ` - ${errorData.message}`;
-          }
-        } catch (e) {}
-        throw new Error(errorMessage);
+        await handleResponseError(response);
       }
 
       const responseData = await response.json();
 
-      if (response.status === 201 && responseData.id) {
-        showFeedback("success", "Cadastro realizado com sucesso!");
+      // Check de sucesso (200 OK)
+      if (response.status === 200 && responseData.token) {
+        showFeedback("success", "Cadastro completado com sucesso!");
         form.reset();
         toggleUsernameField();
-
         faceCaptureComplete = false;
         faceCaptureSuccess = false;
+        preRegisteredUserId = null;
         scanInstruction.textContent = "Clique para captura biométrica";
         scanWidget.style.background = "";
         scanWidget.classList.remove("capture-success");
-
-        cameraFeed.style.display = "none";
-        checkmark.style.display = "none";
-        checkmark.style.opacity = "0";
-        checkmark.style.fontSize = "0rem";
-        checkmark.style.transform = "translate(-50%, -50%) scale(0)";
-
-        setTimeout(() => {
-          const firstInput = form.querySelector("input");
-          if (firstInput) firstInput.focus();
-        }, 100);
+        window.location.href = "/front/index.html";
       } else {
         const errorMsg =
           responseData.message ||
@@ -437,9 +436,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showFeedback("warning", errorMsg);
       }
     } catch (error) {
-      // Esconder loading em caso de erro
       document.querySelector(".loading-overlay").style.display = "none";
-
       console.error("Erro completo na requisição:", error);
       let errorMessage;
       if (
@@ -448,16 +445,8 @@ document.addEventListener("DOMContentLoaded", () => {
       ) {
         errorMessage =
           "Servidor de cadastro offline! Verifique se o backend está rodando na porta 8080.";
-      } else if (error.message.includes("PropertyValueException")) {
-        errorMessage =
-          "Erro de validação: Campo obrigatório não preenchido no servidor";
-      } else if (
-        error.message.includes("Erro HTTP") &&
-        !error.message.includes("400")
-      ) {
-        errorMessage = `Erro no servidor: ${error.message}`;
       } else {
-        errorMessage = error.message || "Erro ao processar o cadastro";
+        errorMessage = error.message;
       }
       showFeedback("error", errorMessage);
     }
