@@ -26,6 +26,7 @@ Ele utiliza **reconhecimento facial** e **leitura de QR Code** para validar usu�
 
 ## **Estrutura do Projeto**
 
+```text
 front/
 ├── Assets/
 │   ├── EscritoFS_preto.jpg
@@ -60,9 +61,8 @@ front/
     ├── Ferramentas.css
     ├── Index.css
     └── Local.css
-
 ---
-
+```
 ## **Descrição das Pastas**
 
 - **Assets/** → Contém as imagens e ícones do sistema (como logo e imagens de reconhecimento facial).  
