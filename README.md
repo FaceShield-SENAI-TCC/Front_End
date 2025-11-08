@@ -27,40 +27,39 @@ Ele utiliza **reconhecimento facial** e **leitura de QR Code** para validar usu�
 ## **Estrutura do Projeto**
 
 front/
-│
 ├── Assets/
-│ ├── EscritoFS_preto.jpg
-│ ├── ImagemRecon.png
-│ └── LogoFaceShield.png
+│   ├── EscritoFS_preto.jpg
+│   ├── ImagemRecon.png
+│   └── LogoFaceShield.png
 │
 ├── Html/
-│ ├── Cadastro.html
-│ ├── Emprestimos.html
-│ ├── Ferramentas.html
-│ ├── Local.html
-│ ├── Login.html
-│ ├── LoginProfessor.html
-│ ├── Menu.html
-│ ├── PostEmp.html
-│ └── Usuarios.html
+│   ├── Cadastro.html
+│   ├── Emprestimos.html
+│   ├── Ferramentas.html
+│   ├── Local.html
+│   ├── Login.html
+│   ├── LoginProfessor.html
+│   ├── Menu.html
+│   ├── PostEmp.html
+│   └── Usuarios.html
 │
 ├── Scripts/
-│ ├── Cadastro.js
-│ ├── Emprestimos.js
-│ ├── Ferramentas.js
-│ ├── Index.js
-│ ├── Local.js
-│ ├── Login.js
-│ ├── LoginProfessor.js
-│ ├── PostEmp.js
-│ └── Usuarios.js
+│   ├── Cadastro.js
+│   ├── Emprestimos.js
+│   ├── Ferramentas.js
+│   ├── Index.js
+│   ├── Local.js
+│   ├── Login.js
+│   ├── LoginProfessor.js
+│   ├── PostEmp.js
+│   └── Usuarios.js
 │
 └── Style/
-├── Cadastro.css
-├── Emprestimos.css
-├── Ferramentas.css
-├── Index.css
-└── Local.css
+    ├── Cadastro.css
+    ├── Emprestimos.css
+    ├── Ferramentas.css
+    ├── Index.css
+    └── Local.css
 
 ---
 
