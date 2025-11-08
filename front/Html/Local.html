@@ -8,8 +8,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <!-- Seu arquivo CSS existente -->
-    <link rel="stylesheet" href="CSS/Local.css" />
+    <link rel="stylesheet" href="../Styles/Local.css" />
   </head>
   <body>
     <div class="container">
@@ -20,28 +19,29 @@
         </div>
         <div
           class="menu-item"
-          onclick="window.location.href='../ListaAluno/ListUsuário.html'"
+          onclick="window.location.href='Usuarios.html'"
         >
           <i class="fas fa-user"></i> Usuários
         </div>
         <div
           class="menu-item"
-          onclick="window.location.href='../VerEmprestimo/Emprestimos.html'"
+          onclick="window.location.href='Emprestimos.html'"
         >
           <i class="fas fa-clipboard-list"></i> Empréstimos
         </div>
         <div
           class="menu-item"
-          onclick="window.location.href='../ListaFerramentas/ListaFerramentas.html'"
+          onclick="window.location.href='Ferramentas.html'"
         >
           <i class="fas fa-toolbox"></i> Ferramentas
         </div>
-        <div class="menu-item active">
+        <div class="menu-item active"
+        onclick="window.location.href='Local.html'">
           <i class="fas fa-map-marker-alt"></i> Locais
         </div>
         <div
           class="menu-item"
-          onclick="window.location.href='../PostEmp/PostEmp.html'"
+          onclick="window.location.href='PostEmp.html'"
         >
           <i class="fas fa-plus-circle"></i> Novo Empréstimo
         </div>
@@ -58,7 +58,7 @@
           </h1>
           <button
             class="logout-btn"
-            onclick="window.location.href='../MenuProf/Menu.html'"
+            onclick="window.location.href='Menu.html'"
           >
             <i class="fas fa-sign-out-alt"></i> Sair para Menu
           </button>
@@ -192,6 +192,6 @@
     <div id="loading-overlay" class="loading-overlay" style="display: none">
       <div class="loading-spinner"></div>
     </div>
-    <script src="./js/LocalJS.JS"></script>
+    <script src="../Scripts/Local.js"></script>
   </body>
 </html>

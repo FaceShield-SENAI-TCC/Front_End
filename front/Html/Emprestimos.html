@@ -8,8 +8,8 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <link rel="stylesheet" href="./CSS/EmprestimoVisu.css" />
-    <script src="./JS/EmpVisu.js" defer></script>
+    <link rel="stylesheet" href="../Styles/Emprestimo.css" />
+    <script src="../Scripts/Emprestimo.js" defer></script>
   </head>
   <body>
     <div class="container">
@@ -22,30 +22,30 @@
         </div>
         <div
           class="menu-item"
-          onclick="window.location.href='../ListaAluno/ListUsuário.html'"
+          onclick="window.location.href='Usuarios.html'"
         >
           <i class="fas fa-user"></i> <span>Usuários</span>
         </div>
         <div
           class="menu-item active"
-          onclick="window.location.href='../VerEmprestimo/Emprestimos.html'"
+          onclick="window.location.href='Emprestimos.html'"
         >
           <i class="fas fa-clipboard-list"></i> <span>Empréstimos</span>
         </div>
         <div
           class="menu-item"
-          onclick="window.location.href='../ListaFerramentas/ListaFerramentas.html'"
+          onclick="window.location.href='Ferramentas.html'"
         >
           <i class="fas fa-toolbox"></i> <span>Ferramentas</span>
         </div>
         <div
           class="menu-item"
-          onclick="window.location.href='../Locais/Local.html'"
+          onclick="window.location.href='Local.html'"
         >
           <i class="fas fa-map-marker-alt"></i> <span>Locais</span>
         </div>
-        <!-- CORREÇÃO AQUI: Mudei o redirecionamento para a página correta -->
-        <div class="menu-item" id="novo-emprestimo-btn">
+        <div class="menu-item" id="novo-emprestimo-btn"
+          onclick="window.location.href='PostEmp.html'">
           <i class="fas fa-plus-circle"></i> <span>Novo Empréstimo</span>
         </div>
 
@@ -62,7 +62,7 @@
           </h1>
           <button
             class="logout-btn"
-            onclick="window.location.href='../MenuProf/Menu.html'"
+            onclick="window.location.href='Menu.html'"
           >
             <i class="fas fa-sign-out-alt"></i> Sair para Menu
           </button>
