@@ -112,7 +112,7 @@ function reconhecerFace(imageData) {
 
         // Redirecionar após login bem-sucedido
         setTimeout(() => {
-          window.location.href = "/Html/Menu.html";
+          window.location.href = "/front/Html/Menu.html";
         });
       } else {
         mensagem.textContent =
