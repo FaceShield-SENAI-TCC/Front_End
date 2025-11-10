@@ -690,13 +690,26 @@ body {
   z-index: 10000;
 }
 
-/* Estilo dos Botões de Idioma (Fundo AZUL NEON CLARO, Texto Escuro) */
+/* ================================================= */
+/* ESTILO FINAL: SELETOR DE IDIOMA (Inferior Direito) */
+/* ================================================= */
+
+/* POSICIONAMENTO PADRÃO (DESKTOP): INFERIOR DIREITO */
+.language-selector {
+  position: fixed !important;
+  top: auto !important;
+  left: auto !important;
+  bottom: 30px !important;
+  right: 30px !important;
+  z-index: 10000;
+  display: flex;
+  gap: 8px;
+}
+
+/* Estilo Base dos Botões (Fundo Escuro, Borda Néon) - Estado Inativo */
 .language-selector .lang-btn {
-  /* CORREÇÃO DEFINITIVA: Fundo Azul Néon, Texto Escuro para contraste */
-  background-color: var(
-    --primary-color
-  ) !important; /* Fundo AZUL NEON VISÍVEL */
-  color: var(--secondary-color) !important; /* Texto escuro */
+  background-color: var(--secondary-color) !important;
+  color: var(--primary-color) !important;
   border: 2px solid var(--primary-color) !important;
   padding: 5px 10px !important;
   cursor: pointer;
@@ -704,33 +717,41 @@ body {
   font-size: 0.9rem;
   font-weight: bold;
   transition: all 0.3s ease;
-  /* Sombra suave e escura */
+  /* Sombra sutil padrão (MUITO IMPORTANTE) */
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
   text-transform: uppercase;
 }
 
-/* Estilo para o idioma ativo e Hover (MANTIDO) */
-.language-selector .lang-btn.active,
-.language-selector .lang-btn:hover {
-  /* Inverte as cores ou dá um destaque forte */
-  background-color: var(--secondary-color) !important; /* Fundo Escuro */
-  color: var(--primary-color) !important; /* Texto Néon */
-  box-shadow: 0 0 10px var(--primary-color), 0 0 20px rgba(0, 224, 255, 0.6);
-  border-color: var(--primary-color) !important;
-  transform: scale(1.05); /* Aplica só no hover */
+/* Efeito de HOVER PARA TODOS OS BOTÕES (O ÚNICO MOMENTO EM QUE DEVE BRILHAR) */
+.language-selector .lang-btn:hover,
+.language-selector .lang-btn.active:hover {
+  background-color: rgba(0, 224, 255, 0.2) !important;
+  /* Brilho Néon */
+  box-shadow: 0 0 10px var(--primary-color), 0 0 20px rgba(0, 224, 255, 0.6) !important;
+  transform: scale(1.05);
 }
 
+/* Estilo do Botão ATIVO (PT) NO ESTADO NORMAL (CORRIGIDO PARA FICAR SEM BRILHO) */
 .language-selector .lang-btn.active {
-  transform: scale(1); /* Garante que o ativo não escale, apenas o hover */
+  /* Mantém as cores e borda */
+  background-color: var(--secondary-color) !important;
+  color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+
+  /* CORREÇÃO CHAVE: Define a sombra para o estado inativo (preto sutil) */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5) !important;
+  /* Se você quiser remover *toda* sombra: box-shadow: none !important; */
+
+  transform: scale(1);
 }
 
-/* Responsividade básica para telas menores (MANTIDA) */
+/* RESPONSIVIDADE (MOBILE): INFERIOR DIREITO */
 @media (max-width: 768px) {
   .language-selector {
-    bottom: 15px !important;
-    right: 15px !important;
     top: auto !important;
     left: auto !important;
+    bottom: 15px !important;
+    right: 15px !important;
     gap: 5px;
   }
   .language-selector .lang-btn {
@@ -738,7 +759,6 @@ body {
     font-size: 0.75rem !important;
   }
 }
-
 @media (max-height: 600px) {
   .modal-body {
     max-height: 50vh;
