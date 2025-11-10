@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const checkmark = document.createElement("div");
   checkmark.innerHTML = "&#10004;";
-  
+
   checkmark.style.position = "absolute";
   checkmark.style.top = "50%";
   checkmark.style.left = "50%";
@@ -193,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (data.success) {
       faceCaptureSuccess = true;
-      preRegisteredUserId = data.id; 
+      preRegisteredUserId = data.id;
 
       // Validação se o ID recebido é um número
       if (!preRegisteredUserId || isNaN(preRegisteredUserId)) {
@@ -277,7 +277,7 @@ document.addEventListener("DOMContentLoaded", () => {
   scanWidget.addEventListener("click", () => {
     if (isScanning || isViewingCamera) return;
 
-    // Validação de Username
+    // Validação
     if (
       !nomeInput.value.trim() ||
       !sobrenomeInput.value.trim() ||
@@ -319,6 +319,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("input").forEach((input) => {
     input.addEventListener("input", () => validarCampo(input));
   });
+
+  // Submit do formulário
   form.addEventListener("submit", async function (event) {
     event.preventDefault();
 
@@ -326,7 +328,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Validação de campos para o SUBMIT
     const camposIniciais = ["nome", "sobrenome", "turma"];
-    const campos = ["username"]; 
+    const campos = ["username"];
 
     if (tipoUsuario === "2") {
       campos.push("senha"); // Senha só é validada para professor
@@ -405,6 +407,16 @@ document.addEventListener("DOMContentLoaded", () => {
       // Check de sucesso no cadastro
       if (response.status === 200 && responseData.token) {
         showFeedback("success", "Cadastro completado com sucesso!");
+
+        // --- CORREÇÃO ---
+        // Salva o token para que a próxima página (Usuarios.js) funcione
+        localStorage.setItem("authToken", responseData.token);
+
+        // Salva o username também, pois vi que seu Usuarios.js tenta pegar ele
+        const usernameCadastrado = usernameInput.value.trim();
+        localStorage.setItem("username", usernameCadastrado);
+        // --- FIM DA CORREÇÃO ---
+
         form.reset();
         toggleUsernameField();
         faceCaptureComplete = false;
@@ -413,7 +425,10 @@ document.addEventListener("DOMContentLoaded", () => {
         scanInstruction.textContent = "Clique para captura biométrica";
         scanWidget.style.background = "";
         scanWidget.classList.remove("capture-success");
-        window.location.href = "/front/index.html";
+
+        // --- CORREÇÃO ---
+        // Redireciona para a página de usuários, já que o login foi feito
+        window.location.href = "Login.html"; // (Ajuste o caminho se for diferente)
       } else {
         const errorMsg =
           responseData.message ||
