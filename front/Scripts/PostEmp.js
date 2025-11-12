@@ -16,6 +16,12 @@ const ferramentaSelect = document.getElementById("ferramenta");
 const btnRegistrar = document.getElementById("btn-registrar");
 const btnCancelar = document.getElementById("btn-cancelar");
 
+// =================================================================
+// CORREÇÃO: Definição da variável userAvatar que estava faltando
+// =================================================================
+const userAvatar = document.getElementById("user-avatar"); // <--- ADICIONADO (use o ID correto do seu HTML)
+// =================================================================
+
 /**
  * Pega o token do localStorage e retorna o cabeçalho de Autorização.
  * @param {boolean} includeContentType - Define se o 'Content-Type: application/json' deve ser incluído
@@ -59,6 +65,11 @@ async function handleResponseError(response) {
 }
 
 function showFeedback(type, message) {
+  // Verificação de segurança para garantir que feedbackEl não é nulo
+  if (!feedbackEl) {
+    console.error("Elemento de feedback (ID 'feedback') não encontrado.");
+    return;
+  }
   feedbackEl.textContent = message;
   feedbackEl.className = `feedback ${type}`;
   feedbackEl.style.display = "block";
@@ -115,9 +126,13 @@ function toISOLocalString(date) {
 }
 
 function gerarIniciais(nome) {
+  if (!nome) return "?";
   const nomes = nome.split(" ");
   if (nomes.length >= 2) {
     return nomes[0].charAt(0) + nomes[nomes.length - 1].charAt(0);
+  }
+  if (nomes.length === 1 && nomes[0].length > 0) {
+    return nomes[0].substring(0, 2).toUpperCase();
   }
   return nome.substring(0, 2).toUpperCase();
 }
@@ -133,6 +148,7 @@ async function carregarAlunos() {
 
     alunos = await response.json();
 
+    if (!alunoSelect) return; // Parar se o elemento não existir
     alunoSelect.innerHTML = '<option value="">Selecione um aluno</option>';
     alunos.forEach((aluno) => {
       const option = document.createElement("option");
@@ -143,8 +159,14 @@ async function carregarAlunos() {
     });
   } catch (error) {
     console.error("Erro ao carregar alunos:", error);
-    alunoSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
-    if (!error.message.includes("Token") && !error.message.includes("401/403")) {
+    if (alunoSelect) {
+      alunoSelect.innerHTML =
+        '<option value="">Erro ao carregar alunos</option>';
+    }
+    if (
+      !error.message.includes("Token") &&
+      !error.message.includes("401/403")
+    ) {
       showFeedback(
         "error",
         "Erro ao carregar lista de alunos. Tente recarregar a página."
@@ -164,6 +186,7 @@ async function carregarFerramentas() {
 
     ferramentas = await response.json();
 
+    if (!ferramentaSelect) return; // Parar se o elemento não existir
     ferramentaSelect.innerHTML =
       '<option value="">Selecione uma ferramenta</option>';
     ferramentas.forEach((ferramenta) => {
@@ -175,9 +198,14 @@ async function carregarFerramentas() {
     });
   } catch (error) {
     console.error("Erro ao carregar ferramentas:", error);
-    ferramentaSelect.innerHTML =
-      '<option value="">Erro ao carregar ferramentas</option>';
-    if (!error.message.includes("Token") && !error.message.includes("401/403")) {
+    if (ferramentaSelect) {
+      ferramentaSelect.innerHTML =
+        '<option value="">Erro ao carregar ferramentas</option>';
+    }
+    if (
+      !error.message.includes("Token") &&
+      !error.message.includes("401/403")
+    ) {
       showFeedback(
         "error",
         "Erro ao carregar lista de ferramentas. Tente recarregar a página."
@@ -198,7 +226,10 @@ async function carregarLocais() {
     locais = await response.json();
   } catch (error) {
     console.error("Erro ao carregar locais:", error);
-    if (!error.message.includes("Token") && !error.message.includes("401/403")) {
+    if (
+      !error.message.includes("Token") &&
+      !error.message.includes("401/403")
+    ) {
       showFeedback(
         "warning",
         "Não foi possível carregar informações de localização."
@@ -207,38 +238,56 @@ async function carregarLocais() {
   }
 }
 
-alunoSelect.addEventListener("change", function () {
-  const selectedOption = this.options[this.selectedIndex];
-  const turma = selectedOption.getAttribute("data-turma") || "";
-  document.getElementById("turma").value = turma;
-});
+// Adiciona verificações para garantir que os elementos existem
+if (alunoSelect) {
+  alunoSelect.addEventListener("change", function () {
+    const selectedOption = this.options[this.selectedIndex];
+    const turma = selectedOption.getAttribute("data-turma") || "";
+    const turmaEl = document.getElementById("turma");
+    if (turmaEl) turmaEl.value = turma;
+  });
+}
 
-ferramentaSelect.addEventListener("change", function () {
-  const selectedOption = this.options[this.selectedIndex];
-  const nomeLocal = selectedOption.getAttribute("data-nome-local");
+if (ferramentaSelect) {
+  ferramentaSelect.addEventListener("change", function () {
+    const selectedOption = this.options[this.selectedIndex];
+    const nomeLocal = selectedOption.getAttribute("data-nome-local");
+    const localizacaoEl = document.getElementById("localizacao");
+    if (!localizacaoEl) return; // Sair se o campo de localização não existir
 
-  if (nomeLocal && nomeLocal !== "null" && nomeLocal !== "undefined" && locais.length > 0) {
-    const local = locais.find((l) => l.nomeEspaco == nomeLocal);
+    if (
+      nomeLocal &&
+      nomeLocal !== "null" &&
+      nomeLocal !== "undefined" &&
+      locais.length > 0
+    ) {
+      const local = locais.find((l) => l.nomeEspaco == nomeLocal);
 
-    if (local) {
-      let localizacaoTexto = local.nomeEspaco || "";
-      if (local.armario) localizacaoTexto += ` - Armário ${local.armario}`;
-      if (local.prateleira)
-        localizacaoTexto += `, Prateleira ${local.prateleira}`;
-      if (local.estojo) localizacaoTexto += `, Estojo ${local.estojo}`;
+      if (local) {
+        let localizacaoTexto = local.nomeEspaco || "";
+        if (local.armario) localizacaoTexto += ` - Armário ${local.armario}`;
+        if (local.prateleira)
+          localizacaoTexto += `, Prateleira ${local.prateleira}`;
+        if (local.estojo) localizacaoTexto += `, Estojo ${local.estojo}`;
 
-      document.getElementById("localizacao").value = localizacaoTexto;
-      return;
+        localizacaoEl.value = localizacaoTexto;
+        return;
+      }
     }
-  }
-  document.getElementById("localizacao").value = nomeLocal || "Local não definido";
-});
+    localizacaoEl.value = nomeLocal || "Local não definido";
+  });
+}
 
 async function registrarEmprestimo() {
   const alunoId = alunoSelect.value;
   const ferramentaId = ferramentaSelect.value;
-  const dataDevolucaoInput = document.getElementById("data-devolucao").value;
-  const observacoes = document.getElementById("observacoes").value || "";
+  const dataDevolucaoInputEl = document.getElementById("data-devolucao");
+  const observacoesEl = document.getElementById("observacoes");
+
+  const dataDevolucaoInput = dataDevolucaoInputEl
+    ? dataDevolucaoInputEl.value
+    : null;
+  const observacoes = observacoesEl ? observacoesEl.value : "";
 
   if (!alunoId || !ferramentaId) {
     showFeedback("error", "Por favor, preencha todos os campos obrigatórios!");
@@ -291,9 +340,11 @@ async function registrarEmprestimo() {
   console.log("Dados enviados:", emprestimoData);
 
   try {
-    btnRegistrar.disabled = true;
-    btnRegistrar.innerHTML =
-      '<i class="fas fa-spinner spinner"></i> Registrando...';
+    if (btnRegistrar) {
+      btnRegistrar.disabled = true;
+      btnRegistrar.innerHTML =
+        '<i class="fas fa-spinner spinner"></i> Registrando...';
+    }
 
     const response = await fetch(API_EMPRESTIMOS, {
       method: "POST",
@@ -311,47 +362,76 @@ async function registrarEmprestimo() {
       `Empréstimo registrado com sucesso! ID: ${result.id}`
     );
 
-    alunoSelect.value = "";
-    ferramentaSelect.value = "";
-    document.getElementById("turma").value = "";
-    document.getElementById("localizacao").value = "";
-    document.getElementById("observacoes").value = "";
+    // Resetar campos (com verificações)
+    if (alunoSelect) alunoSelect.value = "";
+    if (ferramentaSelect) ferramentaSelect.value = "";
+
+    const turmaEl = document.getElementById("turma");
+    if (turmaEl) turmaEl.value = "";
+
+    const localizacaoEl = document.getElementById("localizacao");
+    if (localizacaoEl) localizacaoEl.value = "";
+
+    if (observacoesEl) observacoesEl.value = "";
 
     const devolucao = getDataHoraBrasilia();
     devolucao.setDate(devolucao.getDate() + 7);
-    document.getElementById("data-devolucao").value = toISOLocal(devolucao);
+    if (dataDevolucaoInputEl) {
+      dataDevolucaoInputEl.value = toISOLocal(devolucao);
+    }
   } catch (error) {
     console.error("Erro ao registrar empréstimo:", error);
-    if (!error.message.includes("Token") && !error.message.includes("401/403")) {
+    if (
+      !error.message.includes("Token") &&
+      !error.message.includes("401/403")
+    ) {
       showFeedback(
         "error",
         `Erro: ${error.message || "Falha ao registrar empréstimo"}`
       );
     }
   } finally {
-    btnRegistrar.disabled = false;
-    btnRegistrar.innerHTML =
-      '<i class="fas fa-check"></i> Registrar Empréstimo';
+    if (btnRegistrar) {
+      btnRegistrar.disabled = false;
+      btnRegistrar.innerHTML =
+        '<i class="fas fa-check"></i> Registrar Empréstimo';
+    }
   }
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
-  const professorNome = "Administrador";
-  professorNameEl.textContent = professorNome;
-  professorDisplayEl.textContent = professorNome;
+  const professorNome = "Administrador"; // Você pode mudar isso ou pegar de um login
+
+  // Adiciona verificações para todos os elementos que dão 'textContent'
+  if (professorNameEl) professorNameEl.textContent = professorNome;
+  if (professorDisplayEl) professorDisplayEl.textContent = professorNome;
 
   const iniciais = gerarIniciais(professorNome);
-  userAvatar.textContent = iniciais;
+  if (userAvatar) {
+    // <--- Verificação adicionada
+    userAvatar.textContent = iniciais;
+  } else {
+    console.warn("Elemento 'userAvatar' não encontrado.");
+  }
 
   const agoraBrasilia = getDataHoraBrasilia();
-  document.getElementById("data-retirada").value =
-    formatarDataBrasilia(agoraBrasilia);
-  document.getElementById("data-registro").textContent =
-    formatarDataBrasilia(agoraBrasilia);
+
+  const dataRetiradaEl = document.getElementById("data-retirada");
+  if (dataRetiradaEl)
+    dataRetiradaEl.value = formatarDataBrasilia(agoraBrasilia);
+
+  const dataRegistroEl = document.getElementById("data-registro");
+  if (dataRegistroEl) {
+    // <--- Verificação adicionada
+    dataRegistroEl.textContent = formatarDataBrasilia(agoraBrasilia);
+  } else {
+    console.warn("Elemento 'data-registro' não encontrado.");
+  }
 
   const devolucao = getDataHoraBrasilia();
   devolucao.setDate(devolucao.getDate() + 7);
-  document.getElementById("data-devolucao").value = toISOLocal(devolucao);
+  const dataDevolucaoEl = document.getElementById("data-devolucao");
+  if (dataDevolucaoEl) dataDevolucaoEl.value = toISOLocal(devolucao);
 
   try {
     await carregarLocais();
@@ -359,20 +439,29 @@ document.addEventListener("DOMContentLoaded", async function () {
     await carregarFerramentas();
   } catch (error) {
     console.error("Erro na inicialização:", error);
-    if (!error.message.includes("Token") && !error.message.includes("401/403")) {
+    if (
+      !error.message.includes("Token") &&
+      !error.message.includes("401/403")
+    ) {
       showFeedback("error", "Erro ao carregar dados iniciais");
     }
   }
 
-  btnRegistrar.addEventListener("click", registrarEmprestimo);
+  if (btnRegistrar) {
+    btnRegistrar.addEventListener("click", registrarEmprestimo);
+  }
 
-  btnCancelar.addEventListener("click", function () {
-    if (
-      confirm("Deseja realmente cancelar? Todas as alterações serão perdidas.")
-    ) {
-      window.location.href = "Emprestimos.html";
-    }
-  });
+  if (btnCancelar) {
+    btnCancelar.addEventListener("click", function () {
+      if (
+        confirm(
+          "Deseja realmente cancelar? Todas as alterações serão perdidas."
+        )
+      ) {
+        window.location.href = "Emprestimos.html";
+      }
+    });
+  }
 
   console.log(
     "Hora local (São Carlos/Brasília):",
@@ -381,6 +470,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   console.log("Hora atual (objeto Date):", getDataHoraBrasilia().toString());
 });
 
+// Funções globais (se chamadas pelo HTML)
 function navigate(page) {
   window.location.href = `${page}.html`;
 }
@@ -388,6 +478,6 @@ function navigate(page) {
 function logout() {
   if (confirm("Deseja realmente sair do sistema?")) {
     localStorage.removeItem("authToken");
-    window.location.href = "Menu.html";
+    window.location.href = "Menu.html"; // Redireciona para o Menu, não Login
   }
 }
