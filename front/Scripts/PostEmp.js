@@ -2,6 +2,7 @@ const API_BASE = "http://localhost:8080";
 const API_ALUNOS = `${API_BASE}/usuarios/buscar`;
 const API_FERRAMENTAS = `${API_BASE}/ferramentas/buscar`;
 const API_EMPRESTIMOS = `${API_BASE}/emprestimos/novoEmprestimo`;
+const API_EMPRESTIMOS_LISTAR = `${API_BASE}/emprestimos/buscar`; // <-- ADICIONADO
 const API_LOCAIS = `${API_BASE}/locais/buscar`;
 
 let alunos = [];
@@ -16,17 +17,8 @@ const ferramentaSelect = document.getElementById("ferramenta");
 const btnRegistrar = document.getElementById("btn-registrar");
 const btnCancelar = document.getElementById("btn-cancelar");
 
-// =================================================================
-// CORREÇÃO: Definição da variável userAvatar que estava faltando
-// =================================================================
-const userAvatar = document.getElementById("user-avatar"); // <--- ADICIONADO (use o ID correto do seu HTML)
-// =================================================================
+const userAvatar = document.getElementById("user-avatar");
 
-/**
- * Pega o token do localStorage e retorna o cabeçalho de Autorização.
- * @param {boolean} includeContentType - Define se o 'Content-Type: application/json' deve ser incluído
- * @returns {HeadersInit} - Objeto de Headers pronto para o fetch
- */
 function getAuthHeaders(includeContentType = false) {
   const token = localStorage.getItem("authToken");
 
@@ -47,10 +39,6 @@ function getAuthHeaders(includeContentType = false) {
   return headers;
 }
 
-/**
- * Função para tratar erros de resposta da API, especialmente 401/403.
- * @param {Response} response - O objeto de resposta do fetch
- */
 async function handleResponseError(response) {
   if (response.status === 401 || response.status === 403) {
     alert("Acesso negado. Sua sessão pode ter expirado. Faça login novamente.");
@@ -65,7 +53,6 @@ async function handleResponseError(response) {
 }
 
 function showFeedback(type, message) {
-  // Verificação de segurança para garantir que feedbackEl não é nulo
   if (!feedbackEl) {
     console.error("Elemento de feedback (ID 'feedback') não encontrado.");
     return;
@@ -148,7 +135,7 @@ async function carregarAlunos() {
 
     alunos = await response.json();
 
-    if (!alunoSelect) return; // Parar se o elemento não existir
+    if (!alunoSelect) return;
     alunoSelect.innerHTML = '<option value="">Selecione um aluno</option>';
     alunos.forEach((aluno) => {
       const option = document.createElement("option");
@@ -175,7 +162,40 @@ async function carregarAlunos() {
   }
 }
 
-async function carregarFerramentas() {
+/**
+ * NOVO: Busca nomes de ferramentas que estão em empréstimos ativos (sem devolução).
+ * @returns {Set<string>} Um Set com os nomes das ferramentas indisponíveis.
+ */
+async function carregarNomesIndisponiveis() {
+  try {
+    const response = await fetch(API_EMPRESTIMOS_LISTAR, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) await handleResponseError(response);
+    const todosEmprestimos = await response.json();
+
+    const nomesIndisponiveis = new Set();
+    todosEmprestimos.forEach((loan) => {
+      // Se não tem data de devolução, está ativo
+      if (!loan.data_devolucao) {
+        nomesIndisponiveis.add(loan.nomeFerramenta);
+      }
+    });
+    return nomesIndisponiveis;
+  } catch (error) {
+    console.error("Erro ao carregar emprestimos ativos:", error);
+    showFeedback("error", "Erro ao verificar disponibilidade de ferramentas.");
+    return new Set(); // Retorna um Set vazio em caso de falha
+  }
+}
+
+/**
+ * MODIFICADO: Aceita a lista de nomes indisponíveis para desabilitar opções.
+ * @param {Set<string>} nomesIndisponiveis - Nomes das ferramentas a desabilitar.
+ */
+async function carregarFerramentas(nomesIndisponiveis) {
   try {
     const response = await fetch(API_FERRAMENTAS, {
       method: "GET",
@@ -186,14 +206,23 @@ async function carregarFerramentas() {
 
     ferramentas = await response.json();
 
-    if (!ferramentaSelect) return; // Parar se o elemento não existir
+    if (!ferramentaSelect) return;
     ferramentaSelect.innerHTML =
-      '<option value="">Selecione uma ferramenta</option>';
+      '<option value="">Selecione uma ferramenta</option>'; // MODIFICADO: Loop para verificar disponibilidade
+
     ferramentas.forEach((ferramenta) => {
       const option = document.createElement("option");
       option.value = ferramenta.id;
-      option.textContent = `${ferramenta.nome} (${ferramenta.marca})`;
-      option.setAttribute("data-nome-local", ferramenta.nomeLocal);
+
+      if (nomesIndisponiveis.has(ferramenta.nome)) {
+        // Se o nome da ferramenta está na lista de indisponíveis
+        option.textContent = `${ferramenta.nome} (${ferramenta.marca}) - INDISPONÍVEL`;
+        option.disabled = true; // Desabilita a opção
+      } else {
+        // Ferramenta disponível
+        option.textContent = `${ferramenta.nome} (${ferramenta.marca})`;
+        option.setAttribute("data-nome-local", ferramenta.nomeLocal);
+      }
       ferramentaSelect.appendChild(option);
     });
   } catch (error) {
@@ -238,7 +267,6 @@ async function carregarLocais() {
   }
 }
 
-// Adiciona verificações para garantir que os elementos existem
 if (alunoSelect) {
   alunoSelect.addEventListener("change", function () {
     const selectedOption = this.options[this.selectedIndex];
@@ -253,7 +281,7 @@ if (ferramentaSelect) {
     const selectedOption = this.options[this.selectedIndex];
     const nomeLocal = selectedOption.getAttribute("data-nome-local");
     const localizacaoEl = document.getElementById("localizacao");
-    if (!localizacaoEl) return; // Sair se o campo de localização não existir
+    if (!localizacaoEl) return;
 
     if (
       nomeLocal &&
@@ -362,7 +390,6 @@ async function registrarEmprestimo() {
       `Empréstimo registrado com sucesso! ID: ${result.id}`
     );
 
-    // Resetar campos (com verificações)
     if (alunoSelect) alunoSelect.value = "";
     if (ferramentaSelect) ferramentaSelect.value = "";
 
@@ -400,15 +427,13 @@ async function registrarEmprestimo() {
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
-  const professorNome = "Administrador"; // Você pode mudar isso ou pegar de um login
+  const professorNome = "Administrador";
 
-  // Adiciona verificações para todos os elementos que dão 'textContent'
   if (professorNameEl) professorNameEl.textContent = professorNome;
   if (professorDisplayEl) professorDisplayEl.textContent = professorNome;
 
   const iniciais = gerarIniciais(professorNome);
   if (userAvatar) {
-    // <--- Verificação adicionada
     userAvatar.textContent = iniciais;
   } else {
     console.warn("Elemento 'userAvatar' não encontrado.");
@@ -422,7 +447,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   const dataRegistroEl = document.getElementById("data-registro");
   if (dataRegistroEl) {
-    // <--- Verificação adicionada
     dataRegistroEl.textContent = formatarDataBrasilia(agoraBrasilia);
   } else {
     console.warn("Elemento 'data-registro' não encontrado.");
@@ -434,9 +458,18 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (dataDevolucaoEl) dataDevolucaoEl.value = toISOLocal(devolucao);
 
   try {
-    await carregarLocais();
-    await carregarAlunos();
-    await carregarFerramentas();
+    // MODIFICADO: Roda em paralelo e espera o resultado
+    const locaisPromise = carregarLocais();
+    const alunosPromise = carregarAlunos();
+    const nomesIndisponiveisPromise = carregarNomesIndisponiveis(); // Espera tudo terminar
+
+    const [_, __, nomesIndisponiveis] = await Promise.all([
+      locaisPromise,
+      alunosPromise,
+      nomesIndisponiveisPromise,
+    ]); // Carrega ferramentas passando os nomes indisponíveis
+
+    await carregarFerramentas(nomesIndisponiveis);
   } catch (error) {
     console.error("Erro na inicialização:", error);
     if (
@@ -470,7 +503,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   console.log("Hora atual (objeto Date):", getDataHoraBrasilia().toString());
 });
 
-// Funções globais (se chamadas pelo HTML)
 function navigate(page) {
   window.location.href = `${page}.html`;
 }
@@ -478,6 +510,6 @@ function navigate(page) {
 function logout() {
   if (confirm("Deseja realmente sair do sistema?")) {
     localStorage.removeItem("authToken");
-    window.location.href = "Menu.html"; // Redireciona para o Menu, não Login
+    window.location.href = "Menu.html";
   }
 }
