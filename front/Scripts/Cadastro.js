@@ -405,13 +405,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const responseData = await response.json();
 
       // Check de sucesso no cadastro
-      if (response.status === 200 && responseData.token) {
+      if (response.status === 200) {
         showFeedback("success", "Cadastro completado com sucesso!");
 
         // --- CORREÇÃO ---
-        // Salva o token para que a próxima página (Usuarios.js) funcione
-        localStorage.setItem("authToken", responseData.token);
-
         // Salva o username também, pois vi que seu Usuarios.js tenta pegar ele
         const usernameCadastrado = usernameInput.value.trim();
         localStorage.setItem("username", usernameCadastrado);

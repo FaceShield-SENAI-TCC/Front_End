@@ -69,35 +69,7 @@ let isScanning = false;
 // Cache de locais
 let locaisCache = [];
 
-// ==================== FUNÇÕES DE AUTENTICAÇÃO (ADICIONADAS) ====================
-
-/**
- * Pega o token do localStorage e retorna o cabeçalho de Autorização.
- * Se o token não existir, lança um erro e redireciona para o login.
- * @param {boolean} includeContentType - Define se o 'Content-Type: application/json' deve ser incluído
- * @returns {HeadersInit} - Objeto de Headers pronto para o fetch
- */
-function getAuthHeaders(includeContentType = false) {
-  // Pega o token que foi salvo no login
-  const token = localStorage.getItem('authToken');
-
-  if (!token) {
-    alert("Sessão expirada ou usuário não logado.");
-    // ATENÇÃO: Ajuste a URL abaixo para a sua página de login de professor
-    window.location.href = '../Login/LoginProfessor.html'; // Exemplo
-    throw new Error("Token não encontrado. Redirecionando para login.");
-  }
-
-  const headers = {
-    'Authorization': `Bearer ${token}`
-  };
-
-  if (includeContentType) {
-    headers['Content-Type'] = 'application/json';
-  }
-
-  return headers;
-}
+// ==================== FUNÇÕES DE AUTENTICAÇÃO (REMOVIDAS) ====================
 
 /**
  * Função para tratar erros de resposta da API, especialmente 401/403.
@@ -427,8 +399,7 @@ async function loadLocais() {
 
     // <-- MODIFICADO: Adiciona headers de autenticação
     const response = await fetch(locais_get, {
-      method: 'GET',
-      headers: getAuthHeaders()
+      method: 'GET'
     });
 
     // <-- MODIFICADO: Usa handleResponseError
@@ -464,8 +435,7 @@ async function loadFerramentas() {
   try {
     // <-- MODIFICADO: Adiciona headers de autenticação
     const response = await fetch(Ferramenta_GET, {
-      method: 'GET',
-      headers: getAuthHeaders()
+      method: 'GET'
     });
     
     // <-- MODIFICADO: Usa handleResponseError
@@ -703,8 +673,7 @@ async function openEditToolModal(id) {
     showLoading(true);
     // <-- MODIFICADO: Adiciona headers de autenticação
     const response = await fetch(`${Ferramenta_GET}/${id}`, {
-      method: 'GET',
-      headers: getAuthHeaders()
+      method: 'GET'
     });
     
     // <-- MODIFICADO: Usa handleResponseError
@@ -782,7 +751,6 @@ async function saveTool() {
     // <-- MODIFICADO: Adiciona headers de autenticação (com Content-Type)
     response = await fetch(url, {
       method: method,
-      headers: getAuthHeaders(true), // true para 'application/json'
       body: JSON.stringify(toolData),
     });
 
@@ -814,8 +782,7 @@ async function deleteTool(id) {
       showLoading(true);
       // <-- MODIFICADO: Adiciona headers de autenticação
       const response = await fetch(`${Ferramenta_DELETE}/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeaders()
+        method: "DELETE"
       });
 
       // <-- MODIFICADO: Usa handleResponseError

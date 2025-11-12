@@ -19,15 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (response.ok) {
         const data = await response.json();
 
-        if (data.token) {
-          localStorage.setItem("authToken", data.token);
-          localStorage.setItem("username", data.username);
-          localStorage.setItem("id", data.id);
-
-          window.location.href = "/front/Html/Menu.html";
-        } else {
-          alert("Erro: Token não recebido do servidor.");
-        }
+        localStorage.setItem("id", data.id);
+        window.location.href = "/front/Html/Menu.html";
       } else {
         alert("Usuário ou senha inválidos.");
       }

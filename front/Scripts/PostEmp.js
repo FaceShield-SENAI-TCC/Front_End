@@ -19,26 +19,6 @@ const btnCancelar = document.getElementById("btn-cancelar");
 
 const userAvatar = document.getElementById("user-avatar");
 
-function getAuthHeaders(includeContentType = false) {
-  const token = localStorage.getItem("authToken");
-
-  if (!token) {
-    alert("Sessão expirada ou usuário não logado.");
-    window.location.href = "/front/Html/Login.html";
-    throw new Error("Token não encontrado. Redirecionando para login.");
-  }
-
-  const headers = {
-    Authorization: `Bearer ${token}`,
-  };
-
-  if (includeContentType) {
-    headers["Content-Type"] = "application/json";
-  }
-
-  return headers;
-}
-
 async function handleResponseError(response) {
   if (response.status === 401 || response.status === 403) {
     alert("Acesso negado. Sua sessão pode ter expirado. Faça login novamente.");
@@ -128,7 +108,6 @@ async function carregarAlunos() {
   try {
     const response = await fetch(API_ALUNOS, {
       method: "GET",
-      headers: getAuthHeaders(),
     });
 
     if (!response.ok) await handleResponseError(response);
@@ -170,7 +149,6 @@ async function carregarNomesIndisponiveis() {
   try {
     const response = await fetch(API_EMPRESTIMOS_LISTAR, {
       method: "GET",
-      headers: getAuthHeaders(),
     });
 
     if (!response.ok) await handleResponseError(response);
@@ -199,7 +177,6 @@ async function carregarFerramentas(nomesIndisponiveis) {
   try {
     const response = await fetch(API_FERRAMENTAS, {
       method: "GET",
-      headers: getAuthHeaders(),
     });
 
     if (!response.ok) await handleResponseError(response);
@@ -247,7 +224,6 @@ async function carregarLocais() {
   try {
     const response = await fetch(API_LOCAIS, {
       method: "GET",
-      headers: getAuthHeaders(),
     });
 
     if (!response.ok) await handleResponseError(response);
@@ -376,7 +352,6 @@ async function registrarEmprestimo() {
 
     const response = await fetch(API_EMPRESTIMOS, {
       method: "POST",
-      headers: getAuthHeaders(true),
       body: JSON.stringify(emprestimoData),
     });
 

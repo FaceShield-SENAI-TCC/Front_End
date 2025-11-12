@@ -42,30 +42,6 @@ let currentLoanId = null;
 let allTools = [];
 let allLocals = [];
 
-/**
- * Pega o token do localStorage e retorna o cabeçalho de Autorização.
- * @param {boolean} includeContentType - Define se o 'Content-Type: application/json' deve ser incluído
- * @returns {HeadersInit} - Objeto de Headers pronto para o fetch
- */
-function getAuthHeaders(includeContentType = false) {
-  const token = localStorage.getItem("authToken");
-
-  if (!token) {
-    alert("Sessão expirada ou usuário não logado.");
-    throw new Error("Token não encontrado. Redirecionando para login.");
-  }
-
-  const headers = {
-    Authorization: `Bearer ${token}`,
-  };
-
-  if (includeContentType) {
-    headers["Content-Type"] = "application/json";
-  }
-  console.log("Token: ", token);
-  console.log(`Headers: ${headers}`);
-  return headers;
-}
 
 /**
  * Função para tratar erros de resposta da API, especialmente 401/403.
@@ -115,13 +91,11 @@ async function loadAllData() {
     showFeedback("Carregando dados...", "success");
     loansTableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 20px;"><div style="display: inline-block; margin-right: 10px;" class="loading"></div>Carregando empréstimos...</td></tr>`;
 
-    const authHeaders = getAuthHeaders();
-
     // Carrega todos os dados necessários em paralelo
     const [loansResponse, toolsResponse, localsResponse] = await Promise.all([
-      fetch(EMPRESTIMOS_API, { headers: authHeaders }),
-      fetch(FERRAMENTAS_API, { headers: authHeaders }),
-      fetch(LOCAIS_API, { headers: authHeaders }),
+      fetch(EMPRESTIMOS_API),
+      fetch(FERRAMENTAS_API),
+      fetch(LOCAIS_API),
     ]);
 
     if (!loansResponse.ok) await handleResponseError(loansResponse);
@@ -174,7 +148,6 @@ async function finalizarEmprestimo(loanId) {
       `${FINALIZAR_EMPRESTIMO_API}/${loanId}?${params}`,
       {
         method: "PUT",
-        headers: getAuthHeaders(true),
       }
     );
 

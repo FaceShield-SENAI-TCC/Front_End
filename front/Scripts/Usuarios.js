@@ -5,37 +5,6 @@ const API_POST = `${API_BASE}/novoUsuario`;
 const API_PUT = `${API_BASE}/editar`;
 const API_DELETE = `${API_BASE}/deletar`;
 
-/**
- * Pega o token do localStorage e retorna o cabeçalho de Autorização.
- * Se o token não existir, lança um erro e redireciona para o login.
- * @param {boolean} includeContentType - Define se o 'Content-Type: application/json' deve ser incluído (padrão: false)
- * @returns {HeadersInit} - Objeto de Headers pronto para o fetch
- */
-
-function getAuthHeaders(includeContentType = false) {
-  // Pega o token que foi salvo no login
-  const token = localStorage.getItem("authToken");
-  const usuario = localStorage.getItem("username");
-  const id = localStorage.getItem("id");
-  console.log("Token recuperado:", token);
-  console.log(`Username do Token: ${usuario}`);
-  console.log(`ID do Token: ${id}`);
-  if (!token) {
-    alert("Sessão expirada ou usuário não logado.");
-    window.location.href = "/front/Html/Login.html"; // Redireciona para a página de login
-    throw new Error("Token não encontrado. Redirecionando para login.");
-  }
-
-  const headers = {
-    Authorization: `Bearer ${token}`,
-  };
-
-  if (includeContentType) {
-    headers["Content-Type"] = "application/json";
-  }
-
-  return headers;
-}
 
 /**
  * Função para tratar erros de resposta da API, especialmente 401/403.
@@ -62,7 +31,6 @@ const alunoService = {
     try {
       const response = await fetch(API_GET, {
         method: "GET",
-        headers: getAuthHeaders(),
       });
       if (!response.ok) await handleResponseError(response);
       return await response.json();
@@ -78,7 +46,6 @@ const alunoService = {
     try {
       const response = await fetch(`${API_GET}/${id}`, {
         method: "GET",
-        headers: getAuthHeaders(), 
       });
       if (!response.ok) await handleResponseError(response);
       return await response.json();
@@ -97,7 +64,6 @@ const alunoService = {
 
       const response = await fetch(url, {
         method: method,
-        headers: getAuthHeaders(true),
         body: JSON.stringify(aluno),
       });
 
@@ -115,7 +81,6 @@ const alunoService = {
     try {
       const response = await fetch(`${API_DELETE}/${id}`, {
         method: "DELETE",
-        headers: getAuthHeaders(),
       });
 
       if (!response.ok) await handleResponseError(response);
@@ -133,7 +98,6 @@ const alunoService = {
       // Adiciona o termo de busca como query parameter
       const response = await fetch(`${API_GET}?search=${term}`, {
         method: "GET",
-        headers: getAuthHeaders(),
       });
 
       if (!response.ok) await handleResponseError(response);

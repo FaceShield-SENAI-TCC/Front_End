@@ -29,31 +29,6 @@ const loadingOverlay = document.getElementById("loading-overlay");
 
 // Variável para armazenar os locais
 let locations = [];
-/**
- * Pega o token do localStorage e retorna o cabeçalho de Autorização.
- * Se o token não existir, lança um erro e redireciona para o login.
- * @param {boolean} includeContentType - Define se o 'Content-Type: application/json' deve ser incluído
- * @returns {HeadersInit} - Objeto de Headers pronto para o fetch
- */
-function getAuthHeaders(includeContentType = false) {
-  const token = localStorage.getItem('authToken');
-console.log("Token", token);
-  if (!token) {
-    alert("Sessão expirada ou usuário não logado.");
-    window.location.href = '/front/Html/Login.html';
-    throw new Error("Token não encontrado. Redirecionando para login.");
-  }
-
-  const headers = {
-    'Authorization': `Bearer ${token}`
-  };
-
-  if (includeContentType) {
-    headers['Content-Type'] = 'application/json';
-  }
-
-  return headers;
-}
 
 /**
  * Função para tratar erros de resposta da API, especialmente 401/403.
@@ -102,8 +77,7 @@ async function fetchLocations() {
   showLoading(true);
   try {
     const response = await fetch(API_URL, {
-      method: 'GET',
-      headers: getAuthHeaders() //Adiciona token
+      method: 'GET'
     });
 
     if (!response.ok) {
@@ -323,7 +297,6 @@ async function saveLocation() {
 
     const response = await fetch(url, {
       method: method,
-      headers: getAuthHeaders(true),
       body: JSON.stringify(localData),
     });
 
@@ -362,8 +335,7 @@ async function deleteLocation(id) {
   showLoading(true);
   try {
     const response = await fetch(`${API_DELETE}/${id}`, {
-      method: "DELETE",
-      headers: getAuthHeaders() 
+      method: "DELETE"
     });
 
     if (!response.ok) {
