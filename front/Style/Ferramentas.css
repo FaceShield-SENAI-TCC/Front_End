@@ -15,10 +15,10 @@ body {
 .container {
   display: flex;
   min-height: 100vh;
-  flex-direction: column;
+  /* Removido flex-direction: column para manter o layout side-by-side no desktop */
 }
 
-/* Menu Lateral */
+/* Menu Lateral (Desktop: Fixo e Vertical) */
 .sidebar {
   width: 250px;
   background: linear-gradient(135deg, #2c3e50, #1a2530);
@@ -63,7 +63,7 @@ body {
   font-size: 1.2rem;
 }
 
-/* Conteúdo Principal */
+/* Conteúdo Principal (Desktop: Afastado pela sidebar fixa) */
 .main-content {
   flex: 1;
   padding: 30px;
@@ -570,27 +570,12 @@ body {
   text-align: center;
 }
 
-/* Menu Mobile */
+/* Menu Mobile: Este botão era para o menu deslizante e será desativado */
 .mobile-menu-btn {
   display: none;
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background: #3498db;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  width: 50px;
-  height: 50px;
-  z-index: 101;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* Responsividade */
+/* Responsividade (Desktop/Tablet) */
 @media (max-width: 1200px) {
   .sidebar {
     width: 220px;
@@ -629,39 +614,74 @@ body {
   }
 }
 
+/* --- INÍCIO: REGRAS MOBILE COPIADAS DE USUARIOS.CSS (BARRA HORIZONTAL) --- */
 @media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
-    width: 280px;
-    z-index: 1001; /* Garante que o sidebar fique sobre o conteúdo */
+  .container {
+    flex-direction: column;
   }
 
-  .sidebar.active {
-    transform: translateX(0);
-    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+  .sidebar {
+    width: 100%;
+    height: auto;
+    /* Anula as propriedades de position: fixed e transform do desktop */
+    position: static;
+    transform: none;
+
+    display: flex;
+    flex-direction: row; /* Layout Horizontal */
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .logo {
+    padding: 0;
+    margin: 0;
+    border: none;
+  }
+
+  /* Ajuste de destaque de item ativo para barra inferior, como em Usuarios.css */
+  .menu-item {
+    border-left: none;
+    padding: 10px 15px;
+  }
+
+  .menu-item:hover,
+  .menu-item.active {
+    border-left: none;
+    border-bottom: 4px solid #e74c3c;
+    background-color: transparent;
   }
 
   .main-content {
+    /* Anula o margin-left do desktop */
     margin-left: 0;
     padding: 15px;
   }
 
+  /* Oculta o botão de menu mobile que não é mais necessário */
   .mobile-menu-btn {
-    display: flex;
+    display: none;
   }
 
   .header {
-    margin-top: 60px; /* Espaço para o botão do menu */
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    margin-top: 0; /* Remove o espaçamento superior desnecessário do menu deslizante */
   }
 
   .form-row {
     flex-direction: column;
-    gap: 0; /* Remove o gap para usar o margin do form-group */
+    gap: 0;
   }
 
   .action-buttons {
     flex-direction: column;
     width: 100%;
+    gap: 10px;
   }
 
   .btn {
@@ -669,25 +689,21 @@ body {
     justify-content: center;
   }
 
-  /* Melhorias para modal em mobile */
-  .modal {
-    padding: 10px;
-    align-items: center;
-  }
-
-  .modal-content {
-    max-width: 95vw;
-    margin-top: 10px;
-  }
-
-  .modal-footer {
+  .search-section {
     flex-direction: column;
+    padding: 15px;
   }
 
-  .modal-footer .btn {
-    width: 100%;
+  /* Tabela Responsiva - Mantido o bloco de Ferramentas.css (alternar para cards) */
+  .tools-table {
+    display: none;
+  }
+
+  .tools-cards {
+    display: flex;
   }
 }
+/* --- FIM: REGRAS MOBILE DE USUARIOS.CSS (BARRA HORIZONTAL) --- */
 
 @media (max-height: 600px) {
   .modal-body {
@@ -697,6 +713,13 @@ body {
 }
 
 @media (max-width: 480px) {
+  /* Regra de 480px de Usuarios.css (sidebar vertical novamente) */
+  .sidebar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px;
+  }
+
   .header {
     flex-direction: column;
     gap: 15px;
@@ -718,7 +741,8 @@ body {
     font-size: 1.3rem;
   }
 
-  .modal-body {
+  .modal-body,
+  .modal-footer {
     padding: 15px;
   }
 
@@ -736,7 +760,7 @@ body {
     display: none;
   }
 }
-/* Garantir que o vídeo seja visível */
+/* Garantir que o vídeo seja visível (MANTIDO) */
 #qr-video {
   width: 100%;
   height: 300px;
@@ -746,12 +770,12 @@ body {
   object-fit: cover; /* Isso garante que o vídeo preencha o container */
 }
 
-/* Indicador de que a câmera está ativa */
+/* Indicador de que a câmera está ativa (MANTIDO) */
 .scanner-active {
   box-shadow: 0 0 20px rgba(0, 224, 255, 0.5);
 }
 
-/* Mensagens de status */
+/* Mensagens de status (MANTIDO) */
 #scan-result {
   margin: 15px 0;
   font-weight: bold;
@@ -759,7 +783,7 @@ body {
   text-align: center;
 }
 
-/* Loading durante inicialização */
+/* Loading durante inicialização (MANTIDO) */
 .scanner-loading {
   display: flex;
   justify-content: center;
@@ -786,17 +810,7 @@ body {
   }
 }
 
-/* Alternar entre tabela e cards */
-@media (max-width: 768px) {
-  .tools-table {
-    display: none;
-  }
-
-  .tools-cards {
-    display: flex;
-  }
-}
-
+/* Alternar entre tabela e cards (MANTIDO) */
 @media (min-width: 769px) {
   .tools-table {
     display: table;

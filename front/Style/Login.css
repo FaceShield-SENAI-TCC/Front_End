@@ -317,7 +317,8 @@ h1 {
     font-size: 1rem;
   }
 
-  .buttonVoltar, .buttonProfessor {
+  .buttonVoltar,
+  .buttonProfessor {
     padding: 12px 15px;
     font-size: 0.9rem;
   }
