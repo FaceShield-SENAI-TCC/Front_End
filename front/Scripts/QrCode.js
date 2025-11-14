@@ -89,7 +89,7 @@ function mostrarFeedback(texto, tipo) {
 function mostrarLoading(mostrar) {
   loadingOverlay.style.display = mostrar ? "grid" : "none";
 }
-
+//console.log(token);
 window.addEventListener("DOMContentLoaded", () => {
   iniciarCamera();
 
