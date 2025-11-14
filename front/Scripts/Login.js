@@ -4,7 +4,6 @@ const feedback = document.getElementById("feedback");
 let recognitionInterval;
 let isProcessing = false;
 
-// Função para mostrar feedback ao usuário
 function showFeedback(tipo, mensagemTexto) {
   if (!feedback) return;
 
@@ -21,7 +20,6 @@ function showFeedback(tipo, mensagemTexto) {
   }, 5000);
 }
 
-// Função para mostrar/ocultar o loading
 function toggleLoading(show) {
   const loadingOverlay = document.querySelector(".loading-overlay");
   if (loadingOverlay) {
@@ -41,7 +39,6 @@ async function iniciarCamera() {
     video.srcObject = stream;
     mensagem.textContent = "Câmera ativada, aguardando reconhecimento...";
 
-    // Iniciar o reconhecimento facial após a câmera estar funcionando
     setTimeout(iniciarReconhecimentoFacial, 1000);
   } catch (error) {
     mensagem.textContent = "Não foi possível ativar a câmera.";
@@ -51,12 +48,10 @@ async function iniciarCamera() {
 }
 
 function iniciarReconhecimentoFacial() {
-  // Parar qualquer intervalo anterior
   if (recognitionInterval) {
     clearInterval(recognitionInterval);
   }
 
-  // Verificar a cada 3 segundos
   recognitionInterval = setInterval(() => {
     if (!isProcessing) {
       capturarEReconhecer();
@@ -70,26 +65,62 @@ function capturarEReconhecer() {
   isProcessing = true;
   mensagem.textContent = "Processando reconhecimento...";
 
-  // Criar um canvas para capturar o frame atual
   const canvas = document.createElement("canvas");
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   const ctx = canvas.getContext("2d");
 
-  // Desenhar a imagem do vídeo no canvas
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  // Converter para base64
   const imageData = canvas.toDataURL("image/jpeg");
 
-  // Enviar para o servidor para reconhecimento
   reconhecerFace(imageData);
+}
+
+function registrarLoginFacial(username, id) {
+  const URL_REGISTRO = "http://localhost:8080/auth/generate-token";
+
+  console.log(`Registrando evento de login para: ${username} (ID: ${id})`);
+
+  fetch(URL_REGISTRO, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      username: username,
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        console.warn(
+          `Não foi possível registrar o evento de login. Status: ${response.status}`
+        );
+        return Promise.reject(
+          `Erro ${response.status}: ${response.statusText}`
+        );
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Token recebido:", data);
+
+      if (data.token) {
+        localStorage.setItem("authToken", data.token);
+        localStorage.setItem("username", username);
+        localStorage.setItem("id", id);
+        console.log("authToken, Username e ID salvos no localStorage.");
+      } else {
+        console.warn("Token não encontrado na resposta do backend Java.");
+      }
+    })
+    .catch((error) => {
+      console.error("Erro ao registrar evento de login:", error);
+    });
 }
 
 function reconhecerFace(imageData) {
   toggleLoading(true);
-
-  // Enviar a imagem para o servidor
 
   fetch("http://localhost:5005/face-login", {
     method: "POST",
@@ -100,20 +131,31 @@ function reconhecerFace(imageData) {
   })
     .then((response) => response.json())
     .then((data) => {
+      console.log("Resposta completa do Python:", data);
+
       toggleLoading(false);
       isProcessing = false;
 
       if (data.authenticated) {
-        mensagem.textContent = `Bem-vindo, ${data.user}!`;
+        const username = data.user_info.username;
+        const tipoUsuario = data.tipo_usuario;
+        const id = data.user_info.id;
+
+        mensagem.textContent = `Bem-vindo, ${username}!`;
         showFeedback(
           "success",
-          `Login realizado com sucesso! Bem-vindo, ${data.user}.`
+          `Login realizado com sucesso! Bem-vindo, ${username}.`
         );
 
-        // Redirecionar após login bem-sucedido
+        registrarLoginFacial(username, id);
+
         setTimeout(() => {
-          window.location.href = "/front/Html/Menu.html";
-        });
+          if (tipoUsuario === "PROFESSOR") {
+            window.location.href = "/front/Html/Menu.html";
+          } else {
+            window.location.href = "/front/Html/QrCode.html";
+          }
+        }, 1500);
       } else {
         mensagem.textContent =
           data.message || "Usuário não reconhecido. Tente novamente.";
@@ -132,10 +174,8 @@ function reconhecerFace(imageData) {
     });
 }
 
-// Iniciar a câmera quando a página carregar
 window.addEventListener("load", iniciarCamera);
 
-// Parar a câmera quando a página for fechada
 window.addEventListener("beforeunload", () => {
   if (recognitionInterval) {
     clearInterval(recognitionInterval);

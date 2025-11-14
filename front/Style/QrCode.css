@@ -123,8 +123,7 @@ h1 {
   color: var(--primary-color);
 }
 
-.buttonVoltar {
-  text-decoration: none;
+.botao {
   color: white;
   background-color: red;
   padding: 10px 20px;
@@ -134,8 +133,12 @@ h1 {
   transition: all 0.3s ease;
   box-shadow: red;
 }
+.botao a {
+  text-decoration: none;
+  color: white;
+}
 
-.buttonVoltar:hover {
+.botao:hover {
   background-color: rgb(204, 32, 32);
   box-shadow: red;
 }
@@ -238,7 +241,7 @@ h1 {
     font-size: 1.8rem;
   }
 
-  .botaoProf {
+  .botao {
     flex-direction: column;
     align-items: center;
     width: 100%;
@@ -246,7 +249,7 @@ h1 {
     gap: 1rem;
   }
 
-  .buttonProfessor {
+  .botao {
     width: 80%;
     text-align: center;
   }
@@ -272,7 +275,7 @@ h1 {
     font-size: 1rem;
   }
 
-  .buttonVoltar {
+  .botao {
     padding: 12px 15px;
     font-size: 0.9rem;
   }
