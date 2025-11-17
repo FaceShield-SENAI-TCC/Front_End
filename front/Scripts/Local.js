@@ -37,7 +37,7 @@ let locations = [];
  */
 function getAuthHeaders(includeContentType = false) {
   const token = localStorage.getItem("authToken");
-  console.log("Token", token);
+ // console.log("Token", token);
   if (!token) {
     alert("Sessão expirada ou usuário não logado.");
     window.location.href = "/front/Html/Login.html";

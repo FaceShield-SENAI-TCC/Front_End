@@ -62,8 +62,8 @@ function getAuthHeaders(includeContentType = false) {
   if (includeContentType) {
     headers["Content-Type"] = "application/json";
   }
-  console.log("Token: ", token);
-  console.log(`Headers: ${headers}`);
+  //console.log("Token: ", token);
+ // console.log(`Headers: ${headers}`);
   return headers;
 }
 

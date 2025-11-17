@@ -8,9 +8,9 @@ function getAuthHeaders(includeContentType = false) {
   const token = localStorage.getItem("authToken");
   const usuario = localStorage.getItem("username");
   const id = localStorage.getItem("id");
-  console.log("Token recuperado:", token);
-  console.log(`Username do Token: ${usuario}`);
-  console.log(`ID do Token: ${id}`);
+  //console.log("Token recuperado:", token);
+  //console.log(`Username do Token: ${usuario}`);
+  // console.log(`ID do Token: ${id}`);
   if (!token) {
     alert("Sessão expirada ou usuário não logado.");
     window.location.href = "/front/Html/Login.html";
