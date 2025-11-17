@@ -14,7 +14,6 @@
   </head>
   <body>
     <div class="container">
-      <!-- Menu Lateral -->
       <div class="sidebar">
         <div class="logo">
           <h2><i class="fas fa-tools"></i> Controle de Ferramentas</h2>
@@ -43,25 +42,32 @@
         </div>
       </div>
 
-      <!-- Conteúdo Principal - Página de Ferramentas -->
       <div class="main-content">
-        <div class="header" onclick="window.location.href='Menu.html'">
+        <div class="header">
           <h1 class="page-title">
             <i class="fas fa-toolbox"></i> Ferramentas Cadastradas
           </h1>
-          <button class="logout-btn">
-            <i class="fas fa-sign-out-alt"></i> Sair para Menu
-          </button>
+
+          <div class="header-buttons">
+            <button class="btn" id="theme-toggle-btn">
+              <i class="fas fa-moon"></i>
+            </button>
+
+            <button
+              class="logout-btn"
+              onclick="window.location.href='Menu.html'"
+            >
+              <i class="fas fa-sign-out-alt"></i> Sair para Menu
+            </button>
+          </div>
         </div>
 
-        <!-- Botões de Ação -->
         <div class="action-buttons">
           <button class="btn btn-primary" id="add-tool-btn">
             <i class="fas fa-plus"></i> Adicionar Ferramenta
           </button>
         </div>
 
-        <!-- Filtros e Pesquisa -->
         <div class="search-section">
           <div class="search-group">
             <i class="fas fa-search"></i>
@@ -73,7 +79,6 @@
           </div>
         </div>
 
-        <!-- Tabela de Ferramentas -->
         <div class="tools-container">
           <table class="tools-table">
             <thead>
@@ -90,18 +95,12 @@
                 <th>Ações</th>
               </tr>
             </thead>
-            <tbody id="tools-table-body">
-              <!-- Dados serão carregados via JavaScript -->
-            </tbody>
+            <tbody id="tools-table-body"></tbody>
           </table>
         </div>
 
-        <!-- Cards de Ferramentas (Mobile) -->
-        <div class="tools-cards" id="tools-cards">
-          <!-- Dados serão carregados via JavaScript -->
-        </div>
+        <div class="tools-cards" id="tools-cards"></div>
 
-        <!-- Modal para Adicionar/Editar Ferramenta -->
         <div id="tool-modal" class="modal">
           <div class="modal-content">
             <div class="modal-header">

@@ -460,4 +460,65 @@ window.addEventListener("click", (event) => {
   }
 });
 
-document.addEventListener("DOMContentLoaded", loadAllData);
+// === BLOCO DO DOMCONTENTLOADED ATUALIZADO ===
+document.addEventListener("DOMContentLoaded", function () {
+  // === LÓGICA DO DARK MODE ADICIONADA AQUI ===
+  const themeToggleBtn = document.getElementById("theme-toggle-btn");
+  const body = document.body;
+
+  if (themeToggleBtn) {
+    const icon = themeToggleBtn.querySelector("i");
+
+    // Função para aplicar o tema (claro ou escuro)
+    function aplicarTema(tema) {
+      if (tema === "dark") {
+        body.classList.add("dark-mode");
+        if (icon) {
+          icon.classList.remove("fa-moon");
+          icon.classList.add("fa-sun");
+        }
+      } else {
+        body.classList.remove("dark-mode");
+        if (icon) {
+          icon.classList.remove("fa-sun");
+          icon.classList.add("fa-moon");
+        }
+      }
+    }
+
+    // Verificar se já existe um tema salvo no localStorage
+    const temaSalvo = localStorage.getItem("theme");
+
+    if (temaSalvo) {
+      aplicarTema(temaSalvo);
+    } else {
+      // Opcional: Checar preferência do sistema
+      const prefereEscuro =
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (prefereEscuro) {
+        aplicarTema("dark");
+      } else {
+        aplicarTema("light");
+      }
+    }
+
+    // Adicionar o evento de clique ao botão
+    themeToggleBtn.addEventListener("click", () => {
+      // Verifica se o body JÁ TEM a classe dark-mode
+      if (body.classList.contains("dark-mode")) {
+        // Se sim, troca para light
+        aplicarTema("light");
+        localStorage.setItem("theme", "light"); // Salva a escolha
+      } else {
+        // Se não, troca para dark
+        aplicarTema("dark");
+        localStorage.setItem("theme", "dark"); // Salva a escolha
+      }
+    });
+  }
+  // === FIM DA LÓGICA DO DARK MODE ===
+
+  // --- O RESTO DO SEU CÓDIGO ORIGINAL CONTINUA ABAIXO ---
+  loadAllData();
+});

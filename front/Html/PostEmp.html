@@ -14,10 +14,11 @@
   </head>
   <body>
     <div class="container">
-      <!-- Menu Lateral -->
       <div class="sidebar">
         <div class="logo">
-          <h2><i class="fas fa-tools"></i> <span>Fazer Empréstimos</span></h2>
+          <h2>
+            <i class="fas fa-plus-circle"></i> <span>Fazer Empréstimos</span>
+          </h2>
         </div>
         <div class="menu-item" onclick="window.location.href='Usuarios.html'">
           <i class="fas fa-user"></i> <span>Usuários</span>
@@ -48,18 +49,28 @@
         </div>
       </div>
 
-      <!-- Conteúdo Principal -->
       <div class="main-content">
         <div class="header">
           <h1 class="page-title">
             <i class="fas fa-hand-holding-usd"></i> Novo Empréstimo
           </h1>
+
+          <div class="header-buttons">
+            <button class="btn" id="theme-toggle-btn">
+              <i class="fas fa-moon"></i>
+            </button>
+
+            <button
+              class="logout-btn"
+              onclick="window.location.href='Menu.html'"
+            >
+              <i class="fas fa-sign-out-alt"></i> Sair para Menu
+            </button>
+          </div>
         </div>
 
-        <!-- Mensagens de Feedback -->
         <div id="feedback" class="feedback"></div>
 
-        <!-- Formulário de Empréstimo -->
         <div class="form-container">
           <h2 class="form-section-title">
             <i class="fas fa-user"></i> Dados do Emprestimo
@@ -131,29 +142,6 @@
               placeholder="Informações adicionais sobre o empréstimo"
             ></textarea>
           </div>
-
-          <div class="status-box">
-            <div class="status-title">
-              <i class="fas fa-info-circle"></i> Informações do Registro
-            </div>
-            <div class="status-item">
-              <span class="status-label">Professor Responsável:</span>
-              <span class="status-value" id="professor-display"></span>
-            </div>
-            <div class="status-item">
-              <span class="status-label">Data/Hora do Registro:</span>
-              <span class="status-value" id="data-registro"></span>
-            </div>
-            <div class="status-item">
-              <span class="status-label">Status:</span>
-              <span
-                class="status-value"
-                style="color: #27ae60; font-weight: bold"
-                >Emprestado</span
-              >
-            </div>
-          </div>
-
           <div class="form-actions">
             <button type="button" class="btn btn-cancel" id="btn-cancelar">
               <i class="fas fa-times"></i> Cancelar

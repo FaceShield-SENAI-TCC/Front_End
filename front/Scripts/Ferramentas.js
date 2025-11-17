@@ -30,7 +30,6 @@ const Ferramenta_GET_BY_QRCODE =
   "http://localhost:5000/ferramentas/buscarPorQRCode";
 const locais_get = "http://localhost:8080/locais/buscar";
 
-
 const QR_SCAN_API = "http://localhost:5000/read-qrcode";
 
 // QR Scanner - Modal e elementos
@@ -79,21 +78,21 @@ let locaisCache = [];
  */
 function getAuthHeaders(includeContentType = false) {
   // Pega o token que foi salvo no login
-  const token = localStorage.getItem('authToken');
+  const token = localStorage.getItem("authToken");
 
   if (!token) {
     alert("Sessão expirada ou usuário não logado.");
     // ATENÇÃO: Ajuste a URL abaixo para a sua página de login de professor
-    window.location.href = '../Login/LoginProfessor.html'; // Exemplo
+    window.location.href = "../Login/LoginProfessor.html"; // Exemplo
     throw new Error("Token não encontrado. Redirecionando para login.");
   }
 
   const headers = {
-    'Authorization': `Bearer ${token}`
+    Authorization: `Bearer ${token}`,
   };
 
   if (includeContentType) {
-    headers['Content-Type'] = 'application/json';
+    headers["Content-Type"] = "application/json";
   }
 
   return headers;
@@ -108,12 +107,14 @@ async function handleResponseError(response) {
     // Token inválido ou expirado
     alert("Acesso negado. Sua sessão pode ter expirado. Faça login novamente.");
     // ATENÇÃO: Ajuste a URL abaixo para a sua página de login de professor
-    window.location.href = '../LoginProf/LoginProf.html'; // Exemplo
+    window.location.href = "../LoginProf/LoginProf.html"; // Exemplo
     throw new Error("Acesso não autorizado (401/403).");
   }
-  
+
   const errorText = await response.text();
-  throw new Error(`Erro na requisição: ${errorText} (Status: ${response.status})`);
+  throw new Error(
+    `Erro na requisição: ${errorText} (Status: ${response.status})`
+  );
 }
 
 // ==================== RESTANTE DO SEU CÓDIGO (MODIFICADO) ====================
@@ -144,11 +145,11 @@ function setupQRCodeField() {
     // Criar container para o campo QR Code com botão
     const newQrContainer = document.createElement("div");
     newQrContainer.className = "form-group";
-    
+
     // Substitui o input antigo pelo novo layout
     // (Presume que o input antigo está sozinho no 'form-group')
-    if(qrContainer && qrContainer.className.includes('form-group')) {
-        qrContainer.innerHTML = `
+    if (qrContainer && qrContainer.className.includes("form-group")) {
+      qrContainer.innerHTML = `
             <label for="tool-qrcode">QR Code</label>
             <div style="display: flex; gap: 10px; align-items: center;">
                 <input type="text" id="tool-qrcode" class="form-control" style="flex: 1;" />
@@ -157,10 +158,10 @@ function setupQRCodeField() {
                 </button>
             </div>
         `;
-         // Adicionar event listener para o botão de escanear
-        qrContainer
-            .querySelector("#start-scan-btn")
-            .addEventListener("click", openQRScanner);
+      // Adicionar event listener para o botão de escanear
+      qrContainer
+        .querySelector("#start-scan-btn")
+        .addEventListener("click", openQRScanner);
     }
   }
 }
@@ -216,7 +217,10 @@ async function fetchToolDataByQRCode(qrCode) {
   } catch (error) {
     console.error("Erro ao buscar dados da ferramenta:", error);
     // Não precisa mais checar por "Token" aqui
-    showNotification(`Erro ao carregar dados da ferramenta: ${error.message}`, false);
+    showNotification(
+      `Erro ao carregar dados da ferramenta: ${error.message}`,
+      false
+    );
   } finally {
     showLoading(false);
   }
@@ -332,7 +336,8 @@ function startAutoScan() {
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
-          const response = await fetch(QR_SCAN_API, { // API Python
+          const response = await fetch(QR_SCAN_API, {
+            // API Python
             method: "POST",
             body: formData,
             signal: controller.signal,
@@ -367,9 +372,11 @@ function startAutoScan() {
           console.error("❌ Erro ao escanear QR Code (API Python):", error);
           if (scanAttempts % 5 === 0) {
             if (error.name === "AbortError") {
-              scanResultElement.textContent = "Timeout: Servidor Python não respondeu";
+              scanResultElement.textContent =
+                "Timeout: Servidor Python não respondeu";
             } else {
-              scanResultElement.textContent = "Erro de conexão com o servidor Python";
+              scanResultElement.textContent =
+                "Erro de conexão com o servidor Python";
             }
             scanResultElement.style.color = "var(--accent-color)";
           }
@@ -394,14 +401,14 @@ function openQRScanner() {
   modal.style.display = "flex";
   scanResultElement.textContent = "Iniciando câmera...";
   scanResultElement.style.color = "inherit";
-  
+
   // Limpa stream anterior
   if (qrStream) {
-     qrStream.getTracks().forEach((track) => track.stop());
-     qrStream = null;
+    qrStream.getTracks().forEach((track) => track.stop());
+    qrStream = null;
   }
   videoElement.srcObject = null;
-  
+
   initializeQRScanner();
 }
 
@@ -427,8 +434,8 @@ async function loadLocais() {
 
     // <-- MODIFICADO: Adiciona headers de autenticação
     const response = await fetch(locais_get, {
-      method: 'GET',
-      headers: getAuthHeaders()
+      method: "GET",
+      headers: getAuthHeaders(),
     });
 
     // <-- MODIFICADO: Usa handleResponseError
@@ -454,7 +461,7 @@ function fillLocaisSelect() {
     const option = document.createElement("option");
     option.value = local.id;
     // Ajuste aqui se o nome do local for diferente
-    option.textContent = local.nomeEspaco || `Local ID ${local.id}`; 
+    option.textContent = local.nomeEspaco || `Local ID ${local.id}`;
     toolIdLocal.appendChild(option);
   });
 }
@@ -464,13 +471,13 @@ async function loadFerramentas() {
   try {
     // <-- MODIFICADO: Adiciona headers de autenticação
     const response = await fetch(Ferramenta_GET, {
-      method: 'GET',
-      headers: getAuthHeaders()
+      method: "GET",
+      headers: getAuthHeaders(),
     });
-    
+
     // <-- MODIFICADO: Usa handleResponseError
     if (!response.ok) await handleResponseError(response);
-    
+
     return await response.json();
   } catch (error) {
     console.error("Erro ao carregar ferramentas:", error);
@@ -486,6 +493,7 @@ function createToolCard(ferramenta, nomeLocal) {
   const card = document.createElement("div");
   card.className = "tool-card";
 
+  // === BOTÕES CORRIGIDOS AQUI ===
   card.innerHTML = `
         <div class="card-header">
           <div class="card-title">${ferramenta.nome}</div>
@@ -526,7 +534,7 @@ function createToolCard(ferramenta, nomeLocal) {
           
           <div class="card-detail">
             <span class="detail-label">Local:</span>
-            <span class="detail-value">${ferramenta.nomeLocal}</span>
+            <span class="detail-value">${nomeLocal}</span>
           </div>
           
           <div class="card-detail" style="grid-column: span 2;">
@@ -543,10 +551,10 @@ function createToolCard(ferramenta, nomeLocal) {
         </div>
         
         <div class="card-actions">
-          <button class="card-action card-edit" data-id="${ferramenta.id}">
+          <button class="btn-action btn-edit" data-id="${ferramenta.id}">
             <i class="fas fa-edit"></i> Editar
           </button>
-          <button class="card-action card-delete" data-id="${ferramenta.id}">
+          <button class="btn-action btn-delete" data-id="${ferramenta.id}">
             <i class="fas fa-trash-alt"></i> Excluir
           </button>
         </div>
@@ -575,7 +583,7 @@ async function loadToolsTable() {
 
       toolsCards.innerHTML = `
             <div class="tool-card" style="text-align: center; padding: 30px;">
-              ${emptyHtml.replace(/<td[^>]*>|<\/td>/g, '')} 
+              ${emptyHtml.replace(/<td[^>]*>|<\/td>/g, "")} 
             </div>
           `;
       return;
@@ -584,12 +592,15 @@ async function loadToolsTable() {
     ferramentas.forEach((ferramenta) => {
       // Obter o nome do local corretamente
       // 'ferramenta.nomeLocal' parece já vir do backend, se não, use o cache
-      const nomeLocal = ferramenta.nomeLocal || 
-                        locaisCache.find(l => l.id == ferramenta.id_local)?.nomeEspaco || 
-                        "N/A";
+      const nomeLocal =
+        ferramenta.nomeLocal ||
+        locaisCache.find((l) => l.id == ferramenta.id_local)?.nomeEspaco ||
+        "N/A";
 
       // Criar linha da tabela (desktop)
       const row = document.createElement("tr");
+
+      // === BOTÕES CORRIGIDOS AQUI (action-buttons-cell -> actions) ===
       row.innerHTML = `
             <td>${ferramenta.id}</td>
             <td>${ferramenta.nome}</td>
@@ -610,10 +621,8 @@ async function loadToolsTable() {
                   (ferramenta.descricao.length > 20 ? "..." : "")
                 : "N/A"
             }</td>
-            <td>${
-              ferramenta.nomeLocal
-            }</td> <!-- CORREÇÃO 2: Usar a variável nomeLocal -->
-            <td class="action-buttons-cell">
+            <td>${nomeLocal}</td> 
+            <td class="actions">
               <button class="btn-action btn-edit" data-id="${ferramenta.id}">
                 <i class="fas fa-edit"></i> Editar
               </button>
@@ -625,7 +634,7 @@ async function loadToolsTable() {
       toolsTableBody.appendChild(row);
 
       // Criar card (mobile)
-      const card = createToolCard(ferramenta, nomeLocal); // CORREÇÃO 3: Passar nomeLocal para o card
+      const card = createToolCard(ferramenta, nomeLocal);
       toolsCards.appendChild(card);
     });
 
@@ -703,10 +712,10 @@ async function openEditToolModal(id) {
     showLoading(true);
     // <-- MODIFICADO: Adiciona headers de autenticação
     const response = await fetch(`${Ferramenta_GET}/${id}`, {
-      method: 'GET',
-      headers: getAuthHeaders()
+      method: "GET",
+      headers: getAuthHeaders(),
     });
-    
+
     // <-- MODIFICADO: Usa handleResponseError
     if (!response.ok) await handleResponseError(response);
 
@@ -721,7 +730,7 @@ async function openEditToolModal(id) {
     toolBrand.value = ferramenta.marca;
     toolModel.value = ferramenta.modelo;
     // Precisamos garantir que o input correto do qrcode seja pego
-    document.getElementById("tool-qrcode").value = ferramenta.qrcode || ""; 
+    document.getElementById("tool-qrcode").value = ferramenta.qrcode || "";
     toolEstado.value = ferramenta.estado;
     toolDisponibilidade.checked = ferramenta.disponibilidade;
     toolDescricao.value = ferramenta.descricao || "";
@@ -732,7 +741,10 @@ async function openEditToolModal(id) {
   } catch (error) {
     console.error("Erro ao carregar ferramenta:", error);
     if (!error.message.includes("Token")) {
-      showNotification("Não foi possível carregar os dados da ferramenta", false);
+      showNotification(
+        "Não foi possível carregar os dados da ferramenta",
+        false
+      );
     }
   } finally {
     showLoading(false);
@@ -764,7 +776,7 @@ async function saveTool() {
     nome: toolName.value,
     marca: toolBrand.value,
     modelo: toolModel.value,
-    qrcode: qrcodeValue, 
+    qrcode: qrcodeValue,
     estado: toolEstado.value,
     disponibilidade: toolDisponibilidade.checked,
     descricao: toolDescricao.value || null,
@@ -815,7 +827,7 @@ async function deleteTool(id) {
       // <-- MODIFICADO: Adiciona headers de autenticação
       const response = await fetch(`${Ferramenta_DELETE}/${id}`, {
         method: "DELETE",
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
       });
 
       // <-- MODIFICADO: Usa handleResponseError
@@ -851,12 +863,70 @@ window.addEventListener("click", (e) => {
   }
 });
 
-// Inicializa a tabela e carrega locais quando a página carregar
+// === BLOCO DO DOMCONTENTLOADED ATUALIZADO ===
 document.addEventListener("DOMContentLoaded", async function () {
+  // === LÓGICA DO DARK MODE ADICIONADA AQUI ===
+  const themeToggleBtn = document.getElementById("theme-toggle-btn");
+  const body = document.body;
+
+  if (themeToggleBtn) {
+    const icon = themeToggleBtn.querySelector("i");
+
+    // Função para aplicar o tema (claro ou escuro)
+    function aplicarTema(tema) {
+      if (tema === "dark") {
+        body.classList.add("dark-mode");
+        if (icon) {
+          icon.classList.remove("fa-moon");
+          icon.classList.add("fa-sun");
+        }
+      } else {
+        body.classList.remove("dark-mode");
+        if (icon) {
+          icon.classList.remove("fa-sun");
+          icon.classList.add("fa-moon");
+        }
+      }
+    }
+
+    // Verificar se já existe um tema salvo no localStorage
+    const temaSalvo = localStorage.getItem("theme");
+
+    if (temaSalvo) {
+      aplicarTema(temaSalvo);
+    } else {
+      // Opcional: Checar preferência do sistema
+      const prefereEscuro =
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (prefereEscuro) {
+        aplicarTema("dark");
+      } else {
+        aplicarTema("light");
+      }
+    }
+
+    // Adicionar o evento de clique ao botão
+    themeToggleBtn.addEventListener("click", () => {
+      // Verifica se o body JÁ TEM a classe dark-mode
+      if (body.classList.contains("dark-mode")) {
+        // Se sim, troca para light
+        aplicarTema("light");
+        localStorage.setItem("theme", "light"); // Salva a escolha
+      } else {
+        // Se não, troca para dark
+        aplicarTema("dark");
+        localStorage.setItem("theme", "dark"); // Salva a escolha
+      }
+    });
+  }
+  // === FIM DA LÓGICA DO DARK MODE ===
+
+  // --- O RESTO DO SEU CÓDIGO ORIGINAL CONTINUA ABAIXO ---
   showLoading(true);
   try {
     setupQRCodeField(); // Configura o botão de scan no formulário
-    
+
     // As funções abaixo já estão modificadas para usar o token
     await loadLocais();
     fillLocaisSelect(); // Preenche o select agora que o cache está pronto

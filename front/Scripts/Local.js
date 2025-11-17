@@ -36,20 +36,20 @@ let locations = [];
  * @returns {HeadersInit} - Objeto de Headers pronto para o fetch
  */
 function getAuthHeaders(includeContentType = false) {
-  const token = localStorage.getItem('authToken');
-console.log("Token", token);
+  const token = localStorage.getItem("authToken");
+  console.log("Token", token);
   if (!token) {
     alert("Sessão expirada ou usuário não logado.");
-    window.location.href = '/front/Html/Login.html';
+    window.location.href = "/front/Html/Login.html";
     throw new Error("Token não encontrado. Redirecionando para login.");
   }
 
   const headers = {
-    'Authorization': `Bearer ${token}`
+    Authorization: `Bearer ${token}`,
   };
 
   if (includeContentType) {
-    headers['Content-Type'] = 'application/json';
+    headers["Content-Type"] = "application/json";
   }
 
   return headers;
@@ -63,22 +63,24 @@ async function handleResponseError(response) {
   if (response.status === 401 || response.status === 403) {
     // Token inválido ou expirado
     alert("Acesso negado. Sua sessão pode ter expirado. Faça login novamente.");
-    window.location.href = '/front/Html/Login.html'; 
+    window.location.href = "/front/Html/Login.html";
     throw new Error("Acesso não autorizado (401/403).");
   }
-  
+
   const errorText = await response.text();
   // Tenta extrair uma mensagem do erro, se for JSON
   try {
-      const errorJson = JSON.parse(errorText);
-      if(errorJson.message) {
-          throw new Error(errorJson.message);
-      }
-  } catch(e) {
-      // Ignora se não for JSON e usa o texto original
+    const errorJson = JSON.parse(errorText);
+    if (errorJson.message) {
+      throw new Error(errorJson.message);
+    }
+  } catch (e) {
+    // Ignora se não for JSON e usa o texto original
   }
 
-  throw new Error(`Erro na requisição: ${errorText} (Status: ${response.status})`);
+  throw new Error(
+    `Erro na requisição: ${errorText} (Status: ${response.status})`
+  );
 }
 
 // Função para mostrar notificação
@@ -97,13 +99,13 @@ function showLoading(show) {
   loadingOverlay.style.display = show ? "flex" : "none";
 }
 
-// Função para buscar locais da API 
+// Função para buscar locais da API
 async function fetchLocations() {
   showLoading(true);
   try {
     const response = await fetch(API_URL, {
-      method: 'GET',
-      headers: getAuthHeaders() //Adiciona token
+      method: "GET",
+      headers: getAuthHeaders(), //Adiciona token
     });
 
     if (!response.ok) {
@@ -115,7 +117,10 @@ async function fetchLocations() {
   } catch (error) {
     console.error("Erro ao buscar locais:", error);
     // Não exibe notificação se for erro de auth (já tratado com alert)
-    if (!error.message.includes("Token") && !error.message.includes("401/403")) {
+    if (
+      !error.message.includes("Token") &&
+      !error.message.includes("401/403")
+    ) {
       showNotification("error", "Falha ao carregar locais do servidor");
     }
     return [];
@@ -143,33 +148,34 @@ function loadLocationsTable(locationsArray = locations) {
       ? `<span class="location-badge"><i class="fas fa-box"></i> ${location.estojo}</span>`
       : '<span class="location-badge"><i class="fas fa-box"></i> N/A</span>';
 
+    // === BOTÕES CORRIGIDOS AQUI ===
     row.innerHTML = `
-                <td>${location.id}</td>
-                <td><span class="location-badge"><i class="fas fa-building"></i> ${location.nomeEspaco}</span></td>
-                <td><span class="location-badge"><i class="fas fa-archive"></i> ${location.armario}</span></td>
-                <td><span class="location-badge"><i class="fas fa-layer-group"></i> ${location.prateleira}</span></td>
-                <td>${caseDisplay}</td>
-                <td class="actions-cell">
-                    <button class="action-btn edit-btn" data-id="${location.id}">
-                        <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <button class="action-btn delete-btn" data-id="${location.id}">
-                        <i class="fas fa-trash"></i> Excluir
-                    </button>
-                </td>
-              `;
+            <td>${location.id}</td>
+            <td><span class="location-badge"><i class="fas fa-building"></i> ${location.nomeEspaco}</span></td>
+            <td><span class="location-badge"><i class="fas fa-archive"></i> ${location.armario}</span></td>
+            <td><span class="location-badge"><i class="fas fa-layer-group"></i> ${location.prateleira}</span></td>
+            <td>${caseDisplay}</td>
+            <td class="actions">
+                <button class="btn-action btn-edit" data-id="${location.id}">
+                    <i class="fas fa-edit"></i> Editar
+                </button>
+                <button class="btn-action btn-delete" data-id="${location.id}">
+                    <i class="fas fa-trash"></i> Excluir
+                </button>
+            </td>
+          `;
     locationsTableBody.appendChild(row);
   });
 
   // Adicionar event listeners para os botões de ação
-  document.querySelectorAll(".edit-btn").forEach((btn) => {
+  document.querySelectorAll(".btn-edit").forEach((btn) => {
     btn.addEventListener("click", function () {
       const id = this.getAttribute("data-id");
       openEditLocationModal(id);
     });
   });
 
-  document.querySelectorAll(".delete-btn").forEach((btn) => {
+  document.querySelectorAll(".btn-delete").forEach((btn) => {
     btn.addEventListener("click", function () {
       const id = this.getAttribute("data-id");
       deleteLocation(id);
@@ -195,49 +201,50 @@ function loadLocationsCards(locationsArray = locations) {
 
     const caseDisplay = location.estojo ? location.estojo : "N/A";
 
+    // === BOTÕES CORRIGIDOS AQUI ===
     card.innerHTML = `
-                <div class="card-header">
-                    <h3><i class="fas fa-map-marker-alt"></i> Local #${location.id}</h3>
+            <div class="card-header">
+                <h3><i class="fas fa-map-marker-alt"></i> Local #${location.id}</h3>
+            </div>
+            <div class="card-body">
+                <div class="location-info">
+                    <i class="fas fa-building"></i>
+                    <span><strong>Espaço:</strong> ${location.nomeEspaco}</span>
                 </div>
-                <div class="card-body">
-                    <div class="location-info">
-                        <i class="fas fa-building"></i>
-                        <span><strong>Espaço:</strong> ${location.nomeEspaco}</span>
-                    </div>
-                    <div class="location-info">
-                        <i class="fas fa-archive"></i>
-                        <span><strong>Armário:</strong> ${location.armario}</span>
-                    </div>
-                    <div class="location-info">
-                        <i class="fas fa-layer-group"></i>
-                        <span><strong>Prateleira:</strong> ${location.prateleira}</span>
-                    </div>
-                    <div class="location-info">
-                        <i class="fas fa-box"></i>
-                        <span><strong>Estojo:</strong> ${caseDisplay}</span>
-                    </div>
+                <div class="location-info">
+                    <i class="fas fa-archive"></i>
+                    <span><strong>Armário:</strong> ${location.armario}</span>
                 </div>
-                <div class="card-footer">
-                    <button class="action-btn edit-btn" data-id="${location.id}">
-                        <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <button class="action-btn delete-btn" data-id="${location.id}">
-                        <i class="fas fa-trash"></i> Excluir
-                    </button>
+                <div class="location-info">
+                    <i class="fas fa-layer-group"></i>
+                    <span><strong>Prateleira:</strong> ${location.prateleira}</span>
                 </div>
-              `;
+                <div class="location-info">
+                    <i class="fas fa-box"></i>
+                    <span><strong>Estojo:</strong> ${caseDisplay}</span>
+                </div>
+            </div>
+            <div class="card-footer actions">
+                <button class="btn-action btn-edit" data-id="${location.id}">
+                    <i class="fas fa-edit"></i> Editar
+                </button>
+                <button class="btn-action btn-delete" data-id="${location.id}">
+                    <i class="fas fa-trash"></i> Excluir
+                </button>
+            </div>
+          `;
     locationGrid.appendChild(card);
   });
 
   // Adicionar event listeners para os botões de ação nos cards
-  document.querySelectorAll(".card-footer .edit-btn").forEach((btn) => {
+  document.querySelectorAll(".card-footer .btn-edit").forEach((btn) => {
     btn.addEventListener("click", function () {
       const id = this.getAttribute("data-id");
       openEditLocationModal(id);
     });
   });
 
-  document.querySelectorAll(".card-footer .delete-btn").forEach((btn) => {
+  document.querySelectorAll(".card-footer .btn-delete").forEach((btn) => {
     btn.addEventListener("click", function () {
       const id = this.getAttribute("data-id");
       deleteLocation(id);
@@ -297,7 +304,7 @@ function closeModal() {
   locationModal.style.display = "none";
 }
 
-// Função para salvar local, criação ou atualizaçã
+// Função para salvar local, criação ou atualização
 async function saveLocation() {
   const id = locationId.value;
   const nomeEspaco = locationSpace.value;
@@ -347,15 +354,18 @@ async function saveLocation() {
     );
   } catch (error) {
     console.error("Erro ao salvar local:", error);
-    if (!error.message.includes("Token") && !error.message.includes("401/403")) {
-        showNotification("error", error.message || "Erro ao salvar local");
+    if (
+      !error.message.includes("Token") &&
+      !error.message.includes("401/403")
+    ) {
+      showNotification("error", error.message || "Erro ao salvar local");
     }
   } finally {
     showLoading(false);
   }
 }
 
-// Função para excluir local 
+// Função para excluir local
 async function deleteLocation(id) {
   if (!confirm("Tem certeza que deseja excluir este local?")) return;
 
@@ -363,7 +373,7 @@ async function deleteLocation(id) {
   try {
     const response = await fetch(`${API_DELETE}/${id}`, {
       method: "DELETE",
-      headers: getAuthHeaders() 
+      headers: getAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -382,8 +392,11 @@ async function deleteLocation(id) {
     showNotification("success", "Local excluído com sucesso!");
   } catch (error) {
     console.error("Erro ao excluir local:", error);
-    if (!error.message.includes("Token") && !error.message.includes("401/403")) {
-        showNotification("error", error.message || "Erro ao excluir local");
+    if (
+      !error.message.includes("Token") &&
+      !error.message.includes("401/403")
+    ) {
+      showNotification("error", error.message || "Erro ao excluir local");
     }
   } finally {
     showLoading(false);
@@ -419,8 +432,11 @@ async function init() {
   } catch (error) {
     console.error("Erro na inicialização:", error);
     // A notificação de erro de auth
-    if (!error.message.includes("Token") && !error.message.includes("401/403")) {
-        showNotification("error", "Falha ao iniciar a aplicação");
+    if (
+      !error.message.includes("Token") &&
+      !error.message.includes("401/403")
+    ) {
+      showNotification("error", "Falha ao iniciar a aplicação");
     }
   }
 }
@@ -441,5 +457,66 @@ window.addEventListener("click", (e) => {
   }
 });
 
-// Inicializar quando o DOM estiver carregado
-document.addEventListener("DOMContentLoaded", init);
+// === BLOCO DO DOMCONTENTLOADED ATUALIZADO ===
+// Substituí a linha antiga por este bloco
+document.addEventListener("DOMContentLoaded", function () {
+  // 1. Chama a inicialização da página de Locais
+  init();
+
+  // 2. LÓGICA DO DARK MODE
+  const themeToggleBtn = document.getElementById("theme-toggle-btn");
+  const body = document.body;
+
+  if (themeToggleBtn) {
+    // Verifica se o botão existe
+    const icon = themeToggleBtn.querySelector("i");
+
+    // Função para aplicar o tema (claro ou escuro)
+    function aplicarTema(tema) {
+      if (tema === "dark") {
+        body.classList.add("dark-mode");
+        if (icon) {
+          icon.classList.remove("fa-moon");
+          icon.classList.add("fa-sun");
+        }
+      } else {
+        body.classList.remove("dark-mode");
+        if (icon) {
+          icon.classList.remove("fa-sun");
+          icon.classList.add("fa-moon");
+        }
+      }
+    }
+
+    // Verificar se já existe um tema salvo no localStorage
+    const temaSalvo = localStorage.getItem("theme");
+
+    if (temaSalvo) {
+      aplicarTema(temaSalvo);
+    } else {
+      // Opcional: Checar preferência do sistema
+      const prefereEscuro =
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (prefereEscuro) {
+        aplicarTema("dark");
+      } else {
+        aplicarTema("light");
+      }
+    }
+
+    // Adicionar o evento de clique ao botão
+    themeToggleBtn.addEventListener("click", () => {
+      // Verifica se o body JÁ TEM a classe dark-mode
+      if (body.classList.contains("dark-mode")) {
+        // Se sim, troca para light
+        aplicarTema("light");
+        localStorage.setItem("theme", "light"); // Salva a escolha
+      } else {
+        // Se não, troca para dark
+        aplicarTema("dark");
+        localStorage.setItem("theme", "dark"); // Salva a escolha
+      }
+    });
+  }
+});

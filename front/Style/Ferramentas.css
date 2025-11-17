@@ -1,35 +1,85 @@
-/* Estilos gerais */
+/* =================================
+   DEFINIÇÃO DAS CORES (VARIÁVEIS)
+   ================================= */
+:root {
+  /* Modo Claro (Padrão) */
+  --cor-fundo: #f5f7fa;
+  --cor-fundo-container: #ffffff;
+  --cor-texto: #333;
+  --cor-texto-secundario: #7f8c8d;
+  --cor-titulo: #2c3e50;
+  --cor-borda: #eee;
+  --cor-borda-input: #ddd;
+  --cor-fundo-sidebar: linear-gradient(135deg, #2c3e50, #1a2530);
+  --cor-texto-sidebar: #ffffff;
+  --cor-modal-header: linear-gradient(to right, #3498db, #2c3e50);
+  --cor-modal-footer: #f8f9fa;
+  --cor-tabela-header: #3498db;
+  --cor-tabela-hover: #f8f9fa;
+
+  /* Cores de Ação */
+  --cor-primaria: #3498db;
+  --cor-primaria-hover: #2980b9;
+  --cor-perigo: #e74c3c;
+  --cor-perigo-hover: #c0392b;
+  --cor-aviso: #f39c12;
+  --cor-aviso-hover: #d35400;
+  --cor-texto-botao: #ffffff;
+}
+
+body.dark-mode {
+  /* Modo Escuro (Sobrescrito) */
+  --cor-fundo: #1a2530;
+  --cor-fundo-container: #2c3e50;
+  --cor-texto: #f5f7fa;
+  --cor-texto-secundario: #bdc3c7;
+  --cor-titulo: #ffffff;
+  --cor-borda: #34495e;
+  --cor-borda-input: #5b728a;
+  --cor-fundo-sidebar: linear-gradient(135deg, #2c3e50, #222f3d);
+  --cor-texto-sidebar: #ffffff;
+  --cor-modal-header: linear-gradient(
+    to right,
+    #3498db,
+    #2c3e50
+  ); /* Mesmo gradiente */
+  --cor-modal-footer: #222f3d;
+  --cor-tabela-header: #3498db; /* Mesmo header */
+  --cor-tabela-hover: #34495e;
+}
+/* =================================
+   FIM DAS VARIÁVEIS
+   ================================= */
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  transition: background-color 0.2s linear, color 0.2s linear;
 }
 
 body {
-  background-color: #f5f7fa;
-  color: #333;
-  overflow-x: hidden;
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+  overflow-x: hidden; /* Mantido do ferramentas.css original */
 }
 
+/* =================================
+   LAYOUT PRINCIPAL (IGUAL AO USUARIOS.CSS)
+   ================================= */
 .container {
   display: flex;
   min-height: 100vh;
-  flex-direction: column;
 }
 
 /* Menu Lateral */
 .sidebar {
   width: 250px;
-  background: linear-gradient(135deg, #2c3e50, #1a2530);
-  color: white;
+  background: var(--cor-fundo-sidebar);
+  color: var(--cor-texto-sidebar);
   padding: 20px 0;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
-  position: fixed;
-  height: 100vh;
-  overflow-y: auto;
-  z-index: 100;
-  transition: transform 0.3s ease;
 }
 
 .logo {
@@ -41,7 +91,7 @@ body {
 
 .logo h2 {
   font-size: 1.5rem;
-  color: #3498db;
+  color: var(--cor-primaria);
 }
 
 .menu-item {
@@ -54,8 +104,8 @@ body {
 
 .menu-item:hover,
 .menu-item.active {
-  background-color: #3498db;
-  border-left: 4px solid #e74c3c;
+  background-color: var(--cor-primaria);
+  border-left: 4px solid var(--cor-texto-sidebar);
 }
 
 .menu-item i {
@@ -67,10 +117,10 @@ body {
 .main-content {
   flex: 1;
   padding: 30px;
-  position: relative;
-  margin-left: 250px;
-  transition: margin-left 0.3s ease;
 }
+/* =================================
+   FIM DO LAYOUT PRINCIPAL
+   ================================= */
 
 .header {
   display: flex;
@@ -78,21 +128,27 @@ body {
   align-items: center;
   margin-bottom: 30px;
   padding-bottom: 15px;
-  border-bottom: 1px solid #ddd;
-  flex-wrap: wrap;
-  gap: 15px;
+  border-bottom: 1px solid var(--cor-borda);
+  flex-wrap: wrap; /* Mantido do ferramentas.css */
+  gap: 15px; /* Mantido do ferramentas.css */
 }
 
 .page-title {
   font-size: 1.8rem;
-  color: #2c3e50;
-  flex: 1;
-  min-width: 250px;
+  color: var(--cor-titulo);
+  flex: 1; /* Mantido do ferramentas.css */
+  min-width: 250px; /* Mantido do ferramentas.css */
+}
+
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 .logout-btn {
-  background-color: #e74c3c;
-  color: white;
+  background-color: var(--cor-perigo);
+  color: var(--cor-texto-botao);
   border: none;
   padding: 10px 20px;
   border-radius: 4px;
@@ -104,7 +160,7 @@ body {
 }
 
 .logout-btn:hover {
-  background-color: #c0392b;
+  background-color: var(--cor-perigo-hover);
 }
 
 /* Botões de Ação */
@@ -125,15 +181,19 @@ body {
   gap: 8px;
   font-weight: 600;
   border: none;
+  background-color: var(--cor-fundo-container);
+  color: var(--cor-texto);
+  border: 1px solid var(--cor-borda-input);
 }
 
 .btn-primary {
-  background-color: #3498db;
-  color: white;
+  background-color: var(--cor-primaria);
+  color: var(--cor-texto-botao);
+  border: none;
 }
 
 .btn-primary:hover {
-  background-color: #2980b9;
+  background-color: var(--cor-primaria-hover);
 }
 
 .btn-success {
@@ -145,10 +205,14 @@ body {
   background-color: #27ae60;
 }
 
+/* =================================
+   ESTILOS ESPECÍFICOS DE FERRAMENTAS
+   ================================= */
+
 /* Tabela de Ferramentas (Desktop) */
 .tools-container {
   overflow-x: auto;
-  background: white;
+  background: var(--cor-fundo-container);
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   margin-bottom: 30px;
@@ -158,12 +222,12 @@ body {
 .tools-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 800px;
+  min-width: 800px; /* Mantido do ferramentas.css */
 }
 
 .tools-table th {
-  background-color: #3498db;
-  color: white;
+  background-color: var(--cor-tabela-header);
+  color: var(--cor-texto-botao);
   text-align: left;
   padding: 15px;
   position: sticky;
@@ -173,7 +237,7 @@ body {
 
 .tools-table td {
   padding: 12px 15px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--cor-borda);
   vertical-align: top;
 }
 
@@ -182,27 +246,28 @@ body {
 }
 
 .tools-table tr:hover {
-  background-color: #f8f9fa;
+  background-color: var(--cor-tabela-hover);
 }
 
 .quantity-low {
-  color: #e74c3c;
+  color: var(--cor-perigo);
   font-weight: bold;
 }
 
 .location-badge {
-  background-color: #e8f4ff;
+  background-color: #e8f4ff; /* Pode virar variável se quiser */
   padding: 5px 10px;
   border-radius: 4px;
   font-size: 0.9rem;
   display: inline-block;
   margin: 2px;
   white-space: nowrap;
+  color: #333; /* Texto legível no modo claro/escuro */
 }
 
 .location-badge i {
   margin-right: 5px;
-  color: #3498db;
+  color: var(--cor-primaria);
 }
 
 /* Cards de Ferramentas (Mobile) */
@@ -213,7 +278,7 @@ body {
 }
 
 .tool-card {
-  background: white;
+  background: var(--cor-fundo-container);
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
@@ -226,18 +291,18 @@ body {
   align-items: center;
   margin-bottom: 15px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--cor-borda);
 }
 
 .card-title {
   font-size: 1.2rem;
-  color: #2c3e50;
+  color: var(--cor-titulo);
   font-weight: 600;
 }
 
 .card-badge {
-  background-color: #3498db;
-  color: white;
+  background-color: var(--cor-primaria);
+  color: var(--cor-texto-botao);
   padding: 4px 10px;
   border-radius: 20px;
   font-size: 0.8rem;
@@ -256,13 +321,14 @@ body {
 
 .detail-label {
   font-size: 0.85rem;
-  color: #7f8c8d;
+  color: var(--cor-texto-secundario);
   margin-bottom: 4px;
 }
 
 .detail-value {
   font-size: 1rem;
   font-weight: 500;
+  color: var(--cor-texto);
 }
 
 .status-available {
@@ -280,7 +346,7 @@ body {
   gap: 10px;
   margin-top: 20px;
   padding-top: 15px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--cor-borda);
 }
 
 .card-action {
@@ -296,29 +362,141 @@ body {
   font-weight: 500;
   border: none;
   font-size: 0.9rem;
+  color: var(--cor-texto-botao);
 }
 
 .card-edit {
-  background-color: #f39c12;
-  color: white;
+  background-color: var(--cor-aviso);
 }
-
 .card-edit:hover {
-  background-color: #d35400;
+  background-color: var(--cor-aviso-hover);
 }
-
 .card-delete {
-  background-color: #e74c3c;
-  color: white;
+  background-color: var(--cor-perigo);
+}
+.card-delete:hover {
+  background-color: var(--cor-perigo-hover);
 }
 
-.card-delete:hover {
-  background-color: #c0392b;
+/* =================================
+   FIM DOS ESTILOS DE FERRAMENTAS
+   ================================= */
+
+/* Formulário de Cadastro (Modal) */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2000; /* Mantido do ferramentas.css */
+  justify-content: center;
+  align-items: flex-start; /* Mantido do ferramentas.css */
+  padding: 20px 10px; /* Mantido do ferramentas.css */
+  overflow-y: auto; /* Mantido do ferramentas.css */
+}
+
+.modal-content {
+  background-color: var(--cor-fundo-container);
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh; /* Mantido do ferramentas.css */
+  display: flex; /* Mantido do ferramentas.css */
+  flex-direction: column; /* Mantido do ferramentas.css */
+}
+
+.modal-header {
+  background: var(--cor-modal-header);
+  color: var(--cor-texto-botao);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky; /* Mantido do ferramentas.css */
+  top: 0; /* Mantido do ferramentas.css */
+  z-index: 10; /* Mantido do ferramentas.css */
+}
+
+.modal-header h2 {
+  font-size: 1.5rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--cor-texto-botao);
+  font-size: 1.5rem;
+  cursor: pointer;
+  width: 40px; /* Mantido do ferramentas.css */
+  height: 40px; /* Mantido do ferramentas.css */
+  display: flex; /* Mantido do ferramentas.css */
+  align-items: center; /* Mantido do ferramentas.css */
+  justify-content: center; /* Mantido do ferramentas.css */
+}
+
+.modal-body {
+  padding: 25px;
+  overflow-y: auto; /* Mantido do ferramentas.css */
+  flex-grow: 1; /* Mantido do ferramentas.css */
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--cor-titulo);
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--cor-borda-input);
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+}
+
+.form-control option {
+  background-color: var(--cor-fundo-container);
+  color: var(--cor-texto);
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.form-row .form-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.modal-footer {
+  padding: 15px 25px;
+  background-color: var(--cor-modal-footer);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid var(--cor-borda);
+  position: sticky; /* Mantido do ferramentas.css */
+  bottom: 0; /* Mantido do ferramentas.css */
+  z-index: 10; /* Mantido do ferramentas.css */
+  flex-wrap: wrap; /* Mantido do ferramentas.css */
 }
 
 /* Filtros e Pesquisa */
 .search-section {
-  background-color: white;
+  background-color: var(--cor-fundo-container);
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -337,9 +515,11 @@ body {
 .search-group input {
   width: 100%;
   padding: 12px 15px 12px 40px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--cor-borda-input);
   border-radius: 6px;
   font-size: 1rem;
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
 }
 
 .search-group i {
@@ -347,11 +527,12 @@ body {
   left: 15px;
   top: 50%;
   transform: translateY(-50%);
-  color: #7f8c8d;
+  color: var(--cor-texto-secundario);
 }
 
-/* Botões de ação na tabela */
+/* Botões de ação na tabela (re-declarado para garantir) */
 .action-buttons-cell {
+  /* ATENÇÃO: Mudei para .actions para padronizar */
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
@@ -369,132 +550,29 @@ body {
   border: none;
   font-size: 0.9rem;
   white-space: nowrap;
+  color: var(--cor-texto-botao);
 }
 
 .btn-edit {
-  background-color: #f39c12;
-  color: white;
+  background-color: var(--cor-aviso);
 }
 
 .btn-edit:hover {
-  background-color: #d35400;
+  background-color: var(--cor-aviso-hover);
 }
 
 .btn-delete {
-  background-color: #e74c3c;
-  color: white;
+  background-color: var(--cor-perigo);
 }
 
 .btn-delete:hover {
-  background-color: #c0392b;
+  background-color: var(--cor-perigo-hover);
 }
 
-/* Modal Responsivo */
-.modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 2000;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 20px 10px;
-  overflow-y: auto;
-}
+/* =================================
+   ESTILOS ADICIONAIS (Notificação, Loading, QR)
+   ================================= */
 
-.modal-content {
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  width: 100%;
-  max-width: 500px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-header {
-  background: linear-gradient(to right, #3498db, #2c3e50);
-  color: white;
-  padding: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.modal-header h2 {
-  font-size: 1.5rem;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.5rem;
-  cursor: pointer;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-body {
-  padding: 25px;
-  overflow-y: auto;
-  flex-grow: 1;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: #2c3e50;
-}
-
-.form-control {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 16px;
-}
-
-.form-row {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.form-row .form-group {
-  flex: 1;
-  margin-bottom: 0;
-}
-
-.modal-footer {
-  padding: 15px 25px;
-  background-color: #f8f9fa;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  position: sticky;
-  bottom: 0;
-  border-top: 1px solid #eee;
-  z-index: 10;
-  flex-wrap: wrap;
-}
-
-/* Estilos adicionais */
 .checkbox-group {
   display: flex;
   align-items: center;
@@ -544,12 +622,6 @@ body {
   vertical-align: middle;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .loading-overlay {
   position: fixed;
   top: 0;
@@ -570,180 +642,20 @@ body {
   text-align: center;
 }
 
-/* Menu Mobile */
-.mobile-menu-btn {
-  display: none;
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background: #3498db;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  width: 50px;
-  height: 50px;
-  z-index: 101;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-/* Responsividade */
-@media (max-width: 1200px) {
-  .sidebar {
-    width: 220px;
-  }
-
-  .main-content {
-    margin-left: 220px;
-    padding: 20px;
-  }
-
-  .tools-table {
-    font-size: 0.95rem;
-  }
-
-  .tools-table th,
-  .tools-table td {
-    padding: 10px 12px;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-@media (max-width: 992px) {
-  .sidebar {
-    width: 200px;
-  }
-
-  .main-content {
-    margin-left: 200px;
-  }
-
-  .page-title {
-    font-size: 1.6rem;
-  }
-
-  .action-buttons {
-    gap: 10px;
-  }
-}
-
-@media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
-    width: 280px;
-    z-index: 1001; /* Garante que o sidebar fique sobre o conteúdo */
-  }
-
-  .sidebar.active {
-    transform: translateX(0);
-    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
-  }
-
-  .main-content {
-    margin-left: 0;
-    padding: 15px;
-  }
-
-  .mobile-menu-btn {
-    display: flex;
-  }
-
-  .header {
-    margin-top: 60px; /* Espaço para o botão do menu */
-  }
-
-  .form-row {
-    flex-direction: column;
-    gap: 0; /* Remove o gap para usar o margin do form-group */
-  }
-
-  .action-buttons {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  /* Melhorias para modal em mobile */
-  .modal {
-    padding: 10px;
-    align-items: center;
-  }
-
-  .modal-content {
-    max-width: 95vw;
-    margin-top: 10px;
-  }
-
-  .modal-footer {
-    flex-direction: column;
-  }
-
-  .modal-footer .btn {
-    width: 100%;
-  }
-}
-
-@media (max-height: 600px) {
-  .modal-body {
-    max-height: 50vh;
-    overflow-y: auto;
-  }
-}
-
-@media (max-width: 480px) {
-  .header {
-    flex-direction: column;
-    gap: 15px;
-    text-align: center;
-  }
-
-  .page-title {
-    font-size: 1.5rem;
-  }
-
-  .modal-header {
-    flex-direction: column;
-    text-align: center;
-    gap: 10px;
-    padding: 15px;
-  }
-
-  .modal-header h2 {
-    font-size: 1.3rem;
-  }
-
-  .modal-body {
-    padding: 15px;
-  }
-
-  .search-section {
-    flex-direction: column;
-  }
-
-  .logout-btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .tools-table th:nth-child(4),
-  .tools-table td:nth-child(4) {
-    display: none;
-  }
-}
 /* Garantir que o vídeo seja visível */
 #qr-video {
   width: 100%;
   height: 300px;
-  border: 2px solid var(--primary-color);
+  border: 2px solid var(--cor-primaria);
   border-radius: 8px;
   background: #000;
-  object-fit: cover; /* Isso garante que o vídeo preencha o container */
+  object-fit: cover;
 }
 
 /* Indicador de que a câmera está ativa */
@@ -757,6 +669,7 @@ body {
   font-weight: bold;
   min-height: 24px;
   text-align: center;
+  color: var(--cor-texto);
 }
 
 /* Loading durante inicialização */
@@ -771,20 +684,165 @@ body {
   content: "";
   width: 40px;
   height: 40px;
-  border: 4px solid var(--primary-color);
+  border: 4px solid var(--cor-primaria);
   border-top: 4px solid transparent;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
+/* =================================
+   RESPONSIVIDADE
+   ================================= */
+
+/* Responsividade (Layout copiado do Usuarios.css) */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 220px;
   }
-  100% {
-    transform: rotate(360deg);
+  .main-content {
+    padding: 20px;
   }
 }
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .logo {
+    padding: 0;
+    margin: 0;
+    border: none;
+  }
+
+  .menu-item {
+    border-left: none;
+    padding: 10px 15px;
+  }
+
+  /* === CORREÇÃO DA LINHA ATIVA MOBILE === */
+  .menu-item:hover,
+  .menu-item.active {
+    border-left: none;
+    border-bottom: 4px solid var(--cor-perigo); /* CORRIGIDO (era --cor-fundo) */
+    background-color: transparent;
+  }
+  /* === FIM DA CORREÇÃO === */
+
+  .main-content {
+    padding: 15px;
+    margin-left: 0; /* Garantindo que o margin-left foi removido */
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    margin-top: 0; /* Removido o margin-top do mobile-menu-btn */
+  }
+
+  .header-buttons {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .logout-btn {
+    flex-grow: 1;
+    justify-content: center;
+  }
+
+  #theme-toggle-btn {
+    padding: 10px 15px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .search-section {
+    flex-direction: column;
+    padding: 15px;
+  }
+
+  /* Tabela Responsiva (PARA USUARIOS - DEIXEI AQUI CASO PRECISE) */
+  .students-table {
+    border: none;
+    box-shadow: none;
+  }
+  .students-table thead {
+    display: none;
+  }
+  .students-table tr {
+    display: block;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    background: var(--cor-fundo-container);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 15px;
+  }
+  .students-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: right;
+    padding: 8px 0;
+    border-bottom: 1px dotted var(--cor-borda);
+  }
+  /* ... (regras ::before da tabela de usuários) ... */
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .modal-content {
+    max-width: 95vw;
+    margin: 10px;
+  }
+
+  .modal-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .modal-body,
+  .modal-footer {
+    padding: 15px;
+  }
+}
+
+/* =================================
+   LÓGICA DE TROCA (FERRAMENTAS)
+   ================================= */
 
 /* Alternar entre tabela e cards */
 @media (max-width: 768px) {

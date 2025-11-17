@@ -269,6 +269,65 @@ async function openEditStudentModal(id) {
   }
 }
 
+// === CÓDIGO DO DARK MODE ADICIONADO AQUI ===
 document.addEventListener("DOMContentLoaded", function () {
+  // 1. Carrega a tabela (seu código existente)
   loadStudentsTable();
+
+  // 2. LÓGICA NOVA DO DARK MODE
+  const themeToggleBtn = document.getElementById("theme-toggle-btn");
+  const body = document.body;
+
+  // Verifica se o botão existe antes de adicionar o ícone
+  if (themeToggleBtn) {
+    const icon = themeToggleBtn.querySelector("i");
+
+    // Função para aplicar o tema (claro ou escuro)
+    function aplicarTema(tema) {
+      if (tema === "dark") {
+        body.classList.add("dark-mode");
+        if (icon) {
+          icon.classList.remove("fa-moon");
+          icon.classList.add("fa-sun");
+        }
+      } else {
+        body.classList.remove("dark-mode");
+        if (icon) {
+          icon.classList.remove("fa-sun");
+          icon.classList.add("fa-moon");
+        }
+      }
+    }
+
+    // Verificar se já existe um tema salvo no localStorage
+    const temaSalvo = localStorage.getItem("theme");
+
+    if (temaSalvo) {
+      aplicarTema(temaSalvo);
+    } else {
+      // Opcional: Checar preferência do sistema
+      const prefereEscuro =
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (prefereEscuro) {
+        aplicarTema("dark");
+      } else {
+        aplicarTema("light");
+      }
+    }
+
+    // Adicionar o evento de clique ao botão
+    themeToggleBtn.addEventListener("click", () => {
+      // Verifica se o body JÁ TEM a classe dark-mode
+      if (body.classList.contains("dark-mode")) {
+        // Se sim, troca para light
+        aplicarTema("light");
+        localStorage.setItem("theme", "light"); // Salva a escolha
+      } else {
+        // Se não, troca para dark
+        aplicarTema("dark");
+        localStorage.setItem("theme", "dark"); // Salva a escolha
+      }
+    });
+  }
 });

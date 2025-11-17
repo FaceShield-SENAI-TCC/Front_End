@@ -14,7 +14,6 @@
   </head>
   <body>
     <div class="container">
-      <!-- Menu Lateral -->
       <div class="sidebar">
         <div class="logo">
           <h2><i class="fas fa-map-marker-alt"></i> Sistema Locais</h2>
@@ -48,18 +47,26 @@
         </div>
       </div>
 
-      <!-- Conteúdo Principal -->
       <div class="main-content">
         <div class="header">
           <h1 class="page-title">
             <i class="fas fa-map-marked-alt"></i> Gerenciamento de Locais
           </h1>
-          <button class="logout-btn" onclick="window.location.href='Menu.html'">
-            <i class="fas fa-sign-out-alt"></i> Sair para Menu
-          </button>
+
+          <div class="header-buttons">
+            <button class="btn" id="theme-toggle-btn">
+              <i class="fas fa-moon"></i>
+            </button>
+
+            <button
+              class="logout-btn"
+              onclick="window.location.href='Menu.html'"
+            >
+              <i class="fas fa-sign-out-alt"></i> Sair para Menu
+            </button>
+          </div>
         </div>
 
-        <!-- Botões de Ação -->
         <div class="action-buttons">
           <button class="btn btn-primary" id="add-location-btn">
             <i class="fas fa-plus"></i> Adicionar Local
@@ -69,7 +76,6 @@
           </button>
         </div>
 
-        <!-- Filtros e Pesquisa -->
         <div class="search-section">
           <div class="search-group">
             <i class="fas fa-search"></i>
@@ -81,7 +87,6 @@
           </div>
         </div>
 
-        <!-- Tabela de Locais -->
         <div id="table-view">
           <div style="overflow-x: auto">
             <table class="locations-table">
@@ -95,21 +100,15 @@
                   <th>Ações</th>
                 </tr>
               </thead>
-              <tbody id="locations-table-body">
-                <!-- Dados serão carregados via JavaScript -->
-              </tbody>
+              <tbody id="locations-table-body"></tbody>
             </table>
           </div>
         </div>
 
-        <!-- Visualização em Cards -->
         <div id="card-view" style="display: none">
-          <div class="location-grid" id="location-grid">
-            <!-- Cards serão carregados via JavaScript -->
-          </div>
+          <div class="location-grid" id="location-grid"></div>
         </div>
 
-        <!-- Estado vazio -->
         <div id="empty-state" class="empty-state" style="display: none">
           <i class="fas fa-map-marker-alt"></i>
           <h3>Nenhum local cadastrado</h3>
@@ -123,7 +122,6 @@
           </button>
         </div>
 
-        <!-- Modal para Adicionar/Editar Local -->
         <div id="location-modal" class="modal">
           <div class="modal-content">
             <div class="modal-header">
@@ -182,7 +180,6 @@
       </div>
     </div>
 
-    <!-- Elementos para notificações e loading -->
     <div id="notification" class="notification" style="display: none"></div>
     <div id="loading-overlay" class="loading-overlay" style="display: none">
       <div class="loading-spinner"></div>

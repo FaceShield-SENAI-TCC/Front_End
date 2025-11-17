@@ -1,63 +1,121 @@
+/* =================================
+   DEFINIÇÃO DAS CORES (VARIÁVEIS)
+   ================================= */
+:root {
+  /* Modo Claro (Padrão) */
+  --cor-fundo: #f5f7fa;
+  --cor-fundo-container: #ffffff;
+  --cor-texto: #333;
+  --cor-texto-secundario: #7f8c8d;
+  --cor-titulo: #2c3e50;
+  --cor-borda: #eee;
+  --cor-borda-input: #ddd;
+  --cor-fundo-sidebar: linear-gradient(135deg, #2c3e50, #1a2530);
+  --cor-texto-sidebar: #ffffff;
+  --cor-modal-header: #2c3e50;
+  --cor-modal-footer: #f8f9fa;
+  --cor-tabela-header: #3498db;
+  --cor-tabela-hover: #f8f9fa;
+
+  /* Cores de Ação */
+  --cor-primaria: #3498db;
+  --cor-primaria-hover: #2980b9;
+  --cor-sucesso: #27ae60;
+  --cor-sucesso-hover: #219653;
+  --cor-perigo: #e74c3c;
+  --cor-perigo-hover: #c0392b;
+  --cor-aviso: #f39c12;
+  --cor-aviso-hover: #d35400;
+  --cor-texto-botao: #ffffff;
+}
+
+body.dark-mode {
+  /* Modo Escuro (Sobrescrito) */
+  --cor-fundo: #1a2530;
+  --cor-fundo-container: #2c3e50;
+  --cor-texto: #f5f7fa;
+  --cor-texto-secundario: #bdc3c7;
+  --cor-titulo: #ffffff;
+  --cor-borda: #34495e;
+  --cor-borda-input: #5b728a;
+  --cor-fundo-sidebar: linear-gradient(135deg, #2c3e50, #222f3d);
+  --cor-texto-sidebar: #ffffff;
+  --cor-modal-header: #1a2530;
+  --cor-modal-footer: #222f3d;
+  --cor-tabela-header: #3498db;
+  --cor-tabela-hover: #34495e;
+}
+/* =================================
+   FIM DAS VARIÁVEIS
+   ================================= */
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  transition: background-color 0.2s linear, color 0.2s linear;
 }
 
 body {
-  background-color: #f5f7fa;
-  color: #333;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+  height: 100vh; /* Mantido de PostEmp.css */
+  display: flex; /* Mantido de PostEmp.css */
+  flex-direction: column; /* Mantido de PostEmp.css */
 }
 
+/* =================================
+   LAYOUT PRINCIPAL (PADRÃO)
+   ================================= */
 .container {
   display: flex;
-  flex: 1;
+  flex: 1; /* Mantido de PostEmp.css */
 }
 
 /* Menu Lateral */
 .sidebar {
   width: 250px;
-  background: linear-gradient(180deg, #2c3e50, #1a2530);
-  color: #ecf0f1;
+  background: var(--cor-fundo-sidebar);
+  color: var(--cor-texto-sidebar);
   padding: 20px 0;
-  box-shadow: 3px 0 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
-  padding: 0 20px 20px;
+  text-align: center;
+  padding: 20px;
   border-bottom: 1px solid #34495e;
   margin-bottom: 20px;
 }
 
 .logo h2 {
-  margin: 0;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
+  color: var(--cor-primaria);
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
 }
 
 .menu-item {
-  padding: 12px 20px;
+  padding: 15px 25px;
   cursor: pointer;
   transition: all 0.3s;
   display: flex;
   align-items: center;
   gap: 10px;
-  border-left: 3px solid transparent;
 }
 
-.menu-item:hover {
-  background-color: #34495e;
-}
-
+.menu-item:hover,
 .menu-item.active {
-  background-color: #3498db;
-  border-left: 3px solid #fff;
+  background-color: var(--cor-primaria);
+  border-left: 4px solid var(--cor-texto-sidebar);
+}
+
+.menu-item i {
+  margin-right: 10px;
+  font-size: 1.2rem;
 }
 
 /* Conteúdo Principal */
@@ -65,8 +123,8 @@ body {
   flex: 1;
   padding: 30px;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
+  display: flex; /* Mantido de PostEmp.css */
+  flex-direction: column; /* Mantido de PostEmp.css */
 }
 
 .header {
@@ -75,17 +133,71 @@ body {
   align-items: center;
   margin-bottom: 30px;
   padding-bottom: 15px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--cor-borda);
 }
 
 .page-title {
-  margin: 0;
   font-size: 1.8rem;
-  color: #2c3e50;
+  color: var(--cor-titulo);
   display: flex;
   align-items: center;
   gap: 10px;
 }
+
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* .logout-btn é usado pelo PostEmp.js? Se não, pode remover. Deixei por via das dúvidas */
+.logout-btn {
+  background-color: var(--cor-perigo);
+  color: var(--cor-texto-botao);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logout-btn:hover {
+  background-color: var(--cor-perigo-hover);
+}
+
+.btn {
+  padding: 12px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  border: none;
+  background-color: var(--cor-fundo-container);
+  color: var(--cor-texto);
+  border: 1px solid var(--cor-borda-input);
+}
+
+.btn-primary {
+  background-color: var(--cor-primaria);
+  color: var(--cor-texto-botao);
+  border: none;
+}
+.btn-primary:hover {
+  background-color: var(--cor-primaria-hover);
+}
+/* =================================
+   FIM DO LAYOUT PADRÃO
+   ================================= */
+
+/* =================================
+   ESTILOS ESPECÍFICOS (POSTEMP.CSS)
+   ================================= */
 
 .user-info {
   display: flex;
@@ -97,8 +209,8 @@ body {
   width: 45px;
   height: 45px;
   border-radius: 50%;
-  background-color: #3498db;
-  color: white;
+  background-color: var(--cor-primaria);
+  color: var(--cor-texto-botao);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -113,16 +225,17 @@ body {
 .user-name {
   font-weight: bold;
   font-size: 1rem;
+  color: var(--cor-texto);
 }
 
 .user-role {
   font-size: 0.85rem;
-  color: #7f8c8d;
+  color: var(--cor-texto-secundario);
 }
 
 /* Formulário */
 .form-container {
-  background: white;
+  background: var(--cor-fundo-container);
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
   padding: 30px;
@@ -133,10 +246,10 @@ body {
 
 .form-section-title {
   font-size: 1.3rem;
-  color: #3498db;
+  color: var(--cor-primaria);
   margin-bottom: 20px;
   padding-bottom: 10px;
-  border-bottom: 2px solid #f0f3f5;
+  border-bottom: 2px solid var(--cor-borda);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -156,7 +269,7 @@ body {
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--cor-titulo);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -167,23 +280,25 @@ body {
 .form-group textarea {
   width: 100%;
   padding: 12px 15px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--cor-borda-input);
   border-radius: 6px;
   font-size: 1rem;
   transition: border-color 0.3s;
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
 }
 
 .form-group select:focus,
 .form-group input:focus,
 .form-group textarea:focus {
-  border-color: #3498db;
+  border-color: var(--cor-primaria);
   outline: none;
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
 .form-group input[readonly] {
-  background-color: #f9f9f9;
-  color: #7f8c8d;
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto-secundario);
 }
 
 .form-actions {
@@ -192,55 +307,52 @@ body {
   gap: 15px;
   margin-top: 30px;
   padding-top: 20px;
-  border-top: 1px solid #eee;
-}
-
-.btn {
-  padding: 12px 25px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  border-top: 1px solid var(--cor-borda);
 }
 
 .btn-cancel {
-  background-color: #e0e0e0;
-  color: #555;
+  background-color: var(--cor-fundo-container);
+  color: var(--cor-texto-secundario);
+  border: 1px solid var(--cor-borda-input);
 }
 
 .btn-cancel:hover {
-  background-color: #d0d0d0;
+  background-color: var(--cor-modal-footer); /* Reutilizando cor do footer */
 }
 
 .btn-submit {
-  background: linear-gradient(135deg, #3498db, #2980b9);
-  color: white;
+  background: linear-gradient(
+    135deg,
+    var(--cor-primaria),
+    var(--cor-primaria-hover)
+  );
+  color: var(--cor-texto-botao);
   box-shadow: 0 3px 8px rgba(52, 152, 219, 0.3);
+  border: none;
 }
 
 .btn-submit:hover {
-  background: linear-gradient(135deg, #2980b9, #3498db);
+  background: linear-gradient(
+    135deg,
+    var(--cor-primaria-hover),
+    var(--cor-primaria)
+  );
   box-shadow: 0 5px 12px rgba(52, 152, 219, 0.4);
 }
 
 /* Status Box */
 .status-box {
-  background-color: #f8f9fa;
+  background-color: var(--cor-fundo);
   border-radius: 8px;
   padding: 20px;
   margin-top: 20px;
-  border-left: 4px solid #3498db;
+  border-left: 4px solid var(--cor-primaria);
 }
 
 .status-title {
   font-weight: bold;
   margin-bottom: 10px;
-  color: #2c3e50;
+  color: var(--cor-titulo);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -250,15 +362,16 @@ body {
   display: flex;
   justify-content: space-between;
   padding: 8px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--cor-borda);
 }
 
 .status-label {
-  color: #7f8c8d;
+  color: var(--cor-texto-secundario);
 }
 
 .status-value {
   font-weight: 500;
+  color: var(--cor-texto);
 }
 
 /* Mensagens de Feedback */
@@ -275,19 +388,34 @@ body {
   border: 1px solid #c3e6cb;
   display: block;
 }
-
 .feedback.error {
   background-color: #f8d7da;
   color: #721c24;
   border: 1px solid #f5c6cb;
   display: block;
 }
-
 .feedback.warning {
   background-color: #fff3cd;
   color: #856404;
   border: 1px solid #ffeeba;
   display: block;
+}
+
+/* Dark mode feedback */
+body.dark-mode .feedback.success {
+  background-color: #155724;
+  color: #d4edda;
+  border-color: #155724;
+}
+body.dark-mode .feedback.error {
+  background-color: #721c24;
+  color: #f8d7da;
+  border-color: #721c24;
+}
+body.dark-mode .feedback.warning {
+  background-color: #856404;
+  color: #fff3cd;
+  border-color: #856404;
 }
 
 /* Loading Spinner */
@@ -304,12 +432,22 @@ body {
   }
 }
 
-/* Responsividade */
+/* =================================
+   RESPONSIVIDADE (PADRÃO + POSTEMP)
+   ================================= */
+
 @media (max-width: 1024px) {
+  .sidebar {
+    width: 220px;
+  }
+  .main-content {
+    padding: 20px;
+  }
+
+  /* Específico PostEmp */
   .container {
     flex-direction: column;
   }
-
   .sidebar {
     width: 100%;
     height: auto;
@@ -319,39 +457,88 @@ body {
     padding: 0 20px;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
   }
-
   .logo {
     border-bottom: none;
     margin-bottom: 0;
   }
-
   .menu-item {
     border-left: none;
     border-bottom: 3px solid transparent;
     padding: 15px;
   }
-
   .menu-item.active {
     border-left: none;
     border-bottom: 3px solid #fff;
   }
-
-  .main-content {
-    padding: 20px;
-  }
-
   .form-container {
     padding: 20px;
   }
 }
 
 @media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .logo {
+    padding: 0;
+    margin: 0;
+    border: none;
+  }
+
+  .menu-item {
+    border-left: none;
+    padding: 10px 15px;
+  }
+
+  .menu-item:hover,
+  .menu-item.active {
+    border-left: none;
+    border-bottom: 4px solid var(--cor-fundo);
+    background-color: transparent;
+  }
+
+  .main-content {
+    padding: 15px;
+  }
+
   .header {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
   }
 
+  .header-buttons {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .logout-btn {
+    flex-grow: 1;
+    justify-content: center;
+  }
+
+  #theme-toggle-btn {
+    padding: 10px 15px;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* --- Responsividade Específica (PostEmp) --- */
   .user-info {
     align-self: flex-start;
     width: 100%;
@@ -367,32 +554,37 @@ body {
   .form-actions {
     flex-direction: column;
   }
-
-  .btn {
-    width: 100%;
-    justify-content: center;
-  }
 }
 
 @media (max-width: 480px) {
   .sidebar {
     flex-direction: column;
-    align-items: stretch;
-    padding: 10px;
-  }
-
-  .main-content {
-    padding: 15px;
+    align-items: center;
+    gap: 10px;
   }
 
   .page-title {
     font-size: 1.5rem;
   }
 
-  .form-container {
+  .modal-content {
+    max-width: 95vw;
+    margin: 10px;
+  }
+
+  .modal-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .modal-body,
+  .modal-footer {
     padding: 15px;
   }
 
+  /* --- Responsividade Específica (PostEmp) --- */
+  .form-container {
+    padding: 15px;
+  }
   .btn {
     padding: 12px 20px;
     font-size: 0.9rem;
