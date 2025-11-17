@@ -174,6 +174,15 @@ function reconhecerFace(imageData) {
     });
 }
 
+const botaoVoltar = document.querySelector(".buttonVoltar");
+
+if (botaoVoltar) {
+  botaoVoltar.addEventListener("click", () => {
+    console.log("Botão Voltar clicado, limpando localStorage...");
+    localStorage.clear();
+  });
+}
+
 window.addEventListener("load", iniciarCamera);
 
 window.addEventListener("beforeunload", () => {

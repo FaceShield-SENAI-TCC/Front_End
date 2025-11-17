@@ -1,19 +1,10 @@
-// URLs da API
 const API_BASE = "http://localhost:8080/usuarios";
 const API_GET = `${API_BASE}/buscar`;
 const API_POST = `${API_BASE}/novoUsuario`;
 const API_PUT = `${API_BASE}/editar`;
 const API_DELETE = `${API_BASE}/deletar`;
 
-/**
- * Pega o token do localStorage e retorna o cabeçalho de Autorização.
- * Se o token não existir, lança um erro e redireciona para o login.
- * @param {boolean} includeContentType - Define se o 'Content-Type: application/json' deve ser incluído (padrão: false)
- * @returns {HeadersInit} - Objeto de Headers pronto para o fetch
- */
-
 function getAuthHeaders(includeContentType = false) {
-  // Pega o token que foi salvo no login
   const token = localStorage.getItem("authToken");
   const usuario = localStorage.getItem("username");
   const id = localStorage.getItem("id");
@@ -22,7 +13,7 @@ function getAuthHeaders(includeContentType = false) {
   console.log(`ID do Token: ${id}`);
   if (!token) {
     alert("Sessão expirada ou usuário não logado.");
-    window.location.href = "/front/Html/Login.html"; // Redireciona para a página de login
+    window.location.href = "/front/Html/Login.html";
     throw new Error("Token não encontrado. Redirecionando para login.");
   }
 
@@ -37,15 +28,10 @@ function getAuthHeaders(includeContentType = false) {
   return headers;
 }
 
-/**
- * Função para tratar erros de resposta da API, especialmente 401/403.
- * @param {Response} response - O objeto de resposta do fetch
- */
 async function handleResponseError(response) {
   if (response.status === 401 || response.status === 403) {
-    // Token inválido ou expirado
     alert("Acesso negado. Sua sessão pode ter expirado. Faça login novamente.");
-    window.location.href = "/front/Html/Login.html"; 
+    window.location.href = "/front/Html/Login.html";
     throw new Error("Acesso não autorizado (401/403).");
   }
 
@@ -55,9 +41,7 @@ async function handleResponseError(response) {
   );
 }
 
-// Objeto para manipular os alunos via API com Token
 const alunoService = {
-  // Buscar todos os alunos
   getAll: async function () {
     try {
       const response = await fetch(API_GET, {
@@ -68,17 +52,16 @@ const alunoService = {
       return await response.json();
     } catch (error) {
       console.error("Erro:", error);
-      alert(error.message); // Exibe o erro (ex: "Token não encontrado")
+      alert(error.message);
       return [];
     }
   },
 
-  // Buscar aluno por ID
   getById: async function (id) {
     try {
       const response = await fetch(`${API_GET}/${id}`, {
         method: "GET",
-        headers: getAuthHeaders(), 
+        headers: getAuthHeaders(),
       });
       if (!response.ok) await handleResponseError(response);
       return await response.json();
@@ -89,7 +72,6 @@ const alunoService = {
     }
   },
 
-  // Salvar aluno (criar ou atualizar)
   save: async function (aluno) {
     try {
       const url = aluno.id ? `${API_PUT}/${aluno.id}` : API_POST;
@@ -110,7 +92,6 @@ const alunoService = {
     }
   },
 
-  // Deletar aluno
   delete: async function (id) {
     try {
       const response = await fetch(`${API_DELETE}/${id}`, {
@@ -127,10 +108,8 @@ const alunoService = {
     }
   },
 
-  // Pesquisar alunos
   search: async function (term) {
     try {
-      // Adiciona o termo de busca como query parameter
       const response = await fetch(`${API_GET}?search=${term}`, {
         method: "GET",
         headers: getAuthHeaders(),
@@ -147,15 +126,6 @@ const alunoService = {
 };
 let allStudents = [];
 
-// FUNÇÕES DE INTERAÇÃO
-function openAddStudentModal() {
-  document.getElementById("student-form").reset();
-  document.getElementById("student-id").value = "";
-  document.getElementById("user-type").value = "Aluno"; // Valor padrão para novos usuários
-  document.getElementById("modal-title").textContent = "Adicionar Novo Usuário";
-  document.getElementById("student-modal").style.display = "flex";
-}
-
 function closeModal() {
   document.getElementById("student-modal").style.display = "none";
 }
@@ -164,25 +134,29 @@ function editStudent(id) {
   openEditStudentModal(id);
 }
 
+// === FUNÇÃO saveStudent ATUALIZADA ===
 async function saveStudent() {
   const studentId = document.getElementById("student-id").value;
   const firstName = document.getElementById("first-name").value;
   const lastName = document.getElementById("last-name").value;
   const studentClass = document.getElementById("class").value;
+  // Lendo o valor do novo campo <select>
+  const tipoUsuario = document.getElementById("user-type").value;
 
-  if (!firstName || !lastName || !studentClass) {
+  // Validando todos os campos, incluindo o novo tipoUsuario
+  if (!firstName || !lastName || !studentClass || !tipoUsuario) {
     alert("Por favor, preencha todos os campos!");
     return;
   }
 
-  // Objeto corrigido com base no Swagger
   const aluno = {
     id: studentId ? parseInt(studentId) : null,
     nome: firstName,
     sobrenome: lastName,
     turma: studentClass,
     username: `${firstName.toLowerCase()}.${lastName.toLowerCase()}`,
-    tipoUsuario: "ALUNO",
+    // Passando o valor selecionado (ALUNO ou PROFESSOR)
+    tipoUsuario: tipoUsuario,
   };
 
   try {
@@ -214,7 +188,6 @@ function searchStudents() {
     return;
   }
 
-  // Filtrar alunos localmente
   const filteredStudents = allStudents.filter(
     (student) =>
       (student.nome && student.nome.toLowerCase().includes(searchTerm)) ||
@@ -228,7 +201,6 @@ function searchStudents() {
   loadStudentsTable(filteredStudents);
 }
 
-// Função para carregar alunos na tabela
 async function loadStudentsTable(studentsArray = null) {
   const tableBody = document.getElementById("students-table-body");
   tableBody.innerHTML = "";
@@ -236,7 +208,6 @@ async function loadStudentsTable(studentsArray = null) {
   try {
     const students = studentsArray || (await alunoService.getAll());
 
-    // Armazenar todos os alunos para pesquisa
     if (!studentsArray) {
       allStudents = students;
     }
@@ -249,6 +220,7 @@ async function loadStudentsTable(studentsArray = null) {
 
     students.forEach((student) => {
       const row = document.createElement("tr");
+
       row.innerHTML = `
             <td>${student.id}</td>
             <td>${student.nome}</td>
@@ -256,16 +228,19 @@ async function loadStudentsTable(studentsArray = null) {
             <td>${student.turma}</td>
             <td>${student.tipoUsuario === "ALUNO" ? "Aluno" : "Professor"}</td>
             <td class="actions">
-              <button class="btn-icon" onclick="editStudent(${student.id})">
-                <i class="fas fa-edit"></i>
-              </button>
-              <button class="btn-icon btn-danger" onclick="deleteStudent(${
+              <button class="btn-action btn-edit" onclick="editStudent(${
                 student.id
               })">
-                <i class="fas fa-trash"></i>
+                <i class="fas fa-edit"></i> Editar
+              </button>
+              <button class="btn-action btn-delete" onclick="deleteStudent(${
+                student.id
+              })">
+                <i class="fas fa-trash"></i> Excluir
               </button>
             </td>
           `;
+
       tableBody.appendChild(row);
     });
   } catch (error) {
@@ -273,6 +248,7 @@ async function loadStudentsTable(studentsArray = null) {
   }
 }
 
+// === FUNÇÃO openEditStudentModal ATUALIZADA ===
 async function openEditStudentModal(id) {
   try {
     const student = await alunoService.getById(id);
@@ -280,9 +256,10 @@ async function openEditStudentModal(id) {
       document.getElementById("student-id").value = student.id;
       document.getElementById("first-name").value = student.nome;
       document.getElementById("last-name").value = student.sobrenome;
+      // Preenche o campo de input "turma"
       document.getElementById("class").value = student.turma;
-      document.getElementById("user-type").value =
-        student.tipoUsuario === "ALUNO" ? "Aluno" : "Professor";
+      // Seleciona a opção correta (ALUNO ou PROFESSOR) no <select>
+      document.getElementById("user-type").value = student.tipoUsuario;
 
       document.getElementById("modal-title").textContent = "Editar Usuário";
       document.getElementById("student-modal").style.display = "flex";
@@ -292,7 +269,6 @@ async function openEditStudentModal(id) {
   }
 }
 
-// Inicializa a tabela quando a página carregar
 document.addEventListener("DOMContentLoaded", function () {
   loadStudentsTable();
 });

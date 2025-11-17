@@ -47,7 +47,7 @@ body {
 .menu-item:hover,
 .menu-item.active {
   background-color: #3498db;
-  border-left: 4px solid #e74c3c;
+  border-left: 4px solid #ffffff;
 }
 
 .menu-item i {
@@ -281,17 +281,45 @@ body {
   color: #7f8c8d;
 }
 
-.btn-icon {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 5px;
-  margin: 0 3px;
+/* === ESTILOS DOS BOTÕES (AMARELO E VERMELHO) === */
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-.btn-danger {
-  color: #e74c3c;
+.btn-action {
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+  border: none;
+  font-size: 0.9rem;
+  white-space: nowrap;
 }
+
+.btn-edit {
+  background-color: #f39c12;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #d35400;
+}
+
+.btn-delete {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #c0392b;
+}
+/* === FIM DOS ESTILOS === */
 
 /* Responsividade */
 @media (max-width: 1024px) {
@@ -402,13 +430,25 @@ body {
     margin-right: 15px;
   }
 
-  /* Hardcoded labels for table cells */
-  .students-table td:nth-of-type(1)::before { content: "Nome"; }
-  .students-table td:nth-of-type(2)::before { content: "RA"; }
-  .students-table td:nth-of-type(3)::before { content: "Email"; }
-  .students-table td:nth-of-type(4)::before { content: "Curso"; }
-  .students-table td:nth-of-type(5)::before { content: "Ações"; }
+  .students-table td:nth-of-type(1)::before {
+    content: "ID";
+  }
+  .students-table td:nth-of-type(2)::before {
+    content: "Nome";
+  }
+  .students-table td:nth-of-type(3)::before {
+    content: "Sobrenome";
+  }
+  .students-table td:nth-of-type(4)::before {
+    content: "Curso";
+  }
+  .students-table td:nth-of-type(5)::before {
+    content: "Tipo de Usuário";
+  }
 
+  .students-table td.actions {
+    justify-content: flex-end;
+  }
 
   .form-row {
     flex-direction: column;
