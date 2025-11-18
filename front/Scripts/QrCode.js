@@ -5,13 +5,18 @@ const loadingOverlay = document.querySelector(".loading-overlay");
 
 let canvasElement = document.createElement("canvas");
 let canvas = canvasElement.getContext("2d");
-let scanning = false; // <<< Importante: Controla se já estamos processando um QR Code
+let scanning = false;
+
+// URLs FINAIS E FIXAS
+const BASE_URL = "http://localhost:8080/emprestimos";
+const URL_EMPRESTIMO = `${BASE_URL}/novoEmprestimoQrcode`; // POST
+const URL_DEVOLUCAO = `${BASE_URL}/finalizarEmprestimoQrcode`; // PUT
 
 async function iniciarCamera() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: {
-        facingMode: "environment", // Câmera traseira
+        facingMode: "environment",
         width: { ideal: 1280 },
         height: { ideal: 720 },
       },
@@ -30,7 +35,6 @@ async function iniciarCamera() {
 }
 
 function detectarQRCode() {
-  // <<< Só continua se não estivermos já processando um scan
   if (video.readyState === video.HAVE_ENOUGH_DATA && !scanning) {
     canvasElement.width = video.videoWidth;
     canvasElement.height = video.videoHeight;
@@ -49,131 +53,222 @@ function detectarQRCode() {
     });
 
     if (code) {
-      // <<< QR Code encontrado!
-      scanning = true; // Trava para não escanear de novo
+      scanning = true;
       processarQRCode(code.data);
     }
   }
 
-  // Continua o loop
   if (!scanning) {
     requestAnimationFrame(detectarQRCode);
   }
 }
 
-// ==================================================================
-//  MUDANÇA PRINCIPAL AQUI
-// ==================================================================
-
-function processarQRCode(toolId) {
+function processarQRCode(numeroQrCode) {
   mostrarLoading(true);
-  mensagem.textContent = `QR Code lido [${toolId}]. Registrando empréstimo...`;
+  mensagem.textContent = `QR Code lido [${numeroQrCode}]. Registrando operação...`;
 
-  // 1. Pegar os dados do aluno que foram salvos no Login
   const userId = localStorage.getItem("id");
   const authToken = localStorage.getItem("authToken");
 
-  // 2. Verificar se o aluno está logado
-  if (!userId || !authToken) {
+  registrarEmprestimo(userId, numeroQrCode, authToken);
+}
+
+/**
+ * ABORDAGEM INTELIGENTE: Tenta POST primeiro, se der erro de "não disponível", faz PUT
+ */
+async function registrarEmprestimo(userId, numeroQrCode, token) {
+  // 1. Validações Iniciais
+  if (!token) {
+    console.error("Erro: Token de autenticação ausente.");
     mostrarFeedback(
-      "Usuário não autenticado. Faça o login novamente.",
+      "Token de autenticação ausente. Faça login novamente.",
       "error"
     );
     mostrarLoading(false);
     setTimeout(() => {
       window.location.href = "/front/Html/Login.html";
-    }, 2000);
-    return; // Para a execução
-  }
-
-  // 3. Verificar se o QR Code é válido
-  if (!toolId || toolId.length === 0) {
-    mostrarFeedback("QR Code inválido ou vazio. Tente novamente.", "error");
-    mensagem.textContent = "QR Code inválido. Tente novamente.";
-    mostrarLoading(false);
-    scanning = false; // Libera para escanear de novo
-    requestAnimationFrame(detectarQRCode); // Reinicia o scan
+    }, 1500);
     return;
   }
 
-  // 4. Chamar a função para fazer o POST no backend
-  registrarEmprestimo(userId, toolId, authToken);
-}
+  const usuarioIdNumero = parseInt(userId, 10);
+  if (isNaN(usuarioIdNumero)) {
+    console.error("Erro: ID do usuário inválido ou não numérico.");
+    mostrarFeedback("Erro no ID do usuário. Faça login novamente.", "error");
+    mostrarLoading(false);
+    scanning = false;
+    requestAnimationFrame(detectarQRCode);
+    return;
+  }
 
-/**
- * Nova função para fazer o POST de Empréstimo no backend Java
- */
-async function registrarEmprestimo(userId, toolId, token) {
-  // ATENÇÃO: Confirme a URL da sua API de empréstimos!
-  const URL_EMPRESTIMO = "http://localhost:8080/api/emprestimos/novo"; // <<< CONFIRME ESSA URL
+  const qrcodeLimpado = numeroQrCode ? numeroQrCode.trim() : "";
+  if (qrcodeLimpado.length === 0) {
+    console.error("Erro: QR Code vazio.");
+    mostrarFeedback("QR Code inválido ou vazio. Tente novamente.", "error");
+    mensagem.textContent = "QR Code inválido. Tente novamente.";
+    mostrarLoading(false);
+    scanning = false;
+    requestAnimationFrame(detectarQRCode);
+    return;
+  }
+
+  const dataHoraBrasiliaISO = obterDataHoraBrasiliaISO();
+
+  // -----------------------------------------------------------------
+  // LÓGICA INTELIGENTE: Tenta POST -> Se erro -> Tenta PUT
+  // -----------------------------------------------------------------
+
+  // PRIMEIRO: Sempre tenta criar novo empréstimo (POST)
+  let method = "POST";
+  let url = URL_EMPRESTIMO;
+  let sucessoMsg = "Empréstimo registrado com sucesso!";
+
+  let payloadObject = {
+    usuarioId: usuarioIdNumero,
+    qrcodeFerramenta: qrcodeLimpado,
+    data_retirada: dataHoraBrasiliaISO,
+  };
+
+  console.log(
+    `Tentando CRIAR novo empréstimo para usuário: ${usuarioIdNumero}`
+  );
+  const payload = JSON.stringify(payloadObject);
+  console.log(`Requisição POST para: ${url}`, payload);
 
   try {
-    const response = await fetch(URL_EMPRESTIMO, {
-      method: "POST",
+    const response = await fetch(url, {
+      method: method,
       headers: {
         "Content-Type": "application/json",
-        // Envia o token de autenticação que pegamos no login facial
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        // Ajuste os nomes dos campos (usuarioId, ferramentaId)
-        // para o que a sua API Java espera receber
-        usuarioId: userId,
-        ferramentaId: toolId,
-      }),
+      body: payload,
     });
 
     if (!response.ok) {
-      // Tenta ler a mensagem de erro da API
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        errorData.message || `Erro ${response.status} ao registrar empréstimo.`
-      );
+      const errorText = await response.text();
+      console.log(`POST falhou: ${errorText}`);
+
+      // SE o erro for "ferramenta não está disponível", tenta finalizar empréstimo (PUT)
+      if (
+        errorText.includes("não está disponível") ||
+        response.status === 400
+      ) {
+        console.log(
+          "Ferramenta não disponível - tentando FINALIZAR empréstimo existente"
+        );
+
+        method = "PUT";
+        url = URL_DEVOLUCAO;
+        sucessoMsg = "Devolução registrada com sucesso!";
+
+        payloadObject = {
+          usuarioId: usuarioIdNumero,
+          qrcodeFerramenta: qrcodeLimpado,
+          data_devolucao: dataHoraBrasiliaISO,
+        };
+
+        const putPayload = JSON.stringify(payloadObject);
+        console.log(`Requisição PUT para: ${url}`, putPayload);
+
+        const putResponse = await fetch(url, {
+          method: method,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: putPayload,
+        });
+
+        if (!putResponse.ok) {
+          const putErrorText = await putResponse.text();
+          throw new Error(`Erro na devolução: ${putErrorText}`);
+        }
+
+        const data = await putResponse.json();
+        console.log("Devolução registrada com sucesso:", data);
+        mostrarFeedback(sucessoMsg, "success");
+        mensagem.textContent = "Sucesso! Devolução registrada.";
+      } else {
+        // Se for outro erro, lança exceção
+        throw new Error(errorText);
+      }
+    } else {
+      // Se POST deu certo (criou novo empréstimo)
+      const data = await response.json();
+      console.log("Empréstimo registrado com sucesso:", data);
+      mostrarFeedback(sucessoMsg, "success");
+      mensagem.textContent = "Sucesso! Empréstimo registrado.";
     }
 
-    const data = await response.json();
-    console.log("Empréstimo registrado:", data);
-
-    // Sucesso!
-    mostrarFeedback("Empréstimo registrado com sucesso!", "success");
-    mensagem.textContent = "Sucesso! Você já pode pegar a ferramenta.";
     mostrarLoading(false);
 
-    // Opcional: redirecionar para uma tela de "sucesso" ou de volta ao login
     setTimeout(() => {
-      window.location.href = "/front/Html/Login.html"; // Volta pro login
+      window.location.href = "/front/Html/Login.html";
     }, 3000);
   } catch (error) {
-    console.error("Erro ao registrar empréstimo:", error);
+    console.error("Erro ao registrar operação:", error);
     mostrarFeedback(`Falha: ${error.message}`, "error");
     mensagem.textContent = "Falha no registro. Tente escanear novamente.";
     mostrarLoading(false);
-    scanning = false; // Libera para escanear de novo
-    requestAnimationFrame(detectarQRCode); // Reinicia o scan
+    scanning = false;
+    requestAnimationFrame(detectarQRCode);
   }
 }
 
+/**
+ * Função auxiliar para garantir o formato ISO 8601 da Data/Hora de Brasília.
+ * Retorna: "YYYY-MM-DDTHH:mm:ss"
+ */
+function obterDataHoraBrasiliaISO() {
+  const now = new Date();
+  const options = {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  };
+
+  const dateParts = new Intl.DateTimeFormat("pt-BR", options)
+    .formatToParts(now)
+    .reduce((acc, part) => {
+      acc[part.type] = part.value;
+      return acc;
+    }, {});
+
+  const year = dateParts.year;
+  const month = dateParts.month;
+  const day = dateParts.day;
+  const hour = dateParts.hour;
+  const minute = dateParts.minute;
+  const second = dateParts.second;
+
+  return `${year}-${month}-${day}T${hour}:${minute}:${second}`;
+}
+
 // ==================================================================
-//  FUNÇÕES AUXILIARES (Sem alteração)
+//  FUNÇÕES AUXILIARES
 // ==================================================================
 
 function mostrarFeedback(texto, tipo) {
   feedback.textContent = texto;
   feedback.className = "feedback " + tipo;
-  feedback.style.display = "block"; // Garante que está visível
+  feedback.style.display = "block";
 
-  // Reseta os estilos de fade-out do Login.js (se houver)
   feedback.style.opacity = 1;
   feedback.style.transform = "translateX(0)";
 
   setTimeout(() => {
-    // Adiciona estilos de fade-out
     feedback.style.opacity = 0;
     feedback.style.transform = "translateX(120%)";
     setTimeout(() => {
       feedback.style.display = "none";
     }, 400);
-  }, 4000); // Feedback some em 4 segundos
+  }, 4000);
 }
 
 function mostrarLoading(mostrar) {
@@ -181,7 +276,6 @@ function mostrarLoading(mostrar) {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-  // Verifica se o usuário está logado ANTES de iniciar a câmera
   const userId = localStorage.getItem("id");
   const username = localStorage.getItem("username");
 
@@ -193,7 +287,8 @@ window.addEventListener("DOMContentLoaded", () => {
     }, 2000);
   } else {
     mensagem.textContent = `Olá, ${username}. Aponte para o QR Code.`;
-    iniciarCamera(); // Inicia a câmera só se o usuário estiver logado
+    console.log(`Usuário logado: ${username} (ID: ${userId})`);
+    iniciarCamera();
   }
 
   const botaoVoltar = document.getElementById("btn-voltar");

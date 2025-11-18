@@ -68,22 +68,14 @@ let isScanning = false;
 // Cache de locais
 let locaisCache = [];
 
-// ==================== FUNÇÕES DE AUTENTICAÇÃO (ADICIONADAS) ====================
+// ==================== FUNÇÕES DE AUTENTICAÇÃO ====================
 
-/**
- * Pega o token do localStorage e retorna o cabeçalho de Autorização.
- * Se o token não existir, lança um erro e redireciona para o login.
- * @param {boolean} includeContentType - Define se o 'Content-Type: application/json' deve ser incluído
- * @returns {HeadersInit} - Objeto de Headers pronto para o fetch
- */
 function getAuthHeaders(includeContentType = false) {
-  // Pega o token que foi salvo no login
   const token = localStorage.getItem("authToken");
 
   if (!token) {
     alert("Sessão expirada ou usuário não logado.");
-    // ATENÇÃO: Ajuste a URL abaixo para a sua página de login de professor
-    window.location.href = "../Login/LoginProfessor.html"; // Exemplo
+    window.location.href = "../Login/LoginProfessor.html";
     throw new Error("Token não encontrado. Redirecionando para login.");
   }
 
@@ -98,16 +90,10 @@ function getAuthHeaders(includeContentType = false) {
   return headers;
 }
 
-/**
- * Função para tratar erros de resposta da API, especialmente 401/403.
- * @param {Response} response - O objeto de resposta do fetch
- */
 async function handleResponseError(response) {
   if (response.status === 401 || response.status === 403) {
-    // Token inválido ou expirado
     alert("Acesso negado. Sua sessão pode ter expirado. Faça login novamente.");
-    // ATENÇÃO: Ajuste a URL abaixo para a sua página de login de professor
-    window.location.href = "../LoginProf/LoginProf.html"; // Exemplo
+    window.location.href = "../LoginProf/LoginProf.html";
     throw new Error("Acesso não autorizado (401/403).");
   }
 
@@ -117,9 +103,8 @@ async function handleResponseError(response) {
   );
 }
 
-// ==================== RESTANTE DO SEU CÓDIGO (MODIFICADO) ====================
+// ==================== FUNÇÕES PRINCIPAIS ====================
 
-// Função para mostrar notificação
 function showNotification(message, isSuccess = true) {
   notification.textContent = message;
   notification.className = `notification ${isSuccess ? "success" : "error"}`;
@@ -130,24 +115,15 @@ function showNotification(message, isSuccess = true) {
   }, 3000);
 }
 
-// Mostrar/ocultar overlay de carregamento
 function showLoading(show) {
   loadingOverlay.style.display = show ? "flex" : "none";
 }
 
-// Modificar o campo QR Code no formulário existente para adicionar botão de escanear
 function setupQRCodeField() {
   const qrCodeField = document.getElementById("tool-qrcode");
-  // Verifica se o qrCodeField existe E se o botão ainda não foi criado
   if (qrCodeField && !document.getElementById("start-scan-btn")) {
     const qrContainer = qrCodeField.parentElement;
 
-    // Criar container para o campo QR Code com botão
-    const newQrContainer = document.createElement("div");
-    newQrContainer.className = "form-group";
-
-    // Substitui o input antigo pelo novo layout
-    // (Presume que o input antigo está sozinho no 'form-group')
     if (qrContainer && qrContainer.className.includes("form-group")) {
       qrContainer.innerHTML = `
             <label for="tool-qrcode">QR Code</label>
@@ -158,29 +134,25 @@ function setupQRCodeField() {
                 </button>
             </div>
         `;
-      // Adicionar event listener para o botão de escanear
       qrContainer
         .querySelector("#start-scan-btn")
         .addEventListener("click", openQRScanner);
     }
   }
 }
-// Nova função para buscar dados da ferramenta pelo QR Code (SEM AUTENTICAÇÃO)
+
 async function fetchToolDataByQRCode(qrCode) {
   try {
     showLoading(true);
 
-    // <-- MODIFICADO: Chamada fetch simples, sem o getAuthHeaders()
     const response = await fetch(`${Ferramenta_GET_BY_QRCODE}/${qrCode}`);
 
     if (response.status === 404) {
-      // Ferramenta não encontrada - modo de cadastro
       showNotification(
         "Ferramenta não encontrada. Preencha os dados para cadastrar.",
         false
       );
 
-      // Limpa formulário, mas mantém o QR Code
       toolId.value = "";
       toolName.value = "";
       toolBrand.value = "";
@@ -189,19 +161,16 @@ async function fetchToolDataByQRCode(qrCode) {
       toolDisponibilidade.checked = true;
       toolDescricao.value = "";
       toolIdLocal.value = "";
-      // O 'tool-qrcode' já está preenchido pelo scanner
 
       modalTitle.textContent = "Cadastrar Nova Ferramenta";
       toolName.focus();
     } else if (response.ok) {
-      // Ferramenta encontrada - modo de edição
       const ferramenta = await response.json();
 
       toolId.value = ferramenta.id;
       toolName.value = ferramenta.nome;
       toolBrand.value = ferramenta.marca;
       toolModel.value = ferramenta.modelo;
-      // document.getElementById("tool-qrcode").value = ferramenta.qrcode; // Já está preenchido
       toolEstado.value = ferramenta.estado;
       toolDisponibilidade.checked = ferramenta.disponibilidade;
       toolDescricao.value = ferramenta.descricao || "";
@@ -210,13 +179,11 @@ async function fetchToolDataByQRCode(qrCode) {
       modalTitle.textContent = "Editar Ferramenta";
       showNotification("Dados da ferramenta carregados automaticamente!", true);
     } else {
-      // <-- MODIFICADO: Tratamento de erro simples, sem o handleResponseError()
       const errorText = await response.text();
       throw new Error(`Erro HTTP ${response.status}: ${errorText}`);
     }
   } catch (error) {
     console.error("Erro ao buscar dados da ferramenta:", error);
-    // Não precisa mais checar por "Token" aqui
     showNotification(
       `Erro ao carregar dados da ferramenta: ${error.message}`,
       false
@@ -226,7 +193,6 @@ async function fetchToolDataByQRCode(qrCode) {
   }
 }
 
-// Função para inicializar o scanner com escaneamento automático
 async function initializeQRScanner() {
   try {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -237,7 +203,7 @@ async function initializeQRScanner() {
 
     const constraints = {
       video: {
-        facingMode: "environment", // Preferir câmera traseira
+        facingMode: "environment",
         width: { ideal: 1280 },
         height: { ideal: 720 },
       },
@@ -261,11 +227,10 @@ async function initializeQRScanner() {
     scanResultElement.textContent = "Câmera ativa. Procurando QR Code...";
     scanResultElement.style.color = "var(--primary-color)";
 
-    startAutoScan(); // Inicia o escaneamento
+    startAutoScan();
   } catch (error) {
     console.error("Erro ao acessar câmera:", error);
 
-    // Tenta configuração alternativa
     if (
       error.name === "OverconstrainedError" ||
       error.name === "ConstraintNotSatisfiedError"
@@ -289,8 +254,6 @@ async function initializeQRScanner() {
   }
 }
 
-// Função para escaneamento automático contínuo
-// (Usa a API Python, não precisa de token)
 function startAutoScan() {
   if (isScanning) return;
 
@@ -330,14 +293,13 @@ function startAutoScan() {
           formData.append("image", blob, "qrcode.png");
 
           console.log(
-            `🔄 Tentativa ${scanAttempts}: Enviando imagem para escaneamento (API Python)...`
+            `Tentativa ${scanAttempts}: Enviando imagem para escaneamento...`
           );
 
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+          const timeoutId = setTimeout(() => controller.abort(), 10000);
 
           const response = await fetch(QR_SCAN_API, {
-            // API Python
             method: "POST",
             body: formData,
             signal: controller.signal,
@@ -352,14 +314,12 @@ function startAutoScan() {
           }
 
           const result = await response.json();
-          console.log("📨 Resposta do backend (Python):", result);
+          console.log("Resposta do backend:", result);
 
           if (result.success && result.qrCode) {
-            // QR Code detectado com sucesso
             const qrCodeValue = result.qrCode;
             document.getElementById("tool-qrcode").value = qrCodeValue;
 
-            // AGORA, busca dados na API Java (com token)
             await fetchToolDataByQRCode(qrCodeValue);
 
             showNotification("QR Code escaneado com sucesso!", true);
@@ -369,14 +329,12 @@ function startAutoScan() {
               result.error || "Procurando QR Code...";
           }
         } catch (error) {
-          console.error("❌ Erro ao escanear QR Code (API Python):", error);
+          console.error("Erro ao escanear QR Code:", error);
           if (scanAttempts % 5 === 0) {
             if (error.name === "AbortError") {
-              scanResultElement.textContent =
-                "Timeout: Servidor Python não respondeu";
+              scanResultElement.textContent = "Timeout: Servidor não respondeu";
             } else {
-              scanResultElement.textContent =
-                "Erro de conexão com o servidor Python";
+              scanResultElement.textContent = "Erro de conexão com o servidor";
             }
             scanResultElement.style.color = "var(--accent-color)";
           }
@@ -386,23 +344,20 @@ function startAutoScan() {
       console.error("Erro na captura:", error);
     }
 
-    // Continuar o escaneamento
     if (isScanning) {
-      setTimeout(scanFrame, 1000); // Escanear a cada 1 segundo
+      setTimeout(scanFrame, 1000);
     }
   };
 
-  scanFrame(); // Iniciar
+  scanFrame();
 }
 
-// Abrir scanner
 function openQRScanner() {
   const modal = document.getElementById("qr-scanner-modal");
   modal.style.display = "flex";
   scanResultElement.textContent = "Iniciando câmera...";
   scanResultElement.style.color = "inherit";
 
-  // Limpa stream anterior
   if (qrStream) {
     qrStream.getTracks().forEach((track) => track.stop());
     qrStream = null;
@@ -412,7 +367,6 @@ function openQRScanner() {
   initializeQRScanner();
 }
 
-// Fechar scanner
 function closeQRScanner() {
   const modal = document.getElementById("qr-scanner-modal");
   modal.style.display = "none";
@@ -426,23 +380,46 @@ function closeQRScanner() {
   videoElement.srcObject = null;
 }
 
-// Função para carregar locais (MODIFICADA)
+// ==================== CORREÇÃO DOS EVENT LISTENERS ====================
+
+function setupScannerEventListeners() {
+  // Botão de fechar (X) do modal do scanner
+  const closeScanBtn = document.querySelector(".close-scan-btn");
+  if (closeScanBtn) {
+    closeScanBtn.addEventListener("click", closeQRScanner);
+  }
+
+  // Botão de cancelar do modal do scanner
+  const cancelScanBtn = document.getElementById("cancel-scan-btn");
+  if (cancelScanBtn) {
+    cancelScanBtn.addEventListener("click", closeQRScanner);
+  }
+
+  // Fechar modal do scanner ao clicar fora
+  const scannerModal = document.getElementById("qr-scanner-modal");
+  if (scannerModal) {
+    scannerModal.addEventListener("click", function (e) {
+      if (e.target === this) {
+        closeQRScanner();
+      }
+    });
+  }
+}
+
 async function loadLocais() {
   try {
     toolIdLocal.innerHTML =
       '<option value="">Carregando locais... <span class="loading"></span></option>';
 
-    // <-- MODIFICADO: Adiciona headers de autenticação
     const response = await fetch(locais_get, {
       method: "GET",
       headers: getAuthHeaders(),
     });
 
-    // <-- MODIFICADO: Usa handleResponseError
     if (!response.ok) await handleResponseError(response);
 
     const locais = await response.json();
-    locaisCache = locais; // Armazenar em cache
+    locaisCache = locais;
     return locais;
   } catch (error) {
     console.error("Erro ao carregar locais:", error);
@@ -454,28 +431,23 @@ async function loadLocais() {
   }
 }
 
-// Função para preencher o select de locais com o cache
 function fillLocaisSelect() {
   toolIdLocal.innerHTML = '<option value="">Selecione um local...</option>';
   locaisCache.forEach((local) => {
     const option = document.createElement("option");
     option.value = local.id;
-    // Ajuste aqui se o nome do local for diferente
     option.textContent = local.nomeEspaco || `Local ID ${local.id}`;
     toolIdLocal.appendChild(option);
   });
 }
 
-// Função para carregar ferramentas (MODIFICADA)
 async function loadFerramentas() {
   try {
-    // <-- MODIFICADO: Adiciona headers de autenticação
     const response = await fetch(Ferramenta_GET, {
       method: "GET",
       headers: getAuthHeaders(),
     });
 
-    // <-- MODIFICADO: Usa handleResponseError
     if (!response.ok) await handleResponseError(response);
 
     return await response.json();
@@ -488,12 +460,10 @@ async function loadFerramentas() {
   }
 }
 
-// Função para criar card de ferramenta (mobile)
 function createToolCard(ferramenta, nomeLocal) {
   const card = document.createElement("div");
   card.className = "tool-card";
 
-  // === BOTÕES CORRIGIDOS AQUI ===
   card.innerHTML = `
         <div class="card-header">
           <div class="card-title">${ferramenta.nome}</div>
@@ -563,12 +533,11 @@ function createToolCard(ferramenta, nomeLocal) {
   return card;
 }
 
-// Função para carregar ferramentas na tabela e cards
 async function loadToolsTable() {
   showLoading(true);
 
   try {
-    const ferramentas = await loadFerramentas(); // Já usa token
+    const ferramentas = await loadFerramentas();
     toolsTableBody.innerHTML = "";
     toolsCards.innerHTML = "";
 
@@ -590,17 +559,13 @@ async function loadToolsTable() {
     }
 
     ferramentas.forEach((ferramenta) => {
-      // Obter o nome do local corretamente
-      // 'ferramenta.nomeLocal' parece já vir do backend, se não, use o cache
       const nomeLocal =
         ferramenta.nomeLocal ||
         locaisCache.find((l) => l.id == ferramenta.id_local)?.nomeEspaco ||
         "N/A";
 
-      // Criar linha da tabela (desktop)
       const row = document.createElement("tr");
 
-      // === BOTÕES CORRIGIDOS AQUI (action-buttons-cell -> actions) ===
       row.innerHTML = `
             <td>${ferramenta.id}</td>
             <td>${ferramenta.nome}</td>
@@ -633,12 +598,10 @@ async function loadToolsTable() {
           `;
       toolsTableBody.appendChild(row);
 
-      // Criar card (mobile)
       const card = createToolCard(ferramenta, nomeLocal);
       toolsCards.appendChild(card);
     });
 
-    // Adicionar event listeners para os botões (tabela)
     document.querySelectorAll(".btn-edit").forEach((btn) => {
       btn.addEventListener("click", function () {
         const id = this.getAttribute("data-id");
@@ -653,7 +616,6 @@ async function loadToolsTable() {
       });
     });
 
-    // Adicionar event listeners para os botões (cards)
     document.querySelectorAll(".card-edit").forEach((btn) => {
       btn.addEventListener("click", function () {
         const id = this.getAttribute("data-id");
@@ -669,24 +631,20 @@ async function loadToolsTable() {
     });
   } catch (error) {
     console.error("Erro ao carregar ferramentas:", error);
-    // showNotification("Erro ao carregar ferramentas", false); // Já tratado em loadFerramentas
   } finally {
     showLoading(false);
   }
 }
 
-// Função de pesquisa
 function searchTools() {
   const searchTerm = searchInput.value.toLowerCase();
 
-  // Filtrar tabela
   const rows = toolsTableBody.querySelectorAll("tr");
   rows.forEach((row) => {
     const text = row.textContent.toLowerCase();
     row.style.display = text.includes(searchTerm) ? "" : "none";
   });
 
-  // Filtrar cards
   const cards = toolsCards.querySelectorAll(".tool-card");
   cards.forEach((card) => {
     const text = card.textContent.toLowerCase();
@@ -694,7 +652,6 @@ function searchTools() {
   });
 }
 
-// Funções do modal
 async function openAddToolModal() {
   toolForm.reset();
   toolId.value = "";
@@ -703,33 +660,28 @@ async function openAddToolModal() {
   toolModal.style.display = "flex";
 
   setupQRCodeField();
-  fillLocaisSelect(); // Preencher o select com o cache
+  fillLocaisSelect();
 }
 
-// (MODIFICADA)
 async function openEditToolModal(id) {
   try {
     showLoading(true);
-    // <-- MODIFICADO: Adiciona headers de autenticação
     const response = await fetch(`${Ferramenta_GET}/${id}`, {
       method: "GET",
       headers: getAuthHeaders(),
     });
 
-    // <-- MODIFICADO: Usa handleResponseError
     if (!response.ok) await handleResponseError(response);
 
     const ferramenta = await response.json();
 
     setupQRCodeField();
-    fillLocaisSelect(); // Preencher o select com o cache
+    fillLocaisSelect();
 
-    // Preencher formulário
     toolId.value = ferramenta.id;
     toolName.value = ferramenta.nome;
     toolBrand.value = ferramenta.marca;
     toolModel.value = ferramenta.modelo;
-    // Precisamos garantir que o input correto do qrcode seja pego
     document.getElementById("tool-qrcode").value = ferramenta.qrcode || "";
     toolEstado.value = ferramenta.estado;
     toolDisponibilidade.checked = ferramenta.disponibilidade;
@@ -755,9 +707,7 @@ function closeModal() {
   toolModal.style.display = "none";
 }
 
-// (MODIFICADA)
 async function saveTool() {
-  // Validar campos OBRIGATÓRIOS
   if (
     !toolName.value ||
     !toolBrand.value ||
@@ -769,7 +719,6 @@ async function saveTool() {
     return;
   }
 
-  // Garantir que o QR Code seja pego do campo correto
   const qrcodeValue = document.getElementById("tool-qrcode").value;
 
   const toolData = {
@@ -791,14 +740,12 @@ async function saveTool() {
       ? `${Ferramenta_PUT}/${toolId.value}`
       : Ferramenta_POST;
 
-    // <-- MODIFICADO: Adiciona headers de autenticação (com Content-Type)
     response = await fetch(url, {
       method: method,
-      headers: getAuthHeaders(true), // true para 'application/json'
+      headers: getAuthHeaders(true),
       body: JSON.stringify(toolData),
     });
 
-    // <-- MODIFICADO: Usa handleResponseError
     if (!response.ok) await handleResponseError(response);
 
     showNotification(
@@ -819,18 +766,15 @@ async function saveTool() {
   }
 }
 
-// Função para excluir ferramenta (MODIFICADA)
 async function deleteTool(id) {
   if (confirm("Tem certeza que deseja excluir esta ferramenta?")) {
     try {
       showLoading(true);
-      // <-- MODIFICADO: Adiciona headers de autenticação
       const response = await fetch(`${Ferramenta_DELETE}/${id}`, {
         method: "DELETE",
         headers: getAuthHeaders(),
       });
 
-      // <-- MODIFICADO: Usa handleResponseError
       if (!response.ok) await handleResponseError(response);
 
       showNotification("Ferramenta excluída com sucesso!", true);
@@ -849,30 +793,30 @@ async function deleteTool(id) {
   }
 }
 
-// Event Listeners
+// ==================== EVENT LISTENERS PRINCIPAIS ====================
+
 addToolBtn.addEventListener("click", openAddToolModal);
 saveBtn.addEventListener("click", saveTool);
 cancelBtn.addEventListener("click", closeModal);
 closeBtn.addEventListener("click", closeModal);
 searchInput.addEventListener("input", searchTools);
 
-// Fechar modal ao clicar fora do conteúdo
 window.addEventListener("click", (e) => {
   if (e.target === toolModal) {
     closeModal();
   }
 });
 
-// === BLOCO DO DOMCONTENTLOADED ATUALIZADO ===
+// ==================== INICIALIZAÇÃO ====================
+
 document.addEventListener("DOMContentLoaded", async function () {
-  // === LÓGICA DO DARK MODE ADICIONADA AQUI ===
+  // Configuração do tema dark mode
   const themeToggleBtn = document.getElementById("theme-toggle-btn");
   const body = document.body;
 
   if (themeToggleBtn) {
     const icon = themeToggleBtn.querySelector("i");
 
-    // Função para aplicar o tema (claro ou escuro)
     function aplicarTema(tema) {
       if (tema === "dark") {
         body.classList.add("dark-mode");
@@ -889,13 +833,11 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
     }
 
-    // Verificar se já existe um tema salvo no localStorage
     const temaSalvo = localStorage.getItem("theme");
 
     if (temaSalvo) {
       aplicarTema(temaSalvo);
     } else {
-      // Opcional: Checar preferência do sistema
       const prefereEscuro =
         window.matchMedia &&
         window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -906,30 +848,26 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
     }
 
-    // Adicionar o evento de clique ao botão
     themeToggleBtn.addEventListener("click", () => {
-      // Verifica se o body JÁ TEM a classe dark-mode
       if (body.classList.contains("dark-mode")) {
-        // Se sim, troca para light
         aplicarTema("light");
-        localStorage.setItem("theme", "light"); // Salva a escolha
+        localStorage.setItem("theme", "light");
       } else {
-        // Se não, troca para dark
         aplicarTema("dark");
-        localStorage.setItem("theme", "dark"); // Salva a escolha
+        localStorage.setItem("theme", "dark");
       }
     });
   }
-  // === FIM DA LÓGICA DO DARK MODE ===
 
-  // --- O RESTO DO SEU CÓDIGO ORIGINAL CONTINUA ABAIXO ---
+  // Configuração inicial do sistema
   showLoading(true);
   try {
-    setupQRCodeField(); // Configura o botão de scan no formulário
+    // CONFIGURAR OS EVENT LISTENERS DO SCANNER PRIMEIRO
+    setupScannerEventListeners();
 
-    // As funções abaixo já estão modificadas para usar o token
+    setupQRCodeField();
     await loadLocais();
-    fillLocaisSelect(); // Preenche o select agora que o cache está pronto
+    fillLocaisSelect();
     await loadToolsTable();
   } catch (error) {
     console.error("Erro na inicialização:", error);

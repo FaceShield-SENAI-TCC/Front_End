@@ -103,7 +103,7 @@ function registrarLoginFacial(username, id) {
       return response.json();
     })
     .then((data) => {
-      console.log("Token recebido:", data);
+      console.log("Token recebido:", data.id);
 
       if (data.token) {
         localStorage.setItem("authToken", data.token);
@@ -131,7 +131,7 @@ function reconhecerFace(imageData) {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log("Resposta completa do Python:", data);
+      console.log("Resposta completa do Python:", data.id);
 
       toggleLoading(false);
       isProcessing = false;
