@@ -4,6 +4,24 @@ const feedback = document.getElementById("feedback");
 let recognitionInterval;
 let isProcessing = false;
 
+function getAuthHeaders() {
+  const token = localStorage.getItem("authToken");
+  console.log(
+    "Token recuperado do localStorage:",
+    token ? "Presente" : "Ausente"
+  );
+  if (!token) {
+    console.warn("Token não encontrado no localStorage");
+    return {
+      "Content-Type": "application/json",
+    };
+  }
+  return {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+}
+
 function showFeedback(tipo, mensagemTexto) {
   if (!feedback) return;
 
@@ -82,7 +100,7 @@ function registrarLoginFacial(username, id) {
 
   console.log(`Registrando evento de login para: ${username} (ID: ${id})`);
 
-  fetch(URL_REGISTRO, {
+  return fetch(URL_REGISTRO, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -103,19 +121,88 @@ function registrarLoginFacial(username, id) {
       return response.json();
     })
     .then((data) => {
-      console.log("Token recebido:", data.id);
+      console.log("Token recebido:", data);
 
       if (data.token) {
         localStorage.setItem("authToken", data.token);
         localStorage.setItem("username", username);
         localStorage.setItem("id", id);
         console.log("authToken, Username e ID salvos no localStorage.");
+        return data.token;
       } else {
         console.warn("Token não encontrado na resposta do backend Java.");
+        throw new Error("Token não recebido");
       }
     })
     .catch((error) => {
       console.error("Erro ao registrar evento de login:", error);
+      throw error;
+    });
+}
+
+// FUNÇÕES DE HORA CORRIGIDAS
+function getDataHoraBrasilia() {
+  return new Date();
+}
+
+function toISOLocalString(date) {
+  if (!date) return null;
+
+  const pad = (n) => n.toString().padStart(2, "0");
+
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  const seconds = pad(date.getSeconds());
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+}
+
+function registrarHistoricoTrava(usuarioId, dataHoraAbertura, token) {
+  const URL_HISTORICO_TRAVA = "http://localhost:8080/historico-trava/novoLog";
+
+  // Criando o objeto no formato esperado pelo backend
+  const historicoData = {
+    dataHoraAbertura: dataHoraAbertura,
+    usuarioId: usuarioId,
+  };
+
+  console.log("Enviando histórico de trava:", historicoData);
+  console.log("Token usado:", token);
+
+  const headers = {
+    "Content-Type": "application/json",
+  };
+
+  // Se tiver token, adiciona ao header
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  return fetch(URL_HISTORICO_TRAVA, {
+    method: "POST",
+    headers: headers,
+    body: JSON.stringify(historicoData),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        console.warn(
+          `Não foi possível registrar o histórico de trava. Status: ${response.status}`
+        );
+        return Promise.reject(
+          `Erro ${response.status}: ${response.statusText}`
+        );
+      }
+      console.log("Histórico de trava registrado com sucesso!");
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Resposta do histórico:", data);
+    })
+    .catch((error) => {
+      console.error("Erro ao registrar histórico de trava:", error);
     });
 }
 
@@ -131,7 +218,7 @@ function reconhecerFace(imageData) {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log("Resposta completa do Python:", data.id);
+      console.log("Resposta completa do Python:", data);
 
       toggleLoading(false);
       isProcessing = false;
@@ -147,7 +234,31 @@ function reconhecerFace(imageData) {
           `Login realizado com sucesso! Bem-vindo, ${username}.`
         );
 
-        registrarLoginFacial(username, id);
+        // Primeiro registra o login para obter o token e AGUARDA a conclusão
+        registrarLoginFacial(username, id)
+          .then((token) => {
+            console.log("Token obtido com sucesso");
+
+            // SÓ REGISTRA HISTÓRICO SE FOR ALUNO
+            if (tipoUsuario === "ALUNO") {
+              console.log("Usuário é ALUNO, registrando histórico de trava...");
+              // USA A FUNÇÃO CORRIGIDA PARA OBTER A DATA/HORA
+              const dataHoraAtual = toISOLocalString(getDataHoraBrasilia());
+              registrarHistoricoTrava(id, dataHoraAtual, token);
+            } else {
+              console.log(
+                "Usuário é PROFESSOR, não registra histórico de trava."
+              );
+            }
+          })
+          .catch((error) => {
+            console.error("Erro ao obter token:", error);
+            // Só tenta registrar histórico sem token se for ALUNO
+            if (tipoUsuario === "ALUNO") {
+              const dataHoraAtual = toISOLocalString(getDataHoraBrasilia());
+              registrarHistoricoTrava(id, dataHoraAtual, null);
+            }
+          });
 
         setTimeout(() => {
           if (tipoUsuario === "PROFESSOR") {
@@ -155,7 +266,7 @@ function reconhecerFace(imageData) {
           } else {
             window.location.href = "/front/Html/QrCode.html";
           }
-        }, 1500);
+        }, 100);
       } else {
         mensagem.textContent =
           data.message || "Usuário não reconhecido. Tente novamente.";
