@@ -47,10 +47,12 @@ body.dark-mode {
   transition: background-color 0.2s linear, color 0.2s linear;
 }
 
+/* --- CONFIGURAÇÃO PADRÃO (DESKTOP: FIXO) --- */
 body {
   background-color: var(--cor-fundo);
   color: var(--cor-texto);
-  height: 100vh;
+  height: 100vh; /* Força altura da janela */
+  overflow: hidden; /* Impede rolagem dupla no body */
   display: flex;
   flex-direction: column;
 }
@@ -58,6 +60,8 @@ body {
 .container {
   display: flex;
   flex: 1;
+  height: 100%;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -66,7 +70,20 @@ body {
   color: var(--cor-texto-sidebar);
   padding: 20px 0;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
+  height: 100%; /* Sidebar ocupa altura total */
+  overflow-y: auto; /* Rolagem interna se necessário */
+  flex-shrink: 0;
 }
+
+.main-content {
+  flex: 1;
+  height: 100%; /* Main ocupa altura total */
+  padding: 30px;
+  overflow-y: auto; /* Rolagem APENAS aqui no desktop */
+  display: flex;
+  flex-direction: column;
+}
+/* --- FIM CONFIGURAÇÃO DESKTOP --- */
 
 .logo {
   display: flex;
@@ -107,14 +124,6 @@ body {
 .menu-item i {
   margin-right: 10px;
   font-size: 1.2rem;
-}
-
-.main-content {
-  flex: 1;
-  padding: 30px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
 }
 
 .header {
@@ -222,7 +231,8 @@ body {
   padding: 30px;
   max-width: 800px;
   margin: 0 auto;
-  flex: 1;
+  flex-shrink: 0;
+  width: 100%;
 }
 
 .form-section-title {
@@ -409,6 +419,10 @@ body.dark-mode .feedback.warning {
   }
 }
 
+/* ========================================
+   MEDIA QUERIES
+   ======================================== */
+
 @media (max-width: 1024px) {
   .sidebar {
     width: 220px;
@@ -416,51 +430,40 @@ body.dark-mode .feedback.warning {
   .main-content {
     padding: 20px;
   }
-
-  .container {
-    flex-direction: column;
-  }
-  .sidebar {
-    width: 100%;
-    height: auto;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 0 20px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-  }
-  .logo {
-    border-bottom: none;
-    margin-bottom: 0;
-  }
-  .menu-item {
-    border-left: none;
-    border-bottom: 3px solid transparent;
-    padding: 15px;
-  }
-  .menu-item.active {
-    border-left: none;
-    border-bottom: 3px solid #fff;
-  }
-  .form-container {
-    padding: 20px;
-  }
 }
 
+/* === MOBILE: MENU NÃO FIXO === */
 @media (max-width: 768px) {
+  /* Reseta a altura e o overflow do body para permitir scroll normal */
+  body {
+    height: auto;
+    overflow: auto;
+    flex-direction: column;
+  }
+
   .container {
     flex-direction: column;
+    height: auto;
+    overflow: visible;
   }
 
   .sidebar {
     width: 100%;
-    height: auto;
+    height: auto; /* Altura automática */
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+    overflow-y: visible; /* Remove rolagem da sidebar */
+  }
+
+  .main-content {
+    height: auto; /* Altura automática */
+    overflow: visible; /* Remove rolagem interna */
+    padding: 15px;
   }
 
   .logo {
@@ -486,10 +489,6 @@ body.dark-mode .feedback.warning {
     border-left: none;
     border-bottom: 4px solid var(--cor-fundo);
     background-color: transparent;
-  }
-
-  .main-content {
-    padding: 15px;
   }
 
   .header {
@@ -543,20 +542,6 @@ body.dark-mode .feedback.warning {
 
   .page-title {
     font-size: 1.5rem;
-  }
-
-  .modal-content {
-    max-width: 95vw;
-    margin: 10px;
-  }
-
-  .modal-header h2 {
-    font-size: 1.2rem;
-  }
-
-  .modal-body,
-  .modal-footer {
-    padding: 15px;
   }
 
   .form-container {
