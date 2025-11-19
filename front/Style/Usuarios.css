@@ -1,8 +1,4 @@
-/* =================================
-   DEFINIÇÃO DAS CORES (VARIÁVEIS)
-   ================================= */
 :root {
-  /* Modo Claro (Padrão) */
   --cor-fundo: #f5f7fa;
   --cor-fundo-container: #ffffff;
   --cor-texto: #333;
@@ -16,8 +12,6 @@
   --cor-modal-footer: #f8f9fa;
   --cor-tabela-header: #3498db;
   --cor-tabela-hover: #f8f9fa;
-
-  /* Cores de Ação */
   --cor-primaria: #3498db;
   --cor-primaria-hover: #2980b9;
   --cor-perigo: #e74c3c;
@@ -28,7 +22,6 @@
 }
 
 body.dark-mode {
-  /* Modo Escuro (Sobrescrito) */
   --cor-fundo: #1a2530;
   --cor-fundo-container: #2c3e50;
   --cor-texto: #f5f7fa;
@@ -38,18 +31,11 @@ body.dark-mode {
   --cor-borda-input: #5b728a;
   --cor-fundo-sidebar: linear-gradient(135deg, #2c3e50, #222f3d);
   --cor-texto-sidebar: #ffffff;
-  --cor-modal-header: linear-gradient(
-    to right,
-    #3498db,
-    #2c3e50
-  ); /* Mesmo gradiente */
+  --cor-modal-header: linear-gradient(to right, #3498db, #2c3e50);
   --cor-modal-footer: #222f3d;
-  --cor-tabela-header: #3498db; /* Mesmo header */
+  --cor-tabela-header: #3498db;
   --cor-tabela-hover: #34495e;
 }
-/* =================================
-   FIM DAS VARIÁVEIS
-   ================================= */
 
 * {
   margin: 0;
@@ -69,7 +55,6 @@ body {
   min-height: 100vh;
 }
 
-/* Menu Lateral */
 .sidebar {
   width: 250px;
   background: var(--cor-fundo-sidebar);
@@ -79,10 +64,19 @@ body {
 }
 
 .logo {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 20px;
   border-bottom: 1px solid #34495e;
   margin-bottom: 20px;
+}
+
+.sidebar-logo-img {
+  width: 80px;
+  height: auto;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.3));
 }
 
 .logo h2 {
@@ -109,7 +103,6 @@ body {
   font-size: 1.2rem;
 }
 
-/* Conteúdo Principal */
 .main-content {
   flex: 1;
   padding: 30px;
@@ -152,7 +145,6 @@ body {
   background-color: var(--cor-perigo-hover);
 }
 
-/* Botões de Ação */
 .action-buttons {
   display: flex;
   gap: 15px;
@@ -193,7 +185,6 @@ body {
   background-color: #27ae60;
 }
 
-/* Tabela de Alunos */
 .students-table {
   width: 100%;
   border-collapse: collapse;
@@ -225,7 +216,6 @@ body {
   background-color: var(--cor-tabela-hover);
 }
 
-/* Formulário de Cadastro */
 .modal {
   display: none;
   position: fixed;
@@ -319,7 +309,6 @@ body {
   border-top: 1px solid var(--cor-borda);
 }
 
-/* Filtros e Pesquisa */
 .search-section {
   background-color: var(--cor-fundo-container);
   padding: 20px;
@@ -355,7 +344,6 @@ body {
   color: var(--cor-texto-secundario);
 }
 
-/* === ESTILOS DOS BOTÕES (AMARELO E VERMELHO) === */
 .actions {
   display: flex;
   gap: 8px;
@@ -392,9 +380,7 @@ body {
 .btn-delete:hover {
   background-color: var(--cor-perigo-hover);
 }
-/* === FIM DOS ESTILOS === */
 
-/* Responsividade */
 @media (max-width: 1024px) {
   .sidebar {
     width: 220px;
@@ -424,6 +410,13 @@ body {
     padding: 0;
     margin: 0;
     border: none;
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .sidebar-logo-img {
+    width: 40px;
+    margin-bottom: 0;
   }
 
   .menu-item {
@@ -478,7 +471,6 @@ body {
     padding: 15px;
   }
 
-  /* Tabela Responsiva */
   .students-table {
     border: none;
     box-shadow: none;
@@ -527,13 +519,10 @@ body {
     content: "Sobrenome";
   }
   .students-table td:nth-of-type(4)::before {
-    content: "Curso";
+    content: "Turma";
   }
   .students-table td:nth-of-type(5)::before {
-    content: "Tipo de Usuário";
-  }
-  .students-table td:nth-of-type(6)::before {
-    content: "Ações";
+    content: "Tipo do Usuário";
   }
 
   .students-table td.actions {
