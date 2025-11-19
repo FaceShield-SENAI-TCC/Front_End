@@ -1,5 +1,5 @@
-const API_BASE = "http://localhost:8080/historico";
-const API_GET = `${API_BASE}/listar`;
+const API_BASE = "http://localhost:8080/historico-trava";
+const API_GET = `${API_BASE}/buscar`;
 
 function getAuthHeaders() {
   // Recupera exatamente a chave 'authToken' mostrada no seu print
@@ -72,7 +72,7 @@ function searchHistory() {
     (log) =>
       (log.username && log.username.toLowerCase().includes(searchTerm)) ||
       (log.id && log.id.toString().includes(searchTerm)) ||
-      (log.dataAcesso && log.dataAcesso.includes(searchTerm))
+      (log.dataHoraAbertura && log.dataHoraAbertura.includes(searchTerm))
   );
   loadHistoryTable(filteredLogs);
 }
@@ -100,10 +100,10 @@ async function loadHistoryTable(logsArray = null) {
     logs.forEach((log) => {
       const row = document.createElement("tr");
 
-      // Confirme se o seu Java retorna "username" e "dataAcesso" ou "dataHora"
+      // Usando os campos do JSON esperado: id, dataHoraAbertura, username
       const id = log.id;
-      const username = log.username || log.usuario || "Desconhecido";
-      const dataFormatada = formatDateTime(log.dataAcesso || log.dataHora);
+      const username = log.username || "Desconhecido";
+      const dataFormatada = formatDateTime(log.dataHoraAbertura);
 
       row.innerHTML = `
             <td>${id}</td>
