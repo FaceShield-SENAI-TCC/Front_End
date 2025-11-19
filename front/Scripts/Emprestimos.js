@@ -63,7 +63,7 @@ function getAuthHeaders(includeContentType = false) {
     headers["Content-Type"] = "application/json";
   }
   //console.log("Token: ", token);
- // console.log(`Headers: ${headers}`);
+  // console.log(`Headers: ${headers}`);
   return headers;
 }
 
@@ -132,8 +132,8 @@ async function loadAllData() {
     const toolsData = await toolsResponse.json();
     const localsData = await localsResponse.json();
 
-    // Armazena os dados em cache global
-    allLoans = loansData;
+    // ORDENA OS EMPRÉSTIMOS PELO MAIOR ID PRIMEIRO (DESCENDENTE)
+    allLoans = loansData.sort((a, b) => b.id - a.id);
     allTools = toolsData;
     allLocals = localsData;
 

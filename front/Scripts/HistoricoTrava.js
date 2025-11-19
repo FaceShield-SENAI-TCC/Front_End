@@ -97,7 +97,10 @@ async function loadHistoryTable(logsArray = null) {
       return;
     }
 
-    logs.forEach((log) => {
+    // ORDENA OS LOGS PELO MAIOR ID PRIMEIRO (DESCENDENTE)
+    const sortedLogs = logs.sort((a, b) => b.id - a.id);
+
+    sortedLogs.forEach((log) => {
       const row = document.createElement("tr");
 
       // Usando os campos do JSON esperado: id, dataHoraAbertura, username
