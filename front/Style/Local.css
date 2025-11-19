@@ -1,8 +1,4 @@
-/* =================================
-   DEFINIÇÃO DAS CORES (VARIÁVEIS)
-   ================================= */
 :root {
-  /* Modo Claro (Padrão) */
   --cor-fundo: #f5f7fa;
   --cor-fundo-container: #ffffff;
   --cor-texto: #333;
@@ -16,8 +12,6 @@
   --cor-modal-footer: #f8f9fa;
   --cor-tabela-header: #3498db;
   --cor-tabela-hover: #f8f9fa;
-
-  /* Cores de Ação */
   --cor-primaria: #3498db;
   --cor-primaria-hover: #2980b9;
   --cor-sucesso: #2ecc71;
@@ -26,13 +20,12 @@
   --cor-perigo-hover: #c0392b;
   --cor-aviso: #f39c12;
   --cor-aviso-hover: #d35400;
-  --cor-roxo: #9b59b6; /* Adicionado de Local.css */
-  --cor-roxo-hover: #8e44ad; /* Adicionado de Local.css */
+  --cor-roxo: #9b59b6;
+  --cor-roxo-hover: #8e44ad;
   --cor-texto-botao: #ffffff;
 }
 
 body.dark-mode {
-  /* Modo Escuro (Sobrescrito) */
   --cor-fundo: #1a2530;
   --cor-fundo-container: #2c3e50;
   --cor-texto: #f5f7fa;
@@ -42,18 +35,11 @@ body.dark-mode {
   --cor-borda-input: #5b728a;
   --cor-fundo-sidebar: linear-gradient(135deg, #2c3e50, #222f3d);
   --cor-texto-sidebar: #ffffff;
-  --cor-modal-header: linear-gradient(
-    to right,
-    #3498db,
-    #2c3e50
-  ); /* Mesmo gradiente */
+  --cor-modal-header: linear-gradient(to right, #3498db, #2c3e50);
   --cor-modal-footer: #222f3d;
-  --cor-tabela-header: #3498db; /* Mesmo header */
+  --cor-tabela-header: #3498db;
   --cor-tabela-hover: #34495e;
 }
-/* =================================
-   FIM DAS VARIÁVEIS
-   ================================= */
 
 * {
   margin: 0;
@@ -68,15 +54,11 @@ body {
   color: var(--cor-texto);
 }
 
-/* =================================
-   LAYOUT PRINCIPAL (PADRÃO)
-   ================================= */
 .container {
   display: flex;
   min-height: 100vh;
 }
 
-/* Menu Lateral */
 .sidebar {
   width: 250px;
   background: var(--cor-fundo-sidebar);
@@ -86,10 +68,19 @@ body {
 }
 
 .logo {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 20px;
   border-bottom: 1px solid #34495e;
   margin-bottom: 20px;
+}
+
+.sidebar-logo-img {
+  width: 80px;
+  height: auto;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.3));
 }
 
 .logo h2 {
@@ -116,7 +107,6 @@ body {
   font-size: 1.2rem;
 }
 
-/* Conteúdo Principal */
 .main-content {
   flex: 1;
   padding: 30px;
@@ -159,7 +149,6 @@ body {
   background-color: var(--cor-perigo-hover);
 }
 
-/* Botões de Ação */
 .action-buttons {
   display: flex;
   gap: 15px;
@@ -210,15 +199,7 @@ body {
 .btn-purple:hover {
   background-color: var(--cor-roxo-hover);
 }
-/* =================================
-   FIM DO LAYOUT PADRÃO
-   ================================= */
 
-/* =================================
-   ESTILOS ESPECÍFICOS (LOCAL.CSS)
-   ================================= */
-
-/* Tabela de Locais */
 .locations-table {
   width: 100%;
   border-collapse: collapse;
@@ -267,7 +248,6 @@ body {
   color: var(--cor-primaria);
 }
 
-/* Botões na tabela */
 .actions {
   display: flex;
   gap: 10px;
@@ -301,7 +281,6 @@ body {
   background-color: var(--cor-perigo-hover);
 }
 
-/* Filtros e Pesquisa */
 .search-section {
   background-color: var(--cor-fundo-container);
   padding: 20px;
@@ -337,7 +316,6 @@ body {
   color: var(--cor-texto-secundario);
 }
 
-/* Modal para Adicionar/Editar Local */
 .modal {
   display: none;
   position: fixed;
@@ -426,7 +404,6 @@ body {
   border-top: 1px solid var(--cor-borda);
 }
 
-/* Visualização em Cards */
 .location-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -501,13 +478,7 @@ body {
   margin-bottom: 15px;
   color: var(--cor-borda-input);
 }
-/* =================================
-   FIM DOS ESTILOS ESPECÍFICOS
-   ================================= */
 
-/* =================================
-   RESPONSIVIDADE (PADRÃO + LOCAL)
-   ================================= */
 @media (max-width: 1024px) {
   .sidebar {
     width: 220px;
@@ -516,7 +487,6 @@ body {
     padding: 20px;
   }
 
-  /* Específico Local */
   .location-grid {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   }
@@ -542,6 +512,13 @@ body {
     padding: 0;
     margin: 0;
     border: none;
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .sidebar-logo-img {
+    width: 40px;
+    margin-bottom: 0;
   }
 
   .menu-item {
@@ -552,7 +529,7 @@ body {
   .menu-item:hover,
   .menu-item.active {
     border-left: none;
-    border-bottom: 4px solid var(--cor-fundo); /* Linha vermelha no mobile */
+    border-bottom: 4px solid var(--cor-fundo);
     background-color: transparent;
   }
 
@@ -595,7 +572,6 @@ body {
     padding: 15px;
   }
 
-  /* Tabela Responsiva para Locais */
   .locations-table {
     border: none;
     display: block;
@@ -636,7 +612,6 @@ body {
     margin-right: 15px;
   }
 
-  /* Labels da tabela (se o JS não injetar 'data-label') */
   .locations-table td:nth-of-type(1)::before {
     content: "ID";
   }
@@ -652,10 +627,6 @@ body {
   .locations-table td:nth-of-type(5)::before {
     content: "Estojo";
   }
-  .locations-table td:nth-of-type(6)::before {
-    content: "Ações";
-  }
-  /* --- Fim Tabela Responsiva --- */
 
   .form-row {
     flex-direction: column;

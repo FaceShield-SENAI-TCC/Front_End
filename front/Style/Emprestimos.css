@@ -1,8 +1,4 @@
-/* =================================
-   DEFINIÇÃO DAS CORES (VARIÁVEIS)
-   ================================= */
 :root {
-  /* Modo Claro (Padrão) */
   --cor-fundo: #f5f7fa;
   --cor-fundo-container: #ffffff;
   --cor-texto: #333;
@@ -16,8 +12,6 @@
   --cor-modal-footer: #f8f9fa;
   --cor-tabela-header: #3498db;
   --cor-tabela-hover: #f8f9fa;
-
-  /* Cores de Ação */
   --cor-primaria: #3498db;
   --cor-primaria-hover: #2980b9;
   --cor-sucesso: #27ae60;
@@ -30,7 +24,6 @@
 }
 
 body.dark-mode {
-  /* Modo Escuro (Sobrescrito) */
   --cor-fundo: #1a2530;
   --cor-fundo-container: #2c3e50;
   --cor-texto: #f5f7fa;
@@ -45,9 +38,6 @@ body.dark-mode {
   --cor-tabela-header: #3498db;
   --cor-tabela-hover: #34495e;
 }
-/* =================================
-   FIM DAS VARIÁVEIS
-   ================================= */
 
 * {
   margin: 0;
@@ -62,15 +52,11 @@ body {
   color: var(--cor-texto);
 }
 
-/* =================================
-   LAYOUT PRINCIPAL (PADRÃO)
-   ================================= */
 .container {
   display: flex;
   min-height: 100vh;
 }
 
-/* Menu Lateral */
 .sidebar {
   width: 250px;
   background: var(--cor-fundo-sidebar);
@@ -80,19 +66,24 @@ body {
 }
 
 .logo {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 20px;
   border-bottom: 1px solid #34495e;
   margin-bottom: 20px;
 }
 
+.sidebar-logo-img {
+  width: 80px;
+  height: auto;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.3));
+}
+
 .logo h2 {
   font-size: 1.5rem;
   color: var(--cor-primaria);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
 }
 
 .menu-item {
@@ -115,7 +106,6 @@ body {
   font-size: 1.2rem;
 }
 
-/* Conteúdo Principal */
 .main-content {
   flex: 1;
   padding: 30px;
@@ -176,15 +166,7 @@ body {
   color: var(--cor-texto);
   border: 1px solid var(--cor-borda-input);
 }
-/* =================================
-   FIM DO LAYOUT PADRÃO
-   ================================= */
 
-/* =================================
-   ESTILOS ESPECÍFICOS (EMPRESTIMO.CSS)
-   ================================= */
-
-/* Filtros */
 .filters {
   display: flex;
   gap: 20px;
@@ -230,7 +212,6 @@ body {
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
-/* Tabela */
 .loans-table {
   width: 100%;
   border-collapse: collapse;
@@ -257,7 +238,6 @@ body {
   background-color: var(--cor-tabela-hover);
 }
 
-/* Paginação */
 .pagination {
   display: flex;
   justify-content: center;
@@ -296,7 +276,6 @@ body {
   color: var(--cor-titulo);
 }
 
-/* Mensagens de feedback */
 .feedback-message {
   padding: 15px;
   margin-bottom: 20px;
@@ -333,7 +312,6 @@ body {
   }
 }
 
-/* Estilos para o Modal */
 .modal {
   display: none;
   position: fixed;
@@ -343,7 +321,7 @@ body {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  overflow-y: auto; /* Permitir rolagem se o modal for grande */
+  overflow-y: auto;
   justify-content: center;
   align-items: center;
 }
@@ -463,7 +441,6 @@ body {
   border-top: 1px solid var(--cor-borda);
 }
 
-/* Botões de ação na tabela */
 .action-buttons {
   display: flex;
   gap: 8px;
@@ -509,7 +486,6 @@ body {
   cursor: not-allowed;
 }
 
-/* Status badges */
 .status-badge {
   padding: 4px 8px;
   border-radius: 12px;
@@ -535,7 +511,6 @@ body {
   color: #c0392b;
 }
 
-/* Dark Mode Badges */
 body.dark-mode .status-pending {
   background-color: #d35400;
   color: #ffeaa7;
@@ -552,10 +527,6 @@ body.dark-mode .status-delayed {
   background-color: #c0392b;
   color: #fadbd8;
 }
-
-/* =================================
-   RESPONSIVIDADE (PADRÃO)
-   ================================= */
 
 @media (max-width: 1024px) {
   .sidebar {
@@ -586,6 +557,13 @@ body.dark-mode .status-delayed {
     padding: 0;
     margin: 0;
     border: none;
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .sidebar-logo-img {
+    width: 40px;
+    margin-bottom: 0;
   }
 
   .menu-item {
@@ -593,14 +571,12 @@ body.dark-mode .status-delayed {
     padding: 10px 15px;
   }
 
-  /* === CORREÇÃO DA LINHA ATIVA MOBILE === */
   .menu-item:hover,
   .menu-item.active {
     border-left: none;
-    border-bottom: 4px solid var(--cor-fundo); /* CORRIGIDO (era --cor-fundo) */
+    border-bottom: 4px solid var(--cor-fundo);
     background-color: transparent;
   }
-  /* === FIM DA CORREÇÃO === */
 
   .main-content {
     padding: 15px;
@@ -636,13 +612,11 @@ body.dark-mode .status-delayed {
     padding: 15px;
   }
 
-  /* --- Responsividade Específica (Emprestimo) --- */
   .filters {
     flex-direction: column;
     padding: 15px;
   }
 
-  /* Tabela Responsiva */
   .loans-table {
     display: block;
     border: none;
@@ -676,16 +650,13 @@ body.dark-mode .status-delayed {
   }
 
   .loans-table td::before {
-    content: attr(
-      data-label
-    ); /* JS precisa adicionar data-label="NomeDaColuna" */
+    content: attr(data-label);
     font-weight: bold;
     color: var(--cor-primaria);
     text-align: left;
     margin-right: 15px;
   }
 
-  /* Se o JS não adicionar data-label, use o CSS hardcoded */
   .loans-table td:nth-of-type(1)::before {
     content: "ID";
   }
@@ -696,19 +667,16 @@ body.dark-mode .status-delayed {
     content: "Ferramenta";
   }
   .loans-table td:nth-of-type(4)::before {
-    content: "Data Empréstimo";
+    content: "Data de Retirada";
   }
   .loans-table td:nth-of-type(5)::before {
-    content: "Data Devolução";
+    content: "Data de Devolução";
   }
   .loans-table td:nth-of-type(6)::before {
     content: "Status";
   }
   .loans-table td:nth-of-type(7)::before {
     content: "Observações";
-  }
-  .loans-table td:nth-of-type(8)::before {
-    content: "Ações";
   }
 
   .modal-content {
@@ -731,7 +699,6 @@ body.dark-mode .status-delayed {
   .action-buttons {
     flex-direction: column;
   }
-  /* --- Fim Responsividade Específica --- */
 
   .form-row {
     flex-direction: column;

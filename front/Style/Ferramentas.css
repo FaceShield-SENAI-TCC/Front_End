@@ -1,8 +1,4 @@
-/* =================================
-   DEFINIÇÃO DAS CORES (VARIÁVEIS)
-   ================================= */
 :root {
-  /* Modo Claro (Padrão) */
   --cor-fundo: #f5f7fa;
   --cor-fundo-container: #ffffff;
   --cor-texto: #333;
@@ -16,8 +12,6 @@
   --cor-modal-footer: #f8f9fa;
   --cor-tabela-header: #3498db;
   --cor-tabela-hover: #f8f9fa;
-
-  /* Cores de Ação */
   --cor-primaria: #3498db;
   --cor-primaria-hover: #2980b9;
   --cor-perigo: #e74c3c;
@@ -28,7 +22,6 @@
 }
 
 body.dark-mode {
-  /* Modo Escuro (Sobrescrito) */
   --cor-fundo: #1a2530;
   --cor-fundo-container: #2c3e50;
   --cor-texto: #f5f7fa;
@@ -38,18 +31,11 @@ body.dark-mode {
   --cor-borda-input: #5b728a;
   --cor-fundo-sidebar: linear-gradient(135deg, #2c3e50, #222f3d);
   --cor-texto-sidebar: #ffffff;
-  --cor-modal-header: linear-gradient(
-    to right,
-    #3498db,
-    #2c3e50
-  ); /* Mesmo gradiente */
+  --cor-modal-header: linear-gradient(to right, #3498db, #2c3e50);
   --cor-modal-footer: #222f3d;
-  --cor-tabela-header: #3498db; /* Mesmo header */
+  --cor-tabela-header: #3498db;
   --cor-tabela-hover: #34495e;
 }
-/* =================================
-   FIM DAS VARIÁVEIS
-   ================================= */
 
 * {
   margin: 0;
@@ -62,18 +48,14 @@ body.dark-mode {
 body {
   background-color: var(--cor-fundo);
   color: var(--cor-texto);
-  overflow-x: hidden; /* Mantido do ferramentas.css original */
+  overflow-x: hidden;
 }
 
-/* =================================
-   LAYOUT PRINCIPAL (IGUAL AO USUARIOS.CSS)
-   ================================= */
 .container {
   display: flex;
   min-height: 100vh;
 }
 
-/* Menu Lateral */
 .sidebar {
   width: 250px;
   background: var(--cor-fundo-sidebar);
@@ -83,10 +65,19 @@ body {
 }
 
 .logo {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 20px;
   border-bottom: 1px solid #34495e;
   margin-bottom: 20px;
+}
+
+.sidebar-logo-img {
+  width: 80px;
+  height: auto;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.3));
 }
 
 .logo h2 {
@@ -113,14 +104,10 @@ body {
   font-size: 1.2rem;
 }
 
-/* Conteúdo Principal */
 .main-content {
   flex: 1;
   padding: 30px;
 }
-/* =================================
-   FIM DO LAYOUT PRINCIPAL
-   ================================= */
 
 .header {
   display: flex;
@@ -129,15 +116,15 @@ body {
   margin-bottom: 30px;
   padding-bottom: 15px;
   border-bottom: 1px solid var(--cor-borda);
-  flex-wrap: wrap; /* Mantido do ferramentas.css */
-  gap: 15px; /* Mantido do ferramentas.css */
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
 .page-title {
   font-size: 1.8rem;
   color: var(--cor-titulo);
-  flex: 1; /* Mantido do ferramentas.css */
-  min-width: 250px; /* Mantido do ferramentas.css */
+  flex: 1;
+  min-width: 250px;
 }
 
 .header-buttons {
@@ -163,7 +150,6 @@ body {
   background-color: var(--cor-perigo-hover);
 }
 
-/* Botões de Ação */
 .action-buttons {
   display: flex;
   gap: 15px;
@@ -205,11 +191,6 @@ body {
   background-color: #27ae60;
 }
 
-/* =================================
-   ESTILOS ESPECÍFICOS DE FERRAMENTAS
-   ================================= */
-
-/* Tabela de Ferramentas (Desktop) */
 .tools-container {
   overflow-x: auto;
   background: var(--cor-fundo-container);
@@ -222,7 +203,7 @@ body {
 .tools-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 800px; /* Mantido do ferramentas.css */
+  min-width: 800px;
 }
 
 .tools-table th {
@@ -255,14 +236,14 @@ body {
 }
 
 .location-badge {
-  background-color: #e8f4ff; /* Pode virar variável se quiser */
+  background-color: #e8f4ff;
   padding: 5px 10px;
   border-radius: 4px;
   font-size: 0.9rem;
   display: inline-block;
   margin: 2px;
   white-space: nowrap;
-  color: #333; /* Texto legível no modo claro/escuro */
+  color: #333;
 }
 
 .location-badge i {
@@ -270,7 +251,6 @@ body {
   color: var(--cor-primaria);
 }
 
-/* Cards de Ferramentas (Mobile) */
 .tools-cards {
   display: none;
   gap: 15px;
@@ -378,11 +358,6 @@ body {
   background-color: var(--cor-perigo-hover);
 }
 
-/* =================================
-   FIM DOS ESTILOS DE FERRAMENTAS
-   ================================= */
-
-/* Formulário de Cadastro (Modal) */
 .modal {
   display: none;
   position: fixed;
@@ -391,11 +366,11 @@ body {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 2000; /* Mantido do ferramentas.css */
+  z-index: 2000;
   justify-content: center;
-  align-items: flex-start; /* Mantido do ferramentas.css */
-  padding: 20px 10px; /* Mantido do ferramentas.css */
-  overflow-y: auto; /* Mantido do ferramentas.css */
+  align-items: flex-start;
+  padding: 20px 10px;
+  overflow-y: auto;
 }
 
 .modal-content {
@@ -404,9 +379,9 @@ body {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   width: 100%;
   max-width: 500px;
-  max-height: 90vh; /* Mantido do ferramentas.css */
-  display: flex; /* Mantido do ferramentas.css */
-  flex-direction: column; /* Mantido do ferramentas.css */
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-header {
@@ -416,9 +391,9 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: sticky; /* Mantido do ferramentas.css */
-  top: 0; /* Mantido do ferramentas.css */
-  z-index: 10; /* Mantido do ferramentas.css */
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .modal-header h2 {
@@ -431,17 +406,17 @@ body {
   color: var(--cor-texto-botao);
   font-size: 1.5rem;
   cursor: pointer;
-  width: 40px; /* Mantido do ferramentas.css */
-  height: 40px; /* Mantido do ferramentas.css */
-  display: flex; /* Mantido do ferramentas.css */
-  align-items: center; /* Mantido do ferramentas.css */
-  justify-content: center; /* Mantido do ferramentas.css */
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-body {
   padding: 25px;
-  overflow-y: auto; /* Mantido do ferramentas.css */
-  flex-grow: 1; /* Mantido do ferramentas.css */
+  overflow-y: auto;
+  flex-grow: 1;
 }
 
 .form-group {
@@ -488,13 +463,12 @@ body {
   justify-content: flex-end;
   gap: 10px;
   border-top: 1px solid var(--cor-borda);
-  position: sticky; /* Mantido do ferramentas.css */
-  bottom: 0; /* Mantido do ferramentas.css */
-  z-index: 10; /* Mantido do ferramentas.css */
-  flex-wrap: wrap; /* Mantido do ferramentas.css */
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  flex-wrap: wrap;
 }
 
-/* Filtros e Pesquisa */
 .search-section {
   background-color: var(--cor-fundo-container);
   padding: 20px;
@@ -530,9 +504,7 @@ body {
   color: var(--cor-texto-secundario);
 }
 
-/* Botões de ação na tabela (re-declarado para garantir) */
 .action-buttons-cell {
-  /* ATENÇÃO: Mudei para .actions para padronizar */
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
@@ -568,10 +540,6 @@ body {
 .btn-delete:hover {
   background-color: var(--cor-perigo-hover);
 }
-
-/* =================================
-   ESTILOS ADICIONAIS (Notificação, Loading, QR)
-   ================================= */
 
 .checkbox-group {
   display: flex;
@@ -648,7 +616,6 @@ body {
   }
 }
 
-/* Garantir que o vídeo seja visível */
 #qr-video {
   width: 100%;
   height: 300px;
@@ -658,12 +625,10 @@ body {
   object-fit: cover;
 }
 
-/* Indicador de que a câmera está ativa */
 .scanner-active {
   box-shadow: 0 0 20px rgba(0, 224, 255, 0.5);
 }
 
-/* Mensagens de status */
 #scan-result {
   margin: 15px 0;
   font-weight: bold;
@@ -672,7 +637,6 @@ body {
   color: var(--cor-texto);
 }
 
-/* Loading durante inicialização */
 .scanner-loading {
   display: flex;
   justify-content: center;
@@ -690,11 +654,6 @@ body {
   animation: spin 1s linear infinite;
 }
 
-/* =================================
-   RESPONSIVIDADE
-   ================================= */
-
-/* Responsividade (Layout copiado do Usuarios.css) */
 @media (max-width: 1024px) {
   .sidebar {
     width: 220px;
@@ -724,6 +683,13 @@ body {
     padding: 0;
     margin: 0;
     border: none;
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .sidebar-logo-img {
+    width: 40px;
+    margin-bottom: 0;
   }
 
   .menu-item {
@@ -731,25 +697,23 @@ body {
     padding: 10px 15px;
   }
 
-  /* === CORREÇÃO DA LINHA ATIVA MOBILE === */
   .menu-item:hover,
   .menu-item.active {
     border-left: none;
-    border-bottom: 4px solid var(--cor-fundo); /* CORRIGIDO (era --cor-fundo) */
+    border-bottom: 4px solid var(--cor-fundo);
     background-color: transparent;
   }
-  /* === FIM DA CORREÇÃO === */
 
   .main-content {
     padding: 15px;
-    margin-left: 0; /* Garantindo que o margin-left foi removido */
+    margin-left: 0;
   }
 
   .header {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
-    margin-top: 0; /* Removido o margin-top do mobile-menu-btn */
+    margin-top: 0;
   }
 
   .header-buttons {
@@ -782,7 +746,6 @@ body {
     padding: 15px;
   }
 
-  /* Tabela Responsiva (PARA USUARIOS - DEIXEI AQUI CASO PRECISE) */
   .students-table {
     border: none;
     box-shadow: none;
@@ -806,7 +769,6 @@ body {
     padding: 8px 0;
     border-bottom: 1px dotted var(--cor-borda);
   }
-  /* ... (regras ::before da tabela de usuários) ... */
 
   .form-row {
     flex-direction: column;
@@ -840,11 +802,6 @@ body {
   }
 }
 
-/* =================================
-   LÓGICA DE TROCA (FERRAMENTAS)
-   ================================= */
-
-/* Alternar entre tabela e cards */
 @media (max-width: 768px) {
   .tools-table {
     display: none;
