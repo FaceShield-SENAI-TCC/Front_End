@@ -1,7 +1,9 @@
-// Elementos DOM
+// ==================== ELEMENTOS DOM ====================
 const toolsTableBody = document.getElementById("tools-table-body");
 const toolsCards = document.getElementById("tools-cards");
 const searchInput = document.getElementById("search-input");
+
+// Elementos Modal Ferramenta
 const toolModal = document.getElementById("tool-modal");
 const modalTitle = document.getElementById("modal-title");
 const toolForm = document.getElementById("tool-form");
@@ -18,21 +20,34 @@ const addToolBtn = document.getElementById("add-tool-btn");
 const saveBtn = document.getElementById("save-btn");
 const cancelBtn = document.getElementById("cancel-btn");
 const closeBtn = document.querySelector(".close-btn");
+
+// Elementos Modal Detalhes Local
+const locationModal = document.getElementById("location-modal");
+const locationDetailsBody = document.getElementById("location-details-body");
+const closeLocationBtn = document.querySelector(".close-location-btn");
+const closeLocationBtnFooter = document.getElementById("close-location-btn");
+
 const notification = document.getElementById("notification");
 const loadingOverlay = document.getElementById("loading-overlay");
 
-// Constantes da API Java (porta 8080) - USARÃO TOKEN
+// ==================== CONSTANTES DA API ====================
+// Porta 8080 (Java/Spring)
 const Ferramenta_GET = "http://localhost:8080/ferramentas/buscar";
 const Ferramenta_POST = "http://localhost:8080/ferramentas/novaFerramenta";
 const Ferramenta_PUT = "http://localhost:8080/ferramentas/editar";
 const Ferramenta_DELETE = "http://localhost:8080/ferramentas/deletar";
+const Locais_GET = "http://localhost:8080/locais/buscar";
+const Location_Details_GET = "http://localhost:8080/detalhes/ferramentas/local";
+
+// Porta 5000 (Python/Flask)
 const Ferramenta_GET_BY_QRCODE =
   "http://localhost:5000/ferramentas/buscarPorQRCode";
-const locais_get = "http://localhost:8080/locais/buscar";
-
 const QR_SCAN_API = "http://localhost:5000/read-qrcode";
 
-// QR Scanner - Modal e elementos
+// Cache de locais (fundamental para resolver o problema do ID)
+let locaisCache = [];
+
+// ==================== CONFIGURAÇÃO DO SCANNER QR CODE ====================
 const qrScannerModal = document.createElement("div");
 qrScannerModal.innerHTML = `
 <div id="qr-scanner-modal" class="modal">
@@ -54,19 +69,14 @@ qrScannerModal.innerHTML = `
   </div>
 </div>
 `;
-
 document.body.appendChild(qrScannerModal.firstElementChild);
 
-// Variáveis do scanner
 const videoElement = document.getElementById("qr-video");
 const scanResultElement = document.getElementById("scan-result");
 const canvasElement = document.getElementById("qr-canvas");
 const context = canvasElement.getContext("2d");
 let qrStream = null;
 let isScanning = false;
-
-// Cache de locais
-let locaisCache = [];
 
 // ==================== FUNÇÕES DE AUTENTICAÇÃO ====================
 
@@ -76,7 +86,7 @@ function getAuthHeaders(includeContentType = false) {
   if (!token) {
     alert("Sessão expirada ou usuário não logado.");
     window.location.href = "../Login/LoginProfessor.html";
-    throw new Error("Token não encontrado. Redirecionando para login.");
+    throw new Error("Token não encontrado.");
   }
 
   const headers = {
@@ -92,27 +102,21 @@ function getAuthHeaders(includeContentType = false) {
 
 async function handleResponseError(response) {
   if (response.status === 401 || response.status === 403) {
-    alert("Acesso negado. Sua sessão pode ter expirado. Faça login novamente.");
+    alert("Acesso negado. Faça login novamente.");
     window.location.href = "../LoginProf/LoginProf.html";
-    throw new Error("Acesso não autorizado (401/403).");
+    throw new Error("Acesso não autorizado.");
   }
-
   const errorText = await response.text();
-  throw new Error(
-    `Erro na requisição: ${errorText} (Status: ${response.status})`
-  );
+  throw new Error(`Erro: ${errorText} (Status: ${response.status})`);
 }
 
-// ==================== FUNÇÕES PRINCIPAIS ====================
+// ==================== UTILITÁRIOS ====================
 
 function showNotification(message, isSuccess = true) {
   notification.textContent = message;
   notification.className = `notification ${isSuccess ? "success" : "error"}`;
   notification.classList.add("show");
-
-  setTimeout(() => {
-    notification.classList.remove("show");
-  }, 3000);
+  setTimeout(() => notification.classList.remove("show"), 3000);
 }
 
 function showLoading(show) {
@@ -123,7 +127,6 @@ function setupQRCodeField() {
   const qrCodeField = document.getElementById("tool-qrcode");
   if (qrCodeField && !document.getElementById("start-scan-btn")) {
     const qrContainer = qrCodeField.parentElement;
-
     if (qrContainer && qrContainer.className.includes("form-group")) {
       qrContainer.innerHTML = `
             <label for="tool-qrcode">QR Code</label>
@@ -141,32 +144,92 @@ function setupQRCodeField() {
   }
 }
 
+// ==================== DETALHES DO LOCAL ====================
+
+async function openLocationDetails(localId) {
+  if (!localId || localId === "undefined" || localId === "null") {
+    showNotification(
+      "Erro: Não foi possível identificar o ID do local.",
+      false
+    );
+    return;
+  }
+
+  locationModal.style.display = "flex";
+  locationDetailsBody.innerHTML = `
+    <div style="text-align: center; padding: 20px;">
+        <div class="loading"></div>
+        <p>Buscando detalhes do local...</p>
+    </div>`;
+
+  try {
+    const response = await fetch(`${Location_Details_GET}/${localId}`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) await handleResponseError(response);
+
+    const data = await response.json();
+    const detalhes = Array.isArray(data) ? data[0] : data;
+
+    if (!detalhes) {
+      locationDetailsBody.innerHTML = `<div style="padding: 20px; text-align: center;">Nenhum detalhe encontrado.</div>`;
+      return;
+    }
+
+    locationDetailsBody.innerHTML = `
+      <div class="detail-group">
+        <h3><i class="fas fa-map-marker-alt"></i> ${
+          detalhes.nomeLocal || detalhes.nomeEspaco || "Local"
+        }</h3>
+        
+        <div class="info-row">
+            <strong><i class="fas fa-cube"></i> Armário:</strong> 
+            <span>${detalhes.armario || "N/A"}</span>
+        </div>
+        
+        <div class="info-row">
+            <strong><i class="fas fa-layer-group"></i> Prateleira:</strong> 
+            <span>${detalhes.prateleira || "N/A"}</span>
+        </div>
+
+        <div class="info-row">
+            <strong><i class="fas fa-box-open"></i> Estojo/Caixa:</strong> 
+            <span>${detalhes.estojo || "N/A"}</span>
+        </div>
+        
+        <div class="info-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee;">
+             <small style="color: #666;">ID do Local: ${
+               detalhes.id || localId
+             }</small>
+        </div>
+      </div>
+    `;
+  } catch (error) {
+    console.error("Erro detalhes:", error);
+    locationDetailsBody.innerHTML = `<p style="color:red; text-align:center;">Erro ao carregar detalhes: ${error.message}</p>`;
+  }
+}
+
+function closeLocationModal() {
+  locationModal.style.display = "none";
+}
+
+// ==================== SCANNER QR CODE ====================
+
 async function fetchToolDataByQRCode(qrCode) {
   try {
     showLoading(true);
-
     const response = await fetch(`${Ferramenta_GET_BY_QRCODE}/${qrCode}`);
 
     if (response.status === 404) {
-      showNotification(
-        "Ferramenta não encontrada. Preencha os dados para cadastrar.",
-        false
-      );
-
-      toolId.value = "";
-      toolName.value = "";
-      toolBrand.value = "";
-      toolModel.value = "";
-      toolEstado.value = "";
+      showNotification("Ferramenta não encontrada.", false);
+      toolForm.reset();
       toolDisponibilidade.checked = true;
-      toolDescricao.value = "";
-      toolIdLocal.value = "";
-
       modalTitle.textContent = "Cadastrar Nova Ferramenta";
-      toolName.focus();
     } else if (response.ok) {
       const ferramenta = await response.json();
-
       toolId.value = ferramenta.id;
       toolName.value = ferramenta.nome;
       toolBrand.value = ferramenta.marca;
@@ -174,20 +237,18 @@ async function fetchToolDataByQRCode(qrCode) {
       toolEstado.value = ferramenta.estado;
       toolDisponibilidade.checked = ferramenta.disponibilidade;
       toolDescricao.value = ferramenta.descricao || "";
-      toolIdLocal.value = ferramenta.id_local;
+
+      // Tenta preencher o select do local
+      const idLocal =
+        ferramenta.id_local || (ferramenta.local ? ferramenta.local.id : "");
+      toolIdLocal.value = idLocal;
 
       modalTitle.textContent = "Editar Ferramenta";
-      showNotification("Dados da ferramenta carregados automaticamente!", true);
-    } else {
-      const errorText = await response.text();
-      throw new Error(`Erro HTTP ${response.status}: ${errorText}`);
+      showNotification("Dados carregados via QR Code!", true);
     }
   } catch (error) {
-    console.error("Erro ao buscar dados da ferramenta:", error);
-    showNotification(
-      `Erro ao carregar dados da ferramenta: ${error.message}`,
-      false
-    );
+    console.error(error);
+    showNotification("Erro ao processar QR Code.", false);
   } finally {
     showLoading(false);
   }
@@ -195,207 +256,84 @@ async function fetchToolDataByQRCode(qrCode) {
 
 async function initializeQRScanner() {
   try {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      throw new Error("Câmera não suportada neste dispositivo");
-    }
+    if (!navigator.mediaDevices?.getUserMedia)
+      throw new Error("Sem acesso à câmera.");
 
-    scanResultElement.textContent = "Solicitando permissão da câmera...";
-
-    const constraints = {
-      video: {
-        facingMode: "environment",
-        width: { ideal: 1280 },
-        height: { ideal: 720 },
-      },
-    };
-
-    qrStream = await navigator.mediaDevices.getUserMedia(constraints);
-    videoElement.srcObject = qrStream;
-
-    await new Promise((resolve) => {
-      videoElement.onloadedmetadata = () => {
-        videoElement
-          .play()
-          .then(resolve)
-          .catch((error) => {
-            console.error("Erro ao reproduzir vídeo:", error);
-            resolve();
-          });
-      };
+    scanResultElement.textContent = "Solicitando câmera...";
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" },
     });
+    qrStream = stream;
+    videoElement.srcObject = stream;
 
-    scanResultElement.textContent = "Câmera ativa. Procurando QR Code...";
-    scanResultElement.style.color = "var(--primary-color)";
-
+    await videoElement.play();
+    scanResultElement.textContent = "Procurando QR Code...";
     startAutoScan();
   } catch (error) {
-    console.error("Erro ao acessar câmera:", error);
-
-    if (
-      error.name === "OverconstrainedError" ||
-      error.name === "ConstraintNotSatisfiedError"
-    ) {
-      try {
-        scanResultElement.textContent = "Tentando configuração alternativa...";
-        qrStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
-        });
-        videoElement.srcObject = qrStream;
-        await videoElement.play();
-        startAutoScan();
-        return;
-      } catch (fallbackError) {
-        console.error("Configuração alternativa também falhou:", fallbackError);
-      }
-    }
-
     scanResultElement.textContent = "Erro: " + error.message;
-    scanResultElement.style.color = "var(--accent-color)";
   }
 }
 
 function startAutoScan() {
   if (isScanning) return;
-
   isScanning = true;
-  let scanAttempts = 0;
 
-  const scanFrame = async () => {
-    if (
-      !isScanning ||
-      !videoElement.videoWidth ||
-      videoElement.readyState !== videoElement.HAVE_ENOUGH_DATA
-    ) {
-      if (isScanning) {
-        setTimeout(scanFrame, 500);
-      }
+  const scan = async () => {
+    if (!isScanning || !videoElement.videoWidth) {
+      if (isScanning) requestAnimationFrame(scan);
       return;
     }
 
-    try {
-      scanAttempts++;
+    canvasElement.width = videoElement.videoWidth;
+    canvasElement.height = videoElement.videoHeight;
+    context.drawImage(videoElement, 0, 0);
 
-      canvasElement.width = videoElement.videoWidth;
-      canvasElement.height = videoElement.videoHeight;
-      context.drawImage(
-        videoElement,
-        0,
-        0,
-        canvasElement.width,
-        canvasElement.height
-      );
+    canvasElement.toBlob(async (blob) => {
+      if (!blob) return;
+      try {
+        const fd = new FormData();
+        fd.append("image", blob);
 
-      canvasElement.toBlob(async (blob) => {
-        if (!blob || !isScanning) return;
-
-        try {
-          const formData = new FormData();
-          formData.append("image", blob, "qrcode.png");
-
-          console.log(
-            `Tentativa ${scanAttempts}: Enviando imagem para escaneamento...`
-          );
-
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-          const response = await fetch(QR_SCAN_API, {
-            method: "POST",
-            body: formData,
-            signal: controller.signal,
-          });
-
-          clearTimeout(timeoutId);
-
-          if (!response.ok) {
-            throw new Error(
-              `Erro HTTP ${response.status}: ${await response.text()}`
-            );
-          }
-
-          const result = await response.json();
-          console.log("Resposta do backend:", result);
-
-          if (result.success && result.qrCode) {
-            const qrCodeValue = result.qrCode;
-            document.getElementById("tool-qrcode").value = qrCodeValue;
-
-            await fetchToolDataByQRCode(qrCodeValue);
-
-            showNotification("QR Code escaneado com sucesso!", true);
+        const res = await fetch(QR_SCAN_API, { method: "POST", body: fd });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.qrCode) {
+            document.getElementById("tool-qrcode").value = json.qrCode;
+            await fetchToolDataByQRCode(json.qrCode);
             closeQRScanner();
-          } else if (scanAttempts % 5 === 0) {
-            scanResultElement.textContent =
-              result.error || "Procurando QR Code...";
-          }
-        } catch (error) {
-          console.error("Erro ao escanear QR Code:", error);
-          if (scanAttempts % 5 === 0) {
-            if (error.name === "AbortError") {
-              scanResultElement.textContent = "Timeout: Servidor não respondeu";
-            } else {
-              scanResultElement.textContent = "Erro de conexão com o servidor";
-            }
-            scanResultElement.style.color = "var(--accent-color)";
           }
         }
-      }, "image/png");
-    } catch (error) {
-      console.error("Erro na captura:", error);
-    }
+      } catch (e) {}
+    });
 
-    if (isScanning) {
-      setTimeout(scanFrame, 1000);
-    }
+    if (isScanning) setTimeout(scan, 800);
   };
-
-  scanFrame();
+  scan();
 }
 
 function openQRScanner() {
-  const modal = document.getElementById("qr-scanner-modal");
-  modal.style.display = "flex";
-  scanResultElement.textContent = "Iniciando câmera...";
-  scanResultElement.style.color = "inherit";
-
-  if (qrStream) {
-    qrStream.getTracks().forEach((track) => track.stop());
-    qrStream = null;
-  }
-  videoElement.srcObject = null;
-
+  document.getElementById("qr-scanner-modal").style.display = "flex";
   initializeQRScanner();
 }
 
 function closeQRScanner() {
-  const modal = document.getElementById("qr-scanner-modal");
-  modal.style.display = "none";
-
+  document.getElementById("qr-scanner-modal").style.display = "none";
   isScanning = false;
-
-  if (qrStream) {
-    qrStream.getTracks().forEach((track) => track.stop());
-    qrStream = null;
-  }
-  videoElement.srcObject = null;
+  if (qrStream) qrStream.getTracks().forEach((t) => t.stop());
 }
 
-// ==================== CORREÇÃO DOS EVENT LISTENERS ====================
-
+// === ESTA É A FUNÇÃO QUE ESTAVA FALTANDO ===
 function setupScannerEventListeners() {
-  // Botão de fechar (X) do modal do scanner
   const closeScanBtn = document.querySelector(".close-scan-btn");
   if (closeScanBtn) {
     closeScanBtn.addEventListener("click", closeQRScanner);
   }
 
-  // Botão de cancelar do modal do scanner
   const cancelScanBtn = document.getElementById("cancel-scan-btn");
   if (cancelScanBtn) {
     cancelScanBtn.addEventListener("click", closeQRScanner);
   }
 
-  // Fechar modal do scanner ao clicar fora
   const scannerModal = document.getElementById("qr-scanner-modal");
   if (scannerModal) {
     scannerModal.addEventListener("click", function (e) {
@@ -406,27 +344,19 @@ function setupScannerEventListeners() {
   }
 }
 
+// ==================== CRUD E LÓGICA PRINCIPAL ====================
+
 async function loadLocais() {
   try {
-    toolIdLocal.innerHTML =
-      '<option value="">Carregando locais... <span class="loading"></span></option>';
+    toolIdLocal.innerHTML = '<option value="">Carregando...</option>';
+    const response = await fetch(Locais_GET, { headers: getAuthHeaders() });
+    if (!response.ok) throw new Error("Falha ao carregar locais");
 
-    const response = await fetch(locais_get, {
-      method: "GET",
-      headers: getAuthHeaders(),
-    });
-
-    if (!response.ok) await handleResponseError(response);
-
-    const locais = await response.json();
-    locaisCache = locais;
-    return locais;
+    locaisCache = await response.json();
+    return locaisCache;
   } catch (error) {
-    console.error("Erro ao carregar locais:", error);
-    toolIdLocal.innerHTML = '<option value="">Erro ao carregar locais</option>';
-    if (!error.message.includes("Token")) {
-      showNotification("Erro ao carregar locais", false);
-    }
+    console.error(error);
+    toolIdLocal.innerHTML = '<option value="">Erro ao carregar</option>';
     return [];
   }
 }
@@ -434,248 +364,195 @@ async function loadLocais() {
 function fillLocaisSelect() {
   toolIdLocal.innerHTML = '<option value="">Selecione um local...</option>';
   locaisCache.forEach((local) => {
-    const option = document.createElement("option");
-    option.value = local.id;
-    option.textContent = local.nomeEspaco || `Local ID ${local.id}`;
-    toolIdLocal.appendChild(option);
+    const opt = document.createElement("option");
+    opt.value = local.id;
+    opt.textContent = local.nomeEspaco || local.nome || `Local ID ${local.id}`;
+    toolIdLocal.appendChild(opt);
   });
 }
 
 async function loadFerramentas() {
-  try {
-    const response = await fetch(Ferramenta_GET, {
-      method: "GET",
-      headers: getAuthHeaders(),
-    });
-
-    if (!response.ok) await handleResponseError(response);
-
-    return await response.json();
-  } catch (error) {
-    console.error("Erro ao carregar ferramentas:", error);
-    if (!error.message.includes("Token")) {
-      showNotification("Erro ao carregar ferramentas", false);
-    }
-    return [];
-  }
+  const response = await fetch(Ferramenta_GET, { headers: getAuthHeaders() });
+  return await response.json();
 }
 
-function createToolCard(ferramenta, nomeLocal) {
+// Função auxiliar para encontrar ID do local pelo nome
+function encontrarIdLocalPorNome(nomeLocal) {
+  if (!nomeLocal) return null;
+  if (locaisCache.length === 0) return null;
+
+  // Procura no cache de locais um que tenha o mesmo nome
+  const localEncontrado = locaisCache.find(
+    (l) =>
+      (l.nomeEspaco &&
+        l.nomeEspaco.trim().toLowerCase() === nomeLocal.trim().toLowerCase()) ||
+      (l.nome && l.nome.trim().toLowerCase() === nomeLocal.trim().toLowerCase())
+  );
+
+  return localEncontrado ? localEncontrado.id : null;
+}
+
+function createToolCard(ferramenta, nomeLocal, idLocalReal) {
   const card = document.createElement("div");
   card.className = "tool-card";
-
   card.innerHTML = `
         <div class="card-header">
           <div class="card-title">${ferramenta.nome}</div>
           <div class="card-badge">ID: ${ferramenta.id}</div>
         </div>
-        
         <div class="card-details">
-          <div class="card-detail">
-            <span class="detail-label">Marca:</span>
-            <span class="detail-value">${ferramenta.marca}</span>
-          </div>
-          
-          <div class="card-detail">
-            <span class="detail-label">Modelo:</span>
-            <span class="detail-value">${ferramenta.modelo}</span>
-          </div>
-          
-          <div class="card-detail">
-            <span class="detail-label">QR Code:</span>
-            <span class="detail-value">${ferramenta.qrcode || "N/A"}</span>
-          </div>
-          
-          <div class="card-detail">
-            <span class="detail-label">Estado:</span>
-            <span class="detail-value">${ferramenta.estado}</span>
-          </div>
-          
-          <div class="card-detail">
-            <span class="detail-label">Disponível:</span>
-            <span class="detail-value ${
-              ferramenta.disponibilidade
-                ? "status-available"
-                : "status-unavailable"
-            }">
-              ${ferramenta.disponibilidade ? "Sim" : "Não"}
-            </span>
-          </div>
-          
-          <div class="card-detail">
-            <span class="detail-label">Local:</span>
-            <span class="detail-value">${nomeLocal}</span>
-          </div>
-          
-          <div class="card-detail" style="grid-column: span 2;">
-            <span class="detail-label">Descrição:</span>
-            <span class="detail-value">
-              ${
-                ferramenta.descricao
-                  ? ferramenta.descricao.substring(0, 50) +
-                    (ferramenta.descricao.length > 50 ? "..." : "")
-                  : "N/A"
-              }
-            </span>
-          </div>
+          <div class="card-detail"><span class="detail-label">Marca:</span><span class="detail-value">${
+            ferramenta.marca
+          }</span></div>
+          <div class="card-detail"><span class="detail-label">Modelo:</span><span class="detail-value">${
+            ferramenta.modelo
+          }</span></div>
+          <div class="card-detail"><span class="detail-label">Local:</span><span class="detail-value">${nomeLocal}</span></div>
+          <div class="card-detail"><span class="detail-label">Disp:</span><span class="detail-value ${
+            ferramenta.disponibilidade
+              ? "status-available"
+              : "status-unavailable"
+          }">${ferramenta.disponibilidade ? "Sim" : "Não"}</span></div>
         </div>
-        
         <div class="card-actions">
-          <button class="btn-action btn-edit" data-id="${ferramenta.id}">
-            <i class="fas fa-edit"></i> Editar
-          </button>
-          <button class="btn-action btn-delete" data-id="${ferramenta.id}">
-            <i class="fas fa-trash-alt"></i> Excluir
-          </button>
+           <button class="btn-action btn-details" data-local-id="${idLocalReal}"><i class="fas fa-info-circle"></i> Detalhes</button>
+           <button class="btn-action btn-edit" data-id="${
+             ferramenta.id
+           }"><i class="fas fa-edit"></i> Editar</button>
+           <button class="btn-action btn-delete" data-id="${
+             ferramenta.id
+           }"><i class="fas fa-trash-alt"></i> Excluir</button>
         </div>
-      `;
-
+    `;
   return card;
 }
 
 async function loadToolsTable() {
   showLoading(true);
-
   try {
+    // 1. Carrega Ferramentas
     const ferramentas = await loadFerramentas();
+
+    // 2. Garante que locais estão carregados para fazer a busca
+    if (locaisCache.length === 0) {
+      await loadLocais();
+    }
+
     toolsTableBody.innerHTML = "";
     toolsCards.innerHTML = "";
 
     if (ferramentas.length === 0) {
-      const emptyHtml = `
-            <td colspan="10" style="text-align: center; padding: 30px;">
-              <i class="fas fa-info-circle" style="font-size: 3rem; color: #6c757d; margin-bottom: 15px;"></i>
-              <p>Nenhuma ferramenta cadastrada</p>
-            </td>
-          `;
-      toolsTableBody.innerHTML = `<tr>${emptyHtml}</tr>`;
-
-      toolsCards.innerHTML = `
-            <div class="tool-card" style="text-align: center; padding: 30px;">
-              ${emptyHtml.replace(/<td[^>]*>|<\/td>/g, "")} 
-            </div>
-          `;
+      toolsTableBody.innerHTML = `<tr><td colspan="10" style="text-align:center;">Nenhuma ferramenta.</td></tr>`;
       return;
     }
 
     ferramentas.forEach((ferramenta) => {
-      const nomeLocal =
-        ferramenta.nomeLocal ||
-        locaisCache.find((l) => l.id == ferramenta.id_local)?.nomeEspaco ||
-        "N/A";
+      // Tenta pegar o ID direto. Se não tiver, busca na lista de locais pelo NOME
+      let idLocalReal = ferramenta.id_local || ferramenta.localId;
+
+      if (!idLocalReal && ferramenta.nomeLocal) {
+        idLocalReal = encontrarIdLocalPorNome(ferramenta.nomeLocal);
+      }
+
+      // Nome para exibição
+      const nomeLocal = ferramenta.nomeLocal || "N/A";
 
       const row = document.createElement("tr");
-
       row.innerHTML = `
             <td>${ferramenta.id}</td>
             <td>${ferramenta.nome}</td>
             <td>${ferramenta.marca}</td>
             <td>${ferramenta.modelo}</td>
-            <td>${ferramenta.qrcode || "N/A"}</td>
+            <td>${ferramenta.qrcode || "-"}</td>
             <td>${ferramenta.estado}</td>
             <td class="${
               ferramenta.disponibilidade
                 ? "status-available"
                 : "status-unavailable"
-            }">
-              ${ferramenta.disponibilidade ? "Sim" : "Não"}
-            </td>
+            }">${ferramenta.disponibilidade ? "Sim" : "Não"}</td>
             <td>${
               ferramenta.descricao
-                ? ferramenta.descricao.substring(0, 20) +
-                  (ferramenta.descricao.length > 20 ? "..." : "")
-                : "N/A"
+                ? ferramenta.descricao.substring(0, 15) + "..."
+                : "-"
             }</td>
             <td>${nomeLocal}</td> 
             <td class="actions">
-              <button class="btn-action btn-edit" data-id="${ferramenta.id}">
-                <i class="fas fa-edit"></i> Editar
-              </button>
-              <button class="btn-action btn-delete" data-id="${ferramenta.id}">
-                <i class="fas fa-trash-alt"></i> Excluir
-              </button>
+               <button class="btn-action btn-details" data-local-id="${idLocalReal}"><i class="fas fa-info-circle"></i></button>
+               <button class="btn-action btn-edit" data-id="${
+                 ferramenta.id
+               }"><i class="fas fa-edit"></i></button>
+               <button class="btn-action btn-delete" data-id="${
+                 ferramenta.id
+               }"><i class="fas fa-trash-alt"></i></button>
             </td>
           `;
       toolsTableBody.appendChild(row);
-
-      const card = createToolCard(ferramenta, nomeLocal);
-      toolsCards.appendChild(card);
+      toolsCards.appendChild(
+        createToolCard(ferramenta, nomeLocal, idLocalReal)
+      );
     });
 
-    document.querySelectorAll(".btn-edit").forEach((btn) => {
+    // Event Listeners
+    document.querySelectorAll(".btn-details").forEach((btn) =>
       btn.addEventListener("click", function () {
-        const id = this.getAttribute("data-id");
-        openEditToolModal(id);
-      });
-    });
+        const id = this.getAttribute("data-local-id");
+        if (id && id !== "null" && id !== "undefined") {
+          openLocationDetails(id);
+        } else {
+          showNotification("Local não encontrado no sistema.", false);
+        }
+      })
+    );
 
-    document.querySelectorAll(".btn-delete").forEach((btn) => {
+    document.querySelectorAll(".btn-edit").forEach((btn) =>
       btn.addEventListener("click", function () {
-        const id = this.getAttribute("data-id");
-        deleteTool(id);
-      });
-    });
-
-    document.querySelectorAll(".card-edit").forEach((btn) => {
+        openEditToolModal(this.getAttribute("data-id"));
+      })
+    );
+    document.querySelectorAll(".btn-delete").forEach((btn) =>
       btn.addEventListener("click", function () {
-        const id = this.getAttribute("data-id");
-        openEditToolModal(id);
-      });
-    });
-
-    document.querySelectorAll(".card-delete").forEach((btn) => {
-      btn.addEventListener("click", function () {
-        const id = this.getAttribute("data-id");
-        deleteTool(id);
-      });
-    });
+        deleteTool(this.getAttribute("data-id"));
+      })
+    );
   } catch (error) {
-    console.error("Erro ao carregar ferramentas:", error);
+    console.error(error);
   } finally {
     showLoading(false);
   }
 }
 
 function searchTools() {
-  const searchTerm = searchInput.value.toLowerCase();
-
-  const rows = toolsTableBody.querySelectorAll("tr");
-  rows.forEach((row) => {
-    const text = row.textContent.toLowerCase();
-    row.style.display = text.includes(searchTerm) ? "" : "none";
-  });
-
-  const cards = toolsCards.querySelectorAll(".tool-card");
-  cards.forEach((card) => {
-    const text = card.textContent.toLowerCase();
-    card.style.display = text.includes(searchTerm) ? "" : "none";
-  });
+  const term = searchInput.value.toLowerCase();
+  toolsTableBody
+    .querySelectorAll("tr")
+    .forEach(
+      (r) =>
+        (r.style.display = r.textContent.toLowerCase().includes(term)
+          ? ""
+          : "none")
+    );
 }
 
 async function openAddToolModal() {
   toolForm.reset();
   toolId.value = "";
-  toolDisponibilidade.checked = true;
-  modalTitle.textContent = "Adicionar Nova Ferramenta";
+  modalTitle.textContent = "Adicionar Ferramenta";
   toolModal.style.display = "flex";
-
   setupQRCodeField();
+  if (locaisCache.length === 0) await loadLocais();
   fillLocaisSelect();
 }
 
 async function openEditToolModal(id) {
   try {
     showLoading(true);
-    const response = await fetch(`${Ferramenta_GET}/${id}`, {
-      method: "GET",
+    const res = await fetch(`${Ferramenta_GET}/${id}`, {
       headers: getAuthHeaders(),
     });
-
-    if (!response.ok) await handleResponseError(response);
-
-    const ferramenta = await response.json();
+    const ferramenta = await res.json();
 
     setupQRCodeField();
+    if (locaisCache.length === 0) await loadLocais();
     fillLocaisSelect();
 
     toolId.value = ferramenta.id;
@@ -686,18 +563,18 @@ async function openEditToolModal(id) {
     toolEstado.value = ferramenta.estado;
     toolDisponibilidade.checked = ferramenta.disponibilidade;
     toolDescricao.value = ferramenta.descricao || "";
-    toolIdLocal.value = ferramenta.id_local;
+
+    // Tenta setar o select do local
+    let idLocal = ferramenta.id_local || ferramenta.localId;
+    if (!idLocal && ferramenta.nomeLocal) {
+      idLocal = encontrarIdLocalPorNome(ferramenta.nomeLocal);
+    }
+    toolIdLocal.value = idLocal || "";
 
     modalTitle.textContent = "Editar Ferramenta";
     toolModal.style.display = "flex";
-  } catch (error) {
-    console.error("Erro ao carregar ferramenta:", error);
-    if (!error.message.includes("Token")) {
-      showNotification(
-        "Não foi possível carregar os dados da ferramenta",
-        false
-      );
-    }
+  } catch (e) {
+    console.error(e);
   } finally {
     showLoading(false);
   }
@@ -712,88 +589,67 @@ async function saveTool() {
     !toolName.value ||
     !toolBrand.value ||
     !toolModel.value ||
-    !toolEstado.value ||
     !toolIdLocal.value
   ) {
-    showNotification("Preencha todos os campos obrigatórios!", false);
+    showNotification("Preencha os campos obrigatórios.", false);
     return;
   }
 
-  const qrcodeValue = document.getElementById("tool-qrcode").value;
-
-  const toolData = {
+  const data = {
     nome: toolName.value,
     marca: toolBrand.value,
     modelo: toolModel.value,
-    qrcode: qrcodeValue,
+    qrcode: document.getElementById("tool-qrcode").value,
     estado: toolEstado.value,
     disponibilidade: toolDisponibilidade.checked,
-    descricao: toolDescricao.value || null,
+    descricao: toolDescricao.value,
     id_local: toolIdLocal.value,
   };
 
   try {
     showLoading(true);
-    let response;
     const method = toolId.value ? "PUT" : "POST";
     const url = toolId.value
       ? `${Ferramenta_PUT}/${toolId.value}`
       : Ferramenta_POST;
 
-    response = await fetch(url, {
+    const res = await fetch(url, {
       method: method,
       headers: getAuthHeaders(true),
-      body: JSON.stringify(toolData),
+      body: JSON.stringify(data),
     });
 
-    if (!response.ok) await handleResponseError(response);
+    if (!res.ok) await handleResponseError(res);
 
-    showNotification(
-      toolId.value
-        ? "Ferramenta atualizada com sucesso!"
-        : "Ferramenta cadastrada com sucesso!",
-      true
-    );
-    await loadToolsTable();
+    showNotification("Salvo com sucesso!", true);
     closeModal();
-  } catch (error) {
-    console.error("Erro ao salvar ferramenta:", error);
-    if (!error.message.includes("Token")) {
-      showNotification(`Erro ao salvar ferramenta: ${error.message}`, false);
-    }
+    loadToolsTable();
+  } catch (e) {
+    showNotification("Erro ao salvar: " + e.message, false);
   } finally {
     showLoading(false);
   }
 }
 
 async function deleteTool(id) {
-  if (confirm("Tem certeza que deseja excluir esta ferramenta?")) {
-    try {
-      showLoading(true);
-      const response = await fetch(`${Ferramenta_DELETE}/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeaders(),
-      });
-
-      if (!response.ok) await handleResponseError(response);
-
-      showNotification("Ferramenta excluída com sucesso!", true);
-      await loadToolsTable();
-    } catch (error) {
-      console.error("Erro ao excluir ferramenta:", error);
-      if (!error.message.includes("Token")) {
-        showNotification(
-          `Não foi possível excluir a ferramenta: ${error.message}`,
-          false
-        );
-      }
-    } finally {
-      showLoading(false);
-    }
+  if (!confirm("Excluir esta ferramenta?")) return;
+  try {
+    showLoading(true);
+    const res = await fetch(`${Ferramenta_DELETE}/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) await handleResponseError(res);
+    showNotification("Excluído com sucesso!", true);
+    loadToolsTable();
+  } catch (e) {
+    console.error(e);
+  } finally {
+    showLoading(false);
   }
 }
 
-// ==================== EVENT LISTENERS PRINCIPAIS ====================
+// ==================== INICIALIZAÇÃO ====================
 
 addToolBtn.addEventListener("click", openAddToolModal);
 saveBtn.addEventListener("click", saveTool);
@@ -801,80 +657,41 @@ cancelBtn.addEventListener("click", closeModal);
 closeBtn.addEventListener("click", closeModal);
 searchInput.addEventListener("input", searchTools);
 
+if (closeLocationBtn)
+  closeLocationBtn.addEventListener("click", closeLocationModal);
+if (closeLocationBtnFooter)
+  closeLocationBtnFooter.addEventListener("click", closeLocationModal);
+
 window.addEventListener("click", (e) => {
-  if (e.target === toolModal) {
-    closeModal();
-  }
+  if (e.target === toolModal) closeModal();
+  if (e.target === locationModal) closeLocationModal();
 });
 
-// ==================== INICIALIZAÇÃO ====================
-
-document.addEventListener("DOMContentLoaded", async function () {
-  // Configuração do tema dark mode
-  const themeToggleBtn = document.getElementById("theme-toggle-btn");
-  const body = document.body;
-
-  if (themeToggleBtn) {
-    const icon = themeToggleBtn.querySelector("i");
-
-    function aplicarTema(tema) {
-      if (tema === "dark") {
-        body.classList.add("dark-mode");
-        if (icon) {
-          icon.classList.remove("fa-moon");
-          icon.classList.add("fa-sun");
-        }
-      } else {
-        body.classList.remove("dark-mode");
-        if (icon) {
-          icon.classList.remove("fa-sun");
-          icon.classList.add("fa-moon");
-        }
-      }
-    }
-
-    const temaSalvo = localStorage.getItem("theme");
-
-    if (temaSalvo) {
-      aplicarTema(temaSalvo);
-    } else {
-      const prefereEscuro =
-        window.matchMedia &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches;
-      if (prefereEscuro) {
-        aplicarTema("dark");
-      } else {
-        aplicarTema("light");
-      }
-    }
-
-    themeToggleBtn.addEventListener("click", () => {
-      if (body.classList.contains("dark-mode")) {
-        aplicarTema("light");
-        localStorage.setItem("theme", "light");
-      } else {
-        aplicarTema("dark");
-        localStorage.setItem("theme", "dark");
-      }
+document.addEventListener("DOMContentLoaded", async () => {
+  // Dark Mode
+  const toggle = document.getElementById("theme-toggle-btn");
+  if (toggle) {
+    toggle.addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+      const isDark = document.body.classList.contains("dark-mode");
+      localStorage.setItem("theme", isDark ? "dark" : "light");
+      const i = toggle.querySelector("i");
+      if (i) i.className = isDark ? "fas fa-sun" : "fas fa-moon";
     });
+    if (localStorage.getItem("theme") === "dark") {
+      document.body.classList.add("dark-mode");
+      toggle.querySelector("i").className = "fas fa-sun";
+    }
   }
 
-  // Configuração inicial do sistema
-  showLoading(true);
-  try {
-    // CONFIGURAR OS EVENT LISTENERS DO SCANNER PRIMEIRO
-    setupScannerEventListeners();
+  setupScannerEventListeners();
 
-    setupQRCodeField();
-    await loadLocais();
+  // Carregamento Inicial
+  try {
+    await loadLocais(); // Carrega locais PRIMEIRO para ter o cache
     fillLocaisSelect();
-    await loadToolsTable();
-  } catch (error) {
-    console.error("Erro na inicialização:", error);
-    if (!error.message.includes("Token")) {
-      showNotification("Erro ao carregar dados iniciais", false);
-    }
-  } finally {
-    showLoading(false);
+    await loadToolsTable(); // Depois carrega ferramentas e faz o match
+  } catch (e) {
+    console.error("Erro inicialização:", e);
   }
 });

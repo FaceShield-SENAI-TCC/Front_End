@@ -19,6 +19,8 @@
   --cor-aviso: #f39c12;
   --cor-aviso-hover: #d35400;
   --cor-texto-botao: #ffffff;
+  --cor-info: #17a2b8;
+  --cor-info-hover: #138496;
 }
 
 body.dark-mode {
@@ -539,6 +541,44 @@ body {
 
 .btn-delete:hover {
   background-color: var(--cor-perigo-hover);
+}
+
+/* Novo botão de detalhes */
+.btn-details {
+  background-color: var(--cor-info);
+}
+
+.btn-details:hover {
+  background-color: var(--cor-info-hover);
+}
+
+/* Estilos do Modal de Detalhes */
+.detail-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.detail-group h3 {
+  color: var(--cor-primaria);
+  border-bottom: 2px solid var(--cor-borda);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dotted var(--cor-borda);
+}
+
+.info-row strong {
+  color: var(--cor-titulo);
+}
+
+.info-row span {
+  color: var(--cor-texto);
 }
 
 .checkbox-group {
